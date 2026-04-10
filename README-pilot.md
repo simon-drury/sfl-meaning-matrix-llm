@@ -21,7 +21,7 @@ Negative values indicate low activation or counter-pole.
 
 ## Matrix layout (all steps)
 
-```
+```text
 [ Ideational     Field  ]
 [ Interpersonal  Tenor  ]
 [ Textual        Mode   ]
@@ -53,7 +53,7 @@ SFL reading:
 - Tenor: informal, equal, familiar.
 - Mode: written simulating spoken; spontaneous, low planning.
 
-```
+```text
 M0 =
 [ Ideational: -0.7    Field: -0.5 ]
 [ Interpersonal: +0.8  Tenor: +0.9 ]
@@ -72,7 +72,7 @@ SFL reading:
 - Tenor: tenor stable; informal, directive softened by interrogative framing.
 - Mode: mode stable; spontaneous written.
 
-```
+```text
 Δ1 =
 [ Ideational: +0.1    Field: +0.2 ]
 [ Interpersonal: +0.1  Tenor:  0.0 ]
@@ -80,7 +80,7 @@ SFL reading:
 ```
 
 Cumulative state after Δ1:
-```
+```text
 M1 =
 [ Ideational: -0.6    Field: -0.3 ]
 [ Interpersonal: +0.9  Tenor: +0.9 ]
@@ -99,7 +99,7 @@ SFL reading:
 - Tenor: power differential momentarily invoked (requester/executor) but mitigated by surrounding politeness markers.
 - Mode: mode stable.
 
-```
+```text
 Δ2 =
 [ Ideational: +0.9    Field: +0.9 ]
 [ Interpersonal: +0.1  Tenor: -0.1 ]
@@ -107,7 +107,7 @@ SFL reading:
 ```
 
 Cumulative state after Δ2:
-```
+```text
 M2 =
 [ Ideational: +0.3    Field: +0.6 ]
 [ Interpersonal: +1.0  Tenor: +0.8 ]
@@ -126,7 +126,7 @@ SFL reading:
 - Tenor: warm; solidarity reinforced.
 - Mode: stable.
 
-```
+```text
 Δ3 =
 [ Ideational: +0.1    Field:  0.0 ]
 [ Interpersonal: -0.1  Tenor: +0.1 ]
@@ -145,7 +145,7 @@ SFL reading:
 - Tenor: warmth and appreciation; power now fully flattened.
 - Mode: stable.
 
-```
+```text
 Δ4 =
 [ Ideational: -0.3    Field:  0.0 ]
 [ Interpersonal: +0.1  Tenor: +0.2 ]
@@ -153,7 +153,7 @@ SFL reading:
 ```
 
 Final cumulative state:
-```
+```text
 M_final_EN =
 [ Ideational:  0.0    Field: +0.6 ]
 [ Interpersonal: +1.0  Tenor: +1.0 ]
@@ -172,7 +172,7 @@ Given M_final_EN:
 
 **Realized output:**
 
-```
+```text
 Hello, World!
 ```
 
@@ -187,9 +187,9 @@ The output lexical selection prioritizes:
 
 ## ES prompt: `buenos días, hoy es viernes. Esto es CNN. Hoy es un día importante para mí y para muchos.`
 
-### Segmentation into meaning units
+### Segmentación en unidades de significado
 
-| Step | Unit |
+| Paso | Unidad |
 |---|---|
 | M0 | `buenos días` |
 | Δ1 | `hoy es viernes` |
@@ -201,44 +201,44 @@ The output lexical selection prioritizes:
 
 ### M0 — `buenos días`
 
-SFL reading:
-- Ideational: relational process; phatic greeting. Minimal experiential content.
-- Interpersonal: high solidarity marker; formal-to-neutral register; respectful, inclusive.
-- Textual: discourse-opening; strong theme position.
-- Field: ambient; temporal/social.
-- Tenor: respectful but warm; power neutral; broad address.
-- Mode: spoken or scripted broadcast; semi-formal.
+Lectura desde la GSF:
+- Ideacional: proceso relacional; saludo fático. Contenido experiencial mínimo.
+- Interpersonal: marcador alto de solidaridad; registro formal a neutro; respetuoso e inclusivo.
+- Textual: apertura discursiva; posición temática fuerte.
+- Campo: ambiente temporal y social.
+- Tenor: respetuoso pero cálido; poder neutral; destinatario amplio.
+- Modo: habla oral o radiodifundida; semiformal.
 
-```
+```text
 M0 =
 [ Ideational: -0.6    Field: -0.3 ]
 [ Interpersonal: +0.8  Tenor: +0.7 ]
 [ Textual: +0.7       Mode: +0.4  ]
 ```
 
-Note: Mode value is positive here (+0.4) because this prompt simulates broadcast speech (planned, public, institutional), unlike the EN prompt which simulates spontaneous written interaction.
+Nota: el valor de modo es positivo aquí (+0.4) porque este prompt simula habla radiodifundida, planificada, pública e institucional, a diferencia del prompt en inglés, que simula interacción escrita espontánea.
 
 ---
 
 ### Δ1 — `hoy es viernes`
 
-SFL reading:
-- Ideational: relational identifying process; circumstance (time) + attribute. Experiential load rises slightly; factual proposition introduced.
-- Interpersonal: declarative mood; neutral assertion. No modalization. Solidarity maintained.
-- Textual: rhematic development; moves from greeting to informational content. Given/new structure: hoy (given: today, already established by buenos días) / es viernes (new: the specific day).
-- Field: temporal; daily orientation function typical of broadcast journalism.
-- Tenor: stable; institutional, public address.
-- Mode: stable; planned broadcast register.
+Lectura desde la GSF:
+- Ideacional: proceso relacional identificativo; circunstancia temporal más atributo. La carga experiencial aumenta ligeramente; aparece una proposición factual.
+- Interpersonal: modo declarativo; aseveración neutra. No hay modalización. La solidaridad se mantiene.
+- Textual: desarrollo remático; el discurso pasa del saludo al contenido informativo. Estructura dado/nuevo: hoy (dado, ya activado por buenos días) / es viernes (nuevo).
+- Campo: orientación temporal cotidiana, típica de la locución informativa.
+- Tenor: estable; dirección pública e institucional.
+- Modo: estable; registro radiodifundido y planificado.
 
-```
+```text
 Δ1 =
 [ Ideational: +0.4    Field: +0.2 ]
 [ Interpersonal:  0.0  Tenor:  0.0 ]
 [ Textual: +0.2       Mode:  0.0  ]
 ```
 
-Cumulative state after Δ1:
-```
+Estado acumulado tras Δ1:
+```text
 M1 =
 [ Ideational: -0.2    Field: -0.1 ]
 [ Interpersonal: +0.8  Tenor: +0.7 ]
@@ -249,25 +249,25 @@ M1 =
 
 ### Δ2 — `Esto es CNN`
 
-SFL reading:
-- Ideational: relational identifying process; nominal identification. Institutional identity explicitly realized.
-- Interpersonal: authoritative declaration; no hedging. Interpersonal force is now institutional rather than personal. Power differential invoked: broadcaster over audience.
-- Textual: identificatory clause; anchors the entire discourse in an institutional context. Textual organization shifts: everything said before is now framed as CNN output.
-- Field: broadcast journalism fully realized.
-- Tenor: institutional authority; formal; power differential increases.
-- Mode: fully planned, scripted broadcast; formal mode realized.
+Lectura desde la GSF:
+- Ideacional: proceso relacional identificativo; identificación nominal. La identidad institucional queda explicitada.
+- Interpersonal: declaración autoritativa; sin atenuación. La fuerza interpersonal pasa a ser institucional más que personal. Se activa una asimetría de poder entre emisor y audiencia.
+- Textual: cláusula identificativa; ancla todo el discurso en un contexto institucional. La organización textual cambia: todo lo anterior queda ahora enmarcado como salida de CNN.
+- Campo: periodismo radiodifundido plenamente realizado.
+- Tenor: autoridad institucional; formalidad; aumenta la diferencia de poder.
+- Modo: plenamente planificado, guionizado y radiodifundido; modo formal realizado.
 
-```
+```text
 Δ2 =
 [ Ideational: +0.5    Field: +0.8 ]
 [ Interpersonal: +0.2  Tenor: -0.3 ]
 [ Textual: +0.1       Mode: +0.3  ]
 ```
 
-Note: Tenor decreases toward the formal/asymmetric pole (negative direction on solidarity axis) as institutional identity is declared.
+Nota: el tenor desciende hacia el polo formal/asimétrico (dirección negativa en el eje de solidaridad) cuando se declara la identidad institucional.
 
-Cumulative state after Δ2:
-```
+Estado acumulado tras Δ2:
+```text
 M2 =
 [ Ideational: +0.3    Field: +0.7 ]
 [ Interpersonal: +1.0  Tenor: +0.4 ]
@@ -278,15 +278,15 @@ M2 =
 
 ### Δ3 — `Hoy es un día importante para mí`
 
-SFL reading:
-- Ideational: relational attributive process; experiential evaluation introduced (importante = attribute). Personal participant (mí) reintroduces the speaker as an individual within the institutional frame.
-- Interpersonal: evaluative assertion; appraisal (attitude: appreciation/affect). Personal voice reasserts within institutional register; unusual move in broadcast journalism — marks the day as personally significant. Slight vulnerability or gravitas introduced.
-- Textual: thematic restart (Hoy re-thematized); creates a new clause complex within the same move. Contrast between institutional identification (Δ2) and personal significance (Δ3).
-- Field: evaluative; affective; significance-marking.
-- Tenor: momentary shift from institutional authority to personal voice; solidarity with audience increased through personal disclosure.
-- Mode: stable; still planned, but personal affect introduced.
+Lectura desde la GSF:
+- Ideacional: proceso relacional atributivo; se introduce evaluación experiencial mediante importante como atributo. El participante personal mí reintroduce a la hablante o al hablante como individuo dentro del marco institucional.
+- Interpersonal: aseveración evaluativa; valoración y afecto. La voz personal reaparece dentro del registro institucional; es un movimiento poco habitual en el periodismo radiodifundido y marca el día como personalmente significativo. Se introduce una ligera vulnerabilidad o gravedad.
+- Textual: reinicio temático con Hoy; se abre un nuevo desarrollo clausular dentro del mismo movimiento. Se establece contraste entre la identificación institucional de Δ2 y la significación personal de Δ3.
+- Campo: evaluación, afectividad y marcación de relevancia.
+- Tenor: desplazamiento momentáneo desde la autoridad institucional hacia la voz personal; aumenta la solidaridad con la audiencia por medio de la autoimplicación.
+- Modo: estable; sigue siendo planificado, pero con irrupción de afecto personal.
 
-```
+```text
 Δ3 =
 [ Ideational: +0.2    Field: -0.1 ]
 [ Interpersonal: -0.1  Tenor: +0.3 ]
@@ -297,23 +297,23 @@ SFL reading:
 
 ### Δ4 — `y para muchos`
 
-SFL reading:
-- Ideational: extension of participant range; muchos = generalized beneficiary/experiencer. Broadens the significance from personal to collective.
-- Interpersonal: solidarity maximized; the speaker aligns with a collective; shared experience invoked. Appraisal broadens from individual to social.
-- Textual: additive cohesive conjunction (y); extends the previous clause. Minimal new textual organization.
-- Field: collective significance; historical or social moment implied.
-- Tenor: solidarity maximized; power differential dissolved in shared significance.
-- Mode: stable; brief, rhetorically weighted.
+Lectura desde la GSF:
+- Ideacional: ampliación del rango de participantes; muchos funciona como experimentador o beneficiario generalizado. La significación pasa de lo personal a lo colectivo.
+- Interpersonal: la solidaridad se maximiza; la voz se alinea con un colectivo y se invoca una experiencia compartida. La valoración se amplía de lo individual a lo social.
+- Textual: conjunción aditiva y; prolonga la cláusula anterior. La reorganización textual nueva es mínima.
+- Campo: significación colectiva; se insinúa un momento histórico o social.
+- Tenor: solidaridad máxima; la diferencia de poder se disuelve en la experiencia compartida.
+- Modo: estable; breve, pero retóricamente cargado.
 
-```
+```text
 Δ4 =
 [ Ideational: +0.2    Field: +0.1 ]
 [ Interpersonal: +0.1  Tenor: +0.2 ]
 [ Textual: +0.0       Mode:  0.0  ]
 ```
 
-Final cumulative state:
-```
+Estado final acumulado:
+```text
 M_final_ES =
 [ Ideational: +0.7    Field: +0.8 ]
 [ Interpersonal: +1.0  Tenor: +0.9 ]
@@ -322,32 +322,32 @@ M_final_ES =
 
 ---
 
-### Realization rule (ES)
+### Regla de realización (ES)
 
-Given M_final_ES:
-- Field +0.8 → broadcast journalism; institutional, public, Spanish-language.
-- Interpersonal +1.0, Tenor +0.9 → warm collective solidarity within formal institutional frame.
-- Ideational +0.7 → evaluative relational process; significance-marking content.
-- Mode +0.6 → planned, semi-formal broadcast speech; complete clause structures, measured pace.
+Dado M_final_ES:
+- Field +0.8 → periodismo radiodifundido; institucional, público y en español.
+- Interpersonal +1.0, Tenor +0.9 → solidaridad colectiva cálida dentro de un marco institucional formal.
+- Ideational +0.7 → proceso relacional evaluativo; contenido centrado en la significación.
+- Mode +0.6 → habla radiodifundida planificada y semiformal; cláusulas completas, ritmo medido.
 
-**Realized output (ES):**
+**Salida realizada (ES):**
 
-```
+```text
 Buenos días. Hoy es un día importante para todos. Seguimos en CNN.
 ```
 
-Realization selects:
-- greeting appropriate to field and tenor,
-- collective solidarity (todos rather than muchos — realizes the broadening move of Δ4),
-- institutional identification re-anchored at close (Seguimos en CNN — maintains field and mode),
-- declarative mood throughout (interpersonal: authoritative but warm),
-- register-appropriate brevity and cadence.
+La realización selecciona:
+- un saludo compatible con campo y tenor,
+- solidaridad colectiva (todos en lugar de muchos, realizando la ampliación de Δ4),
+- reanclaje institucional al cierre (Seguimos en CNN, manteniendo campo y modo),
+- modo declarativo en toda la secuencia,
+- brevedad y cadencia apropiadas al registro.
 
 ---
 
-**Post-render EN translation of ES output:**
+**Traducción posrender al inglés de la salida en español:**
 
-```
+```text
 Good morning. Today is an important day for everyone. We continue on CNN.
 ```
 
