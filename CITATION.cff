@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: "SFL Meaning Matrix LLM"
+message: >-
+  If you use this architecture, the semiotic manifold specification,
+  or any component of this repository in research, please cite as below.
+type: software
+authors:
+  - family-names: Drury
+    given-names: Simon
+repository-code: https://github.com/simon-drury/sfl-meaning-matrix-llm
+license: CC-BY-NC-4.0
+date-released: "2026-04-10"
+version: "0.1.0"
+abstract: >
+  A research architecture grounding transformer-based language models in
+  Systemic Functional Linguistics (SFL). The transformer operates on a
+  six-dimensional semiotic manifold encoding the SFL metafunctions
+  (ideational, field, interpersonal, tenor, textual, mode). Input and
+  output modality are handled at the edges; the transformer is
+  modality-blind. English and Spanish are co-equal first languages;
+  there is no translation step. The architecture supports persistent
+  context via a reference meaning state M_0 carried as structured
+  metadata across processes.
+keywords:
+  - systemic functional linguistics
+  - semiotic manifold
+  - large language models
+  - multimodal
+  - multilingual
+  - meaning-first architecture
+  - transformer
+  - SFL
