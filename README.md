@@ -18,7 +18,7 @@ Current LLMs map form to form: token sequence in, token sequence out.
 This architecture maps form to meaning to form:
 
 ```
-prompt (form)
+prompt (any modality)
      |
      v
 MeaningTrajectory in M   <-- semiotic manifold, 6 dimensions
@@ -27,13 +27,13 @@ MeaningTrajectory in M   <-- semiotic manifold, 6 dimensions
 W_adapt: R^6 -> R^d_model   <-- adapter layer
      |
      v
-[transformer forward pass]
+[transformer forward pass]  <-- modality-blind
      |
      v
 M_out in M               <-- output meaning state
      |
      v
-w* in V_L                <-- nearest lexical item in language L
+w* in V_L                <-- nearest item in realization space for modality L
 ```
 
 The manifold encodes the six metafunctions of SFL:
@@ -47,7 +47,7 @@ Every meaning state is a point in this space. Every utterance is a trajectory.
 ```bash
 git clone https://github.com/simon-drury/sfl-meaning-matrix-llm.git
 cd sfl-meaning-matrix-llm
-pip install numpy matplotlib
+pip install numpy matplotlib fastapi uvicorn
 
 # Run the geometry engine on the two pilot prompts
 python sfl_manifold.py
@@ -58,6 +58,10 @@ python sfl_realize.py
 # Produce all visualisation charts
 python sfl_visualise.py --no-anim       # static PNGs
 python sfl_visualise.py                 # + MP4 animation (needs ffmpeg)
+
+# Run the API
+uvicorn api:app --reload
+# -> http://127.0.0.1:8000/docs
 ```
 
 Charts are written to `output/`.
@@ -69,12 +73,13 @@ Charts are written to `output/`.
 | File | Stage | Detail |
 |---|---|---|
 | `MANIFOLD.md` | Theory | Full formal specification with LaTeX |
-| `sfl_matrix_engine.py` | Parse | Prompt → `MeaningTrajectory` |
+| `sfl_matrix_engine.py` | Parse | Prompt -> `MeaningTrajectory` |
 | `sfl_manifold.py` | Geometry | delta_t, kappa_t, phi_t, L_sp |
 | `sfl_attention.py` | Attention | SFL-weighted self-attention mask |
-| `sfl_adapter.py` | Adapter | W_adapt: R^6 → R^d_model |
-| `sfl_realize.py` | Realize | M_out → w* in V_L (EN and ES) |
+| `sfl_adapter.py` | Adapter | W_adapt: R^6 -> R^d_model |
+| `sfl_realize.py` | Realize | M_out -> w* in V_L (EN and ES) |
 | `sfl_visualise.py` | Visualise | 3D trajectory, step geometry, Gaussians, animation |
+| `api.py` | API | FastAPI wrapper, modality-first, full pipeline endpoint |
 
 Each module has two READMEs: English (`README-{module}.md`) and
 Spanish (`README-{module}-ES.md`).
@@ -176,6 +181,25 @@ Running `sfl_visualise.py` produces:
 
 ---
 
+## API
+
+See [`README-api.md`](README-api.md) for full endpoint documentation.
+
+```bash
+uvicorn api:app --reload
+# Interactive docs at http://127.0.0.1:8000/docs
+```
+
+| Endpoint | What it does |
+|---|---|
+| `GET /health` | Liveness check |
+| `GET /dims` | Manifold dimension names and ranges |
+| `POST /analyze` | Prompt -> full MeaningTrajectory with geometry |
+| `POST /realize` | M_out + modality -> nearest realization |
+| `POST /pipeline` | Prompt + modality -> trajectory + realization |
+
+---
+
 ## Formal theory
 
 See [`MANIFOLD.md`](MANIFOLD.md) for the full mathematical specification,
@@ -195,7 +219,7 @@ retrieval criterion.
 | Adapter layer W_adapt | complete |
 | Lexical realization V_L | complete (pilot vocabulary) |
 | Visualisation | complete |
-| api.py FastAPI wrapper | next |
+| FastAPI wrapper | complete |
 | Production vocabulary (corpus-learned) | future work |
 | Full transformer integration | future work |
 
