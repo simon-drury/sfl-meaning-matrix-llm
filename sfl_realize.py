@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 sfl_realize.py
-De-matrixising: meaning state -> lexical realization in language L.
+Instantiation: meaning state -> lexical realization in language L.
 
 The transformer outputs a meaning state M_out in the semiotic manifold M.
 This module retrieves the lexical items whose semiotic fingerprints
@@ -10,15 +10,18 @@ of a specified language L.
 
     w* = argmin_{w in V_L} || f_w - M_out ||_2
 
-The same M_out presented to V_EN and V_ES produces two independent,
-co-equal realizations. There is no translation step.
+The same M_out presented independently to V_EN, V_ES, V_PT, V_IT, V_ZH
+produces five co-equal realizations. There is no translation step.
+This is instantiation of semiotic potential into language-specific form.
 
 Vocabulary fingerprints
 -----------------------
 Each lexical item w in V_L is assigned a 6-dimensional semiotic
 fingerprint f_w in [-1, 1]^6. In production these are learned from
 SFL-annotated corpora. The pilot vocabulary below is hand-encoded
-for validation using the two iconic prompts.
+for validation using the iconic prompts.
+
+Languages: EN, ES, PT, IT, ZH
 
 Scalability
 -----------
@@ -36,9 +39,9 @@ DEFAULT_N_DIM = 6
 
 @dataclass
 class LexicalItem:
-    form: str                    # surface form, e.g. "print"
-    lang: str                    # ISO 639-1, e.g. "EN"
-    fingerprint: np.ndarray      # shape (n_dim,), values in [-1, 1]
+    form: str
+    lang: str
+    fingerprint: np.ndarray
 
 
 class VocabularySpace:
@@ -62,18 +65,9 @@ class VocabularySpace:
 
     def nearest(self, M_out: np.ndarray, k: int = 5) -> List[Tuple[str, float]]:
         """
-        Return the k lexical items closest to M_out by Euclidean distance.
+        Return the k semiotic units closest to M_out by Euclidean distance.
 
         w* = argmin_{w in V_L} || f_w - M_out ||_2
-
-        Parameters
-        ----------
-        M_out : np.ndarray, shape (n_dim,)
-        k     : number of candidates to return
-
-        Returns
-        -------
-        List of (form, distance) sorted ascending by distance.
         """
         assert M_out.shape == (self.n_dim,), (
             f"M_out shape {M_out.shape} does not match n_dim={self.n_dim}."
@@ -85,7 +79,6 @@ class VocabularySpace:
         return sorted(dists, key=lambda x: x[1])[:k]
 
     def realize(self, M_out: np.ndarray) -> str:
-        """Return the single best-matching lexical item for M_out."""
         return self.nearest(M_out, k=1)[0][0]
 
     def __len__(self):
@@ -96,28 +89,24 @@ class VocabularySpace:
 
 
 # ---------------------------------------------------------------------------
-# Pilot vocabularies -- hand-encoded semiotic fingerprints
+# Pilot vocabularies
 # Format: [ideational, field, interpersonal, tenor, textual, mode]
-#
-# In production: fingerprints are learned from SFL-annotated corpora.
-# The values below are derived from the iconic prompt analysis.
+# Fingerprints are hand-encoded from iconic prompt analysis.
+# In production: learned from SFL-annotated corpora.
 # ---------------------------------------------------------------------------
 
 def build_pilot_en() -> VocabularySpace:
     v = VocabularySpace(lang="EN")
-    # Interpersonal / phatic
     v.add("hey",           [-0.7, -0.5,  0.8,  0.9,  0.6, -0.6])
     v.add("hello",         [-0.6, -0.4,  0.7,  0.8,  0.5, -0.5])
     v.add("please",        [-0.2,  0.0,  0.9,  1.0,  0.4, -0.4])
     v.add("thank you",     [ 0.1,  0.2,  1.0,  1.0,  0.5, -0.5])
     v.add("sorry",         [-0.1,  0.0,  0.9,  1.0,  0.3, -0.5])
-    # Instrumental / directive
     v.add("print",         [ 0.6,  0.8,  0.5,  0.6,  0.9, -0.6])
     v.add("run",           [ 0.5,  0.7,  0.4,  0.5,  0.8, -0.6])
     v.add("write",         [ 0.6,  0.7,  0.4,  0.6,  0.9, -0.5])
     v.add("show",          [ 0.4,  0.6,  0.5,  0.6,  0.8, -0.5])
     v.add("for me",        [ 0.4,  0.6,  0.9,  0.9,  1.0, -0.6])
-    # Ideational content
     v.add("hello world",   [ 0.8,  0.9,  0.3,  0.4,  0.9, -0.6])
     v.add("code",          [ 0.7,  0.9,  0.2,  0.3,  0.8, -0.7])
     v.add("function",      [ 0.8,  1.0,  0.1,  0.2,  0.9, -0.7])
@@ -127,24 +116,95 @@ def build_pilot_en() -> VocabularySpace:
 
 def build_pilot_es() -> VocabularySpace:
     v = VocabularySpace(lang="ES")
-    # Interpersonal / phatic
     v.add("buenos dias",   [-0.6, -0.3,  0.8,  0.7,  0.7,  0.4])
     v.add("hola",          [-0.5, -0.4,  0.7,  0.8,  0.5,  0.3])
     v.add("por favor",     [-0.2,  0.0,  0.9,  1.0,  0.4,  0.3])
     v.add("gracias",       [ 0.1,  0.2,  1.0,  1.0,  0.5,  0.3])
     v.add("perdon",        [-0.1,  0.0,  0.9,  1.0,  0.3,  0.3])
-    # Temporal / factual
     v.add("hoy",           [-0.1,  0.2,  0.3,  0.4,  0.6,  0.4])
     v.add("viernes",       [ 0.2,  0.3,  0.2,  0.3,  0.7,  0.4])
     v.add("manana",        [ 0.1,  0.2,  0.2,  0.3,  0.6,  0.4])
-    # Institutional / broadcast
     v.add("CNN",           [ 0.5,  1.0,  0.6,  0.2,  0.9,  0.8])
     v.add("noticias",      [ 0.4,  0.9,  0.4,  0.3,  0.8,  0.7])
     v.add("importante",    [ 0.6,  0.7,  0.7,  0.8,  0.8,  0.6])
-    # Personal / evaluative
     v.add("para mi",       [ 0.5,  0.6,  0.8,  0.9,  0.7,  0.5])
     v.add("para muchos",   [ 0.7,  0.8,  0.8,  0.8,  0.9,  0.6])
     v.add("dia",           [ 0.3,  0.4,  0.4,  0.5,  0.6,  0.4])
+    return v
+
+
+def build_pilot_pt() -> VocabularySpace:
+    """
+    Portuguese pilot vocabulary.
+    Fingerprints derived from ES by applying mode shift (+0.1 spoken
+    channel weight) and minor tenor adjustments for BP register norms.
+    """
+    v = VocabularySpace(lang="PT")
+    v.add("ola",            [-0.6, -0.4,  0.7,  0.8,  0.5,  0.4])
+    v.add("bom dia",        [-0.6, -0.3,  0.8,  0.7,  0.7,  0.5])
+    v.add("por favor",      [-0.2,  0.0,  0.9,  1.0,  0.4,  0.4])
+    v.add("obrigado",       [ 0.1,  0.2,  1.0,  1.0,  0.5,  0.4])
+    v.add("desculpe",       [-0.1,  0.0,  0.9,  1.0,  0.3,  0.4])
+    v.add("hoje",           [-0.1,  0.2,  0.3,  0.4,  0.6,  0.5])
+    v.add("sexta-feira",    [ 0.2,  0.3,  0.2,  0.3,  0.7,  0.5])
+    v.add("imprimir",       [ 0.6,  0.8,  0.5,  0.6,  0.9, -0.5])
+    v.add("codigo",         [ 0.7,  0.9,  0.2,  0.3,  0.8, -0.6])
+    v.add("importante",     [ 0.6,  0.7,  0.7,  0.8,  0.8,  0.6])
+    v.add("noticias",       [ 0.4,  0.9,  0.4,  0.3,  0.8,  0.7])
+    v.add("para mim",       [ 0.5,  0.6,  0.8,  0.9,  0.7,  0.5])
+    v.add("para muitos",    [ 0.7,  0.8,  0.8,  0.8,  0.9,  0.6])
+    v.add("ola mundo",      [ 0.8,  0.9,  0.3,  0.4,  0.9, -0.5])
+    return v
+
+
+def build_pilot_it() -> VocabularySpace:
+    """
+    Italian pilot vocabulary.
+    Italian register is closer to ES in tenor but has higher formality
+    gradient in institutional contexts (mode shift toward written).
+    """
+    v = VocabularySpace(lang="IT")
+    v.add("ciao",           [-0.6, -0.4,  0.8,  0.9,  0.5,  0.3])
+    v.add("buongiorno",     [-0.6, -0.3,  0.7,  0.7,  0.7,  0.4])
+    v.add("per favore",     [-0.2,  0.0,  0.9,  1.0,  0.4,  0.3])
+    v.add("grazie",         [ 0.1,  0.2,  1.0,  1.0,  0.5,  0.3])
+    v.add("scusa",          [-0.1,  0.0,  0.9,  1.0,  0.3,  0.3])
+    v.add("oggi",           [-0.1,  0.2,  0.3,  0.4,  0.6,  0.4])
+    v.add("venerdi",        [ 0.2,  0.3,  0.2,  0.3,  0.7,  0.4])
+    v.add("stampa",         [ 0.6,  0.8,  0.5,  0.6,  0.9, -0.6])
+    v.add("codice",         [ 0.7,  0.9,  0.2,  0.3,  0.8, -0.7])
+    v.add("importante",     [ 0.6,  0.7,  0.7,  0.8,  0.8,  0.5])
+    v.add("notizie",        [ 0.4,  0.9,  0.4,  0.3,  0.8,  0.7])
+    v.add("per me",         [ 0.5,  0.6,  0.8,  0.9,  0.7,  0.4])
+    v.add("per molti",      [ 0.7,  0.8,  0.8,  0.8,  0.9,  0.6])
+    v.add("ciao mondo",     [ 0.8,  0.9,  0.3,  0.4,  0.9, -0.6])
+    return v
+
+
+def build_pilot_zh() -> VocabularySpace:
+    """
+    Mandarin Chinese pilot vocabulary.
+    ZH register differs from Romance languages in two key dimensions:
+    - mode: written Mandarin scores higher (more formal written channel)
+    - tenor: institutional register has lower interpersonal weight
+      (institutional distance is encoded lexically, not prosodically)
+    Fingerprints adjusted accordingly.
+    """
+    v = VocabularySpace(lang="ZH")
+    v.add("ni hao",         [-0.5, -0.3,  0.7,  0.7,  0.6,  0.2])  # hello
+    v.add("zao shang hao",  [-0.5, -0.2,  0.7,  0.6,  0.7,  0.5])  # good morning
+    v.add("qing",           [-0.2,  0.0,  0.8,  0.9,  0.5,  0.3])  # please
+    v.add("xie xie",        [ 0.1,  0.2,  0.9,  0.9,  0.5,  0.3])  # thank you
+    v.add("duibuqi",        [-0.1,  0.0,  0.8,  0.9,  0.3,  0.3])  # sorry
+    v.add("jintian",        [-0.1,  0.2,  0.2,  0.3,  0.6,  0.6])  # today
+    v.add("xingqiwu",       [ 0.2,  0.3,  0.1,  0.2,  0.7,  0.6])  # Friday
+    v.add("dayin",          [ 0.6,  0.8,  0.4,  0.5,  0.9,  0.1])  # print
+    v.add("daima",          [ 0.7,  0.9,  0.1,  0.2,  0.8, -0.2])  # code
+    v.add("zhongyao",       [ 0.6,  0.7,  0.5,  0.6,  0.8,  0.6])  # important
+    v.add("xinwen",         [ 0.4,  0.9,  0.3,  0.2,  0.8,  0.8])  # news
+    v.add("dui wo lai shuo",[ 0.5,  0.6,  0.7,  0.8,  0.7,  0.5])  # for me
+    v.add("ni hao shijie",  [ 0.8,  0.9,  0.2,  0.3,  0.9,  0.1])  # hello world
+    v.add("dajia",          [ 0.7,  0.8,  0.7,  0.7,  0.9,  0.6])  # everyone
     return v
 
 
@@ -153,17 +213,7 @@ def realize_trajectory(states: np.ndarray,
                        k: int = 3) -> List[Dict]:
     """
     For each meaning state in a trajectory, retrieve the k nearest
-    lexical items from vocab.
-
-    Parameters
-    ----------
-    states : np.ndarray, shape (T, n_dim)
-    vocab  : VocabularySpace
-    k      : candidates per state
-
-    Returns
-    -------
-    List of dicts with keys: step, state, candidates
+    semiotic units from vocab.
     """
     results = []
     for t, state in enumerate(states):
@@ -178,12 +228,12 @@ def realize_trajectory(states: np.ndarray,
 
 
 def print_realization(results: List[Dict], lang: str, step_labels: List[str]):
-    print(f"\n=== Realization [{lang}] ===\n")
-    print(f"{'t':<3} {'source unit':<22} {'best match':<16} candidates")
-    print("-" * 75)
+    print(f"\n=== Instantiation [{lang}] ===\n")
+    print(f"{'t':<3} {'semiotic unit':<24} {'best match':<20} candidates")
+    print("-" * 80)
     for r, lbl in zip(results, step_labels):
         cands = "  ".join(f"{w}({d:.2f})" for w, d in r["candidates"])
-        print(f"{r['step']:<3} {lbl:<22} {r['best']:<16} {cands}")
+        print(f"{r['step']:<3} {lbl:<24} {r['best']:<20} {cands}")
 
 
 if __name__ == "__main__":
@@ -206,9 +256,12 @@ if __name__ == "__main__":
 
     en_vocab = build_pilot_en()
     es_vocab = build_pilot_es()
+    pt_vocab = build_pilot_pt()
+    it_vocab = build_pilot_it()
+    zh_vocab = build_pilot_zh()
 
-    print(en_vocab)
-    print(es_vocab)
+    for vocab in [en_vocab, es_vocab, pt_vocab, it_vocab, zh_vocab]:
+        print(vocab)
 
     en_results = realize_trajectory(en_states, en_vocab)
     print_realization(en_results, "EN", en_labels)
@@ -216,9 +269,18 @@ if __name__ == "__main__":
     es_results = realize_trajectory(es_states, es_vocab)
     print_realization(es_results, "ES", es_labels)
 
-    # Cross-language demo: same final state, two vocabularies
+    # Five-language demo: EN final state -> all five vocabularies
     final = en_states[-1]
-    print("\n=== Cross-language realization: EN final state ===\n")
-    print(f"  EN best match : {en_vocab.realize(final)}")
-    print(f"  ES best match : {es_vocab.realize(final)}")
-    print("  (same M_out, different V_L -- no translation)")
+    print("\n=== Five-language instantiation: EN final state (please thank you) ===\n")
+    print("  Same M_out. Five vocabulary spaces. No translation.\n")
+    for vocab in [en_vocab, es_vocab, pt_vocab, it_vocab, zh_vocab]:
+        best = vocab.realize(final)
+        print(f"  {vocab.lang:<4} best match: {best}")
+
+    # ES final state -> all five
+    final_es = es_states[-1]
+    print("\n=== Five-language instantiation: ES final state (y para muchos) ===\n")
+    print("  Same M_out. Five vocabulary spaces. No translation.\n")
+    for vocab in [en_vocab, es_vocab, pt_vocab, it_vocab, zh_vocab]:
+        best = vocab.realize(final_es)
+        print(f"  {vocab.lang:<4} best match: {best}")
