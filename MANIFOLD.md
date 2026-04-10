@@ -1,156 +1,189 @@
-# SFL Meaning-Matrix LLM: Semiotic Manifold Architecture
+# MANIFOLD.md
+# SFL Meaning Matrix: Formal Specification
 
-## 1. The meaning space
+> Meaning before form. Language after meaning.
 
-Let \(\mathcal{M}\) be a 6-dimensional Riemannian manifold. Each point
-\(\mathbf{m} \in \mathcal{M}\) is a vector
-
-\[
-\mathbf{m} = (m_1, m_2, m_3, m_4, m_5, m_6) \in [-1, 1]^6
-\]
-
-whose components correspond, in order, to:
-\(m_1\) ideational, \(m_2\) field, \(m_3\) interpersonal,
-\(m_4\) tenor, \(m_5\) textual, \(m_6\) mode.
-
-Each dimension is not a discrete value but a **Gaussian distribution**
-centred on the parsed value \(\mu_i\) with variance \(\sigma_i^2\):
-
-\[
-p(m_i) = \mathcal{N}(\mu_i,\, \sigma_i^2)
-\]
-
-A meaning state is therefore a **region** of \(\mathcal{M}\), not a point.
+This document is the mathematical ground truth for the architecture.
+All module implementations are derived from the definitions here.
 
 ---
 
-## 2. Parsing a prompt: the meaning trajectory
+## 1. The semiotic manifold M
 
-A prompt \(P\) in language \(L\) is segmented into \(n\) meaning units
-\(u_1, \ldots, u_n\). Vocabulary is **parked** after this step.
+Let M be a smooth Riemannian manifold of dimension n = 6,
+parameterised by the six SFL metafunctions and register variables:
 
-Each unit \(u_t\) produces a delta matrix \(\Delta_t \in \mathbb{R}^{3 \times 2}\).
-The cumulative meaning state at step \(t\) is
+    M = [-1, 1]^6
 
-\[
-M_t = \text{clip}\!\left(\sum_{k=0}^{t} \Delta_k,\; -1,\; 1\right)
-\]
+with coordinates:
 
-where \(M_0\) is the initial state encoding the opening unit, and
-\(\text{clip}\) keeps all values within \([-1, 1]\).
+    x = (x_1, x_2, x_3, x_4, x_5, x_6)
+      = (ideational, field, interpersonal, tenor, textual, mode)
 
-The result is a **meaning trajectory**
+A **meaning state** M_t is a point in M.
+A **meaning trajectory** T is an ordered sequence M_0, M_1, ..., M_T.
 
-\[
-\mathcal{T} = \langle M_0,\, M_1,\, \ldots,\, M_n \rangle \subset \mathcal{M}
-\]
-
-a sequence of regions tracing a **path through the semiotic manifold**.
-
----
-
-## 3. Path geometry: curvature and momentum
-
-Between consecutive states, the displacement vector is
-
-\[
-\delta_t = M_t - M_{t-1} \in \mathbb{R}^6
-\]
-
-The **local curvature** of the path at step \(t\) is the angle between
-successive displacement vectors:
-
-\[
-\kappa_t = \arccos\!\left(\frac{\delta_t \cdot \delta_{t+1}}
-                              {\|\delta_t\|\,\|\delta_{t+1}\|}\right)
-\]
-
-Low \(\kappa_t\) means the path is continuing smoothly in the same
-direction — the meaning is developing coherently. High \(\kappa_t\)
-indicates a register shift, a change of field, or a sudden evaluative move.
-
-The **path momentum** at step \(t\) is the exponentially weighted
-mean of recent displacements:
-
-\[
-\mathbf{v}_t = \alpha\,\delta_t + (1 - \alpha)\,\mathbf{v}_{t-1},
-\quad \alpha \in (0, 1)
-\]
-
-The transformer uses \(\mathbf{v}_t\) to bias the search for the next
-coherent region — paths with momentum tend to continue; sharp curvature
-signals a genuine semantic event.
+**Note on SFL mapping.**
+In Halliday's canonical tripartite model, the three metafunctions are
+ideational, interpersonal, and textual, with register variables field,
+tenor, and mode mapping onto them respectively.
+This architecture treats all six as independent dimensions of M,
+allowing finer-grained geometric discrimination.
+The canonical mapping (field -> ideational, tenor -> interpersonal,
+mode -> textual) is preserved as a constraint on the pilot encoders
+but relaxed at the manifold level.
 
 ---
 
-## 4. The transformer input
+## 2. Semiotic units
 
-The transformer receives \(\mathcal{T}\) as a sequence of 6-dimensional
-float vectors. No token IDs. No positional embeddings in the lexical sense.
-Position is encoded as **semiotic distance** along the path:
+A **semiotic unit** (SFL: Halliday 1985; Martin 1992) is the minimal
+unit of meaning-making. In this architecture, each semiotic unit u_t
+is assigned a meaning state M_t in M.
 
-\[
-d(M_s, M_t) = \left\| M_t - M_s \right\|_2
-\]
-
-The model is not predicting the next token over a vocabulary distribution.
-It is finding the next region \(M_{n+1} \in \mathcal{M}\) such that the
-extended path \(\langle \mathcal{T},\, M_{n+1} \rangle\) is **geodesically
-coherent** with the trajectory so far.
+The process of moving from semiotic potential to instance is
+**instantiation** (SFL canonical term). In the pilot, instantiation
+is approximated by the hand-encoded encoder functions.
+In production, instantiation will be learned from SFL-annotated corpora.
 
 ---
 
-## 5. Geodesic coherence and the role of probability
+## 3. Displacement and geodesic energy
 
-The most coherent continuation is the region that minimises the total
-path energy:
+At each step t, the displacement vector is:
 
-\[
-M_{n+1}^* = \arg\min_{M \in \mathcal{M}}\;
-E\!\left(\langle \mathcal{T},\, M \rangle\right)
-\]
+    delta_t = M_t - M_{t-1}       in R^6
 
-where the path energy \(E\) penalises both large displacements and
-high curvature:
+The displacement magnitude is:
 
-\[
-E(\mathcal{T}) = \sum_{t=1}^{n} \left( \lambda_1 \|\delta_t\|^2
-                 + \lambda_2\,\kappa_t^2 \right)
-\]
+    ||delta_t|| = sqrt( sum_i (delta_t_i)^2 )
 
-Probability enters not as a distribution over vocabulary but as
-**uncertainty on the manifold**: where the local curvature is high
-or the Gaussian spread \(\sigma_i\) is large, multiple continuation
-regions are plausible. The transformer samples from those; where the
-path is smooth and well-constrained, the continuation is near-deterministic.
+The **arc length** of the trajectory is:
 
-This is not stochastic token prediction. It is **geodesic search with
-bounded uncertainty**.
+    L(gamma) = sum_{t=1}^{T} ||delta_t||
 
----
+The **geodesic energy** (energy functional on path space) is:
 
-## 6. Post-transformer: de-matrixising
+    E(gamma) = sum_{t=1}^{T} [ lambda_1 * ||delta_t||^2
+                              + lambda_2 * kappa_t^2 ]
 
-The output of the transformer is a meaning state \(M_{\text{out}} \in \mathcal{M}\).
+where lambda_1, lambda_2 > 0 are weighting parameters.
 
-Lexical items are retrieved by finding the vocabulary elements whose own
-semiotic fingerprints \(\mathbf{f}_w \in \mathcal{M}\) minimise distance
-to \(M_{\text{out}}\), within language \(L\):
+This is the discrete analogue of the continuous energy functional:
 
-\[
-w^* = \arg\min_{w \in \mathcal{V}_L}\;
-      \left\| \mathbf{f}_w - M_{\text{out}} \right\|_2
-\]
+    E(gamma) = integral_0^T g(gamma'(t), gamma'(t)) dt
 
-Each language \(L\) has its own vocabulary space \(\mathcal{V}_L\).
-There is no translation step. The same \(M_{\text{out}}\) presented
-to \(\mathcal{V}_{\text{EN}}\) and \(\mathcal{V}_{\text{ES}}\) produces
-two independent, co-equal realizations in their respective languages.
+where g is the Riemannian metric on M. In the pilot, g is the
+standard Euclidean metric on [-1,1]^6. In production, g may be
+replaced by the Fisher-Rao metric (Rao 1945; Amari 1985) derived
+from the statistical manifold of meaning distributions.
+
+**Geodesic paths** (paths of minimal energy) correspond to coherent,
+low-curvature meaning development. High E(gamma) signals semantic
+turbulence: register shifts, evaluative moves, field changes.
 
 ---
 
-## Status
+## 4. Curvature
 
-Manifold geometry formalised.  
-Next step: implement \(\kappa_t\), \(\mathbf{v}_t\), and path energy \(E\)
-as `sfl_manifold.py`.
+The local curvature at step t is:
+
+    kappa_t = arccos( <delta_{t-1}, delta_t> /
+                      (||delta_{t-1}|| * ||delta_t||) )
+
+kappa_t in [0, pi] radians.
+kappa_t = 0: trajectory continues in the same direction (coherent).
+kappa_t = pi: full reversal (semantic contradiction or register shift).
+
+A sharp kappa peak is a **semantic event**: a point where the
+trajectory changes direction significantly. These are interpretively
+significant -- register shifts, topic changes, evaluative moves.
+
+---
+
+## 5. Dominant driver
+
+The **dominant driver** phi_t at step t is the dimension that
+contributes most to the displacement:
+
+    phi_t = argmax_i |delta_t_i|
+
+This identifies *which* metafunction or register variable drove
+the meaning move at each step.
+
+---
+
+## 6. Momentum
+
+The momentum vector v_t tracks the running direction of the trajectory
+with exponential decay:
+
+    v_t = alpha * delta_t + (1 - alpha) * v_{t-1}
+
+alpha in [0, 1] controls the decay rate (pilot: alpha = 0.7).
+
+---
+
+## 7. The adapter projection
+
+The adapter layer W_adapt projects from the manifold M into the
+transformer's model dimension d_model:
+
+    W_adapt: R^6 -> R^{d_model}
+
+specifically:
+
+    h_0 = W_adapt * vec(M_t) + b_adapt
+
+where vec(M_t) in R^6 is the flattened meaning state.
+This h_0 replaces the standard token embedding as the first
+hidden state passed to the transformer.
+
+---
+
+## 8. Lexical realization
+
+Given a meaning state M_out in M and a vocabulary space V_L
+for language L, the **realization** w* is:
+
+    w* = argmin_{w in V_L} || f_w - M_out ||_2
+
+where f_w in R^6 is the semiotic fingerprint of lexical item w.
+
+In production, distances may be computed under the Fisher-Rao metric
+rather than the Euclidean metric, giving:
+
+    w* = argmin_{w in V_L} d_FR(f_w, M_out)
+
+The same M_out presented to V_EN and V_ES independently yields
+two co-equal realizations with no translation step.
+
+---
+
+## 9. M0 as reference state
+
+M_0 is not required to be derived from the first token of the input.
+It may be a **reference meaning state** -- a pre-loaded context
+encoding the domain vocabulary, interaction tenor, and channel mode
+of the current process. This reference state is carried as structured
+metadata across processes.
+
+Session memory is then the cumulative delta from the reference state:
+
+    Delta_session(t) = M_t - M_0
+
+This is lightweight, inspectable, and portable. It does not require
+persistent neural memory or fine-tuning.
+
+---
+
+## References
+
+- Amari, S. (1985). *Differential-Geometrical Methods in Statistics*. Springer.
+- Halliday, M.A.K. (1985). *An Introduction to Functional Grammar*. Arnold.
+- Halliday, M.A.K. & Matthiessen, C. (2014). *Halliday's Introduction to
+  Functional Grammar* (4th ed.). Routledge.
+- Martin, J.R. (1992). *English Text: System and Structure*. Benjamins.
+- Rao, C.R. (1945). Information and the accuracy attainable in the
+  estimation of statistical parameters. *Bulletin of the Calcutta
+  Mathematical Society*, 37, 81-91.
