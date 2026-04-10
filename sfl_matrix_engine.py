@@ -72,6 +72,11 @@ class MeaningTrajectory:
         self._states.append(new_state)
 
     @property
+    def states(self) -> List[MeaningMatrix]:
+        """Public accessor for the ordered list of meaning states M0..MT."""
+        return self._states
+
+    @property
     def final_state(self):
         return self._states[-1]
 
@@ -118,11 +123,6 @@ def encode_es() -> MeaningTrajectory:
 # ---------------------------------------------------------------------------
 
 def realize(traj: MeaningTrajectory) -> str:
-    """
-    Minimal realization rule.
-    Maps final meaning state to output in the working language.
-    No cross-language derivation. Each realization is primary.
-    """
     m = traj.final_state.values
     field_v = m[0, 1]
     mode = m[2, 1]
