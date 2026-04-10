@@ -5,33 +5,32 @@ FastAPI wrapper for the SFL Meaning Matrix pipeline.
 
 The transformer is modality-blind.
 It operates on meaning states in M -- nothing else.
-The modality of input and output is handled at the edges.
+Modality of input and output is handled at the edges.
 
 Endpoints
 ---------
   GET  /health          liveness check
   GET  /dims            manifold dimension names and ranges
-  POST /analyze         prompt -> MeaningTrajectory (geometry only)
+  POST /analyze         lang -> MeaningTrajectory geometry (EN or ES pilot)
   POST /realize         M_out + modality -> realization in output space
-  POST /pipeline        prompt + modality -> trajectory + realization
+  POST /pipeline        lang + modality -> trajectory + realization
 
 Run
 ---
-  pip install fastapi uvicorn numpy
   uvicorn api:app --reload
-  # -> http://127.0.0.1:8000
-  # -> http://127.0.0.1:8000/docs  (auto-generated interactive docs)
+  # -> http://127.0.0.1:8000/docs
 """
 
 from __future__ import annotations
 
+import math
 import numpy as np
 from typing import List, Optional, Tuple
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from sfl_matrix_engine import MeaningUnit, MeaningTrajectory, parse_prompt
-from sfl_manifold import compute_path_geometry
+from sfl_matrix_engine import MeaningTrajectory, encode_en, encode_es
+from sfl_manifold import compute_manifold, ManifoldAnalysis
 from sfl_realize import (
     VocabularySpace,
     build_pilot_en,
@@ -54,38 +53,32 @@ DIMS = [
 
 N_DIM = len(DIMS)
 
-# ---------------------------------------------------------------------------
-# Realization registry
-# Modality -> realization function.
-# Add new modalities here without touching the pipeline.
-# ---------------------------------------------------------------------------
+# Pilot encoders: maps lang code -> encoder function
+ENCODERS = {
+    "EN": encode_en,
+    "ES": encode_es,
+}
 
-REALIZERS: dict = {}
-
-
-def _register_text_realizers():
-    REALIZERS["text:EN"] = build_pilot_en()
-    REALIZERS["text:ES"] = build_pilot_es()
-
-
-_register_text_realizers()
+# Realization registry: modality:lang -> VocabularySpace
+REALIZERS: dict = {
+    "text:EN": build_pilot_en(),
+    "text:ES": build_pilot_es(),
+}
 
 
 def get_realizer(modality: str, lang: Optional[str]) -> VocabularySpace:
-    """
-    Retrieve the realizer for a given modality and language.
-    Returns the VocabularySpace (or future modality equivalent).
-    Raises 404 if not registered.
-    """
     key = f"{modality}:{lang}" if lang else modality
     if key not in REALIZERS:
-        available = list(REALIZERS.keys())
         raise HTTPException(
             status_code=404,
-            detail=f"No realizer registered for '{key}'. "
-                   f"Available: {available}",
+            detail=f"No realizer for '{key}'. Available: {list(REALIZERS.keys())}",
         )
     return REALIZERS[key]
+
+
+def trajectory_to_states(traj: MeaningTrajectory) -> np.ndarray:
+    """Extract ordered state vectors from a MeaningTrajectory."""
+    return np.array([s.to_vector() for s in traj.states])
 
 
 # ---------------------------------------------------------------------------
@@ -93,30 +86,29 @@ def get_realizer(modality: str, lang: Optional[str]) -> VocabularySpace:
 # ---------------------------------------------------------------------------
 
 class AnalyzeRequest(BaseModel):
-    prompt: str = Field(..., description="Input prompt in any language")
-    lang: str   = Field("EN", description="ISO 639-1 language code of the prompt")
+    lang: str = Field("EN", description="Pilot language: EN or ES")
 
 
-class StepGeometry(BaseModel):
-    t:     int
-    state: List[float]
-    label: Optional[str]  = None
-    delta: Optional[float] = None   # displacement magnitude ||delta_t||
-    kappa: Optional[float] = None   # curvature
-    phi:   Optional[str]   = None   # dominant driver (dimension name)
+class StepOut(BaseModel):
+    t:             int
+    label:         str
+    state:         List[float]
+    displacement:  Optional[float] = None
+    curvature:     Optional[float] = None
+    driver:        Optional[str]   = None
 
 
 class AnalyzeResponse(BaseModel):
-    lang:        str
-    steps:       List[StepGeometry]
-    path_length: float
+    lang:       str
+    steps:      List[StepOut]
+    path_loss:  float
 
 
 class RealizeRequest(BaseModel):
-    M_out:    List[float] = Field(..., description="Meaning state, length n_dim")
-    modality: str         = Field("text",  description="Output modality")
-    lang:     Optional[str] = Field("EN", description="Target language (for text modality)")
-    k:        int           = Field(5,    description="Number of candidates to return")
+    M_out:    List[float]       = Field(..., description="Meaning state, length 6")
+    modality: str               = Field("text")
+    lang:     Optional[str]     = Field("EN")
+    k:        int               = Field(5)
 
 
 class Candidate(BaseModel):
@@ -132,19 +124,18 @@ class RealizeResponse(BaseModel):
 
 
 class PipelineRequest(BaseModel):
-    prompt:   str           = Field(..., description="Input prompt")
-    lang_in:  str           = Field("EN",  description="Input language")
-    modality: str           = Field("text", description="Output modality")
-    lang_out: Optional[str] = Field("EN",  description="Output language (text modality)")
-    k:        int           = Field(5,     description="Realization candidates")
+    lang_in:  str           = Field("EN",   description="Pilot language: EN or ES")
+    modality: str           = Field("text")
+    lang_out: Optional[str] = Field("EN")
+    k:        int           = Field(5)
 
 
 class PipelineResponse(BaseModel):
     lang_in:     str
     modality:    str
     lang_out:    Optional[str]
-    trajectory:  List[StepGeometry]
-    path_length: float
+    steps:       List[StepOut]
+    path_loss:   float
     realization: RealizeResponse
 
 
@@ -156,11 +147,54 @@ app = FastAPI(
     title="SFL Meaning Matrix",
     description=(
         "Meaning before form. Language after meaning. "
-        "The transformer is modality-blind: it operates on meaning states "
-        "in the semiotic manifold M. Realization is a pluggable edge process."
+        "The transformer operates on meaning states in the semiotic manifold M. "
+        "Modality is handled at the edges only."
     ),
     version="0.1.0",
 )
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _run_analyze(lang: str) -> AnalyzeResponse:
+    lang = lang.upper()
+    if lang not in ENCODERS:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No pilot encoder for lang='{lang}'. Available: {list(ENCODERS.keys())}",
+        )
+    traj: MeaningTrajectory = ENCODERS[lang]()
+    analysis: ManifoldAnalysis = compute_manifold(traj)
+
+    states = trajectory_to_states(traj)
+    labels = [s.label for s in traj.states]
+
+    # Build step list: step 0 has no geometry (it is M0)
+    geo_by_t = {sg.t: sg for sg in analysis.steps}
+
+    steps = []
+    for t, (state, label) in enumerate(zip(states, labels)):
+        sg = geo_by_t.get(t)
+        steps.append(StepOut(
+            t=t,
+            label=label,
+            state=state.tolist(),
+            displacement=round(sg.displacement, 4) if sg else None,
+            curvature=(
+                round(sg.curvature, 4)
+                if sg and not math.isnan(sg.curvature)
+                else None
+            ),
+            driver=sg.dominant_driver if sg else None,
+        ))
+
+    return AnalyzeResponse(
+        lang=lang,
+        steps=steps,
+        path_loss=round(analysis.path_loss, 4),
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -174,49 +208,16 @@ def health():
 
 @app.get("/dims")
 def dims():
-    """Return the manifold dimension names and ranges."""
     return {"n_dim": N_DIM, "dims": DIMS}
 
 
 @app.post("/analyze", response_model=AnalyzeResponse)
 def analyze(req: AnalyzeRequest):
     """
-    Parse a prompt into a MeaningTrajectory and compute path geometry.
-    Returns the full trajectory with delta, kappa, phi per step.
+    Run the pilot encoder for the requested language and return
+    the full MeaningTrajectory with path geometry.
     """
-    try:
-        trajectory: MeaningTrajectory = parse_prompt(req.prompt, lang=req.lang)
-    except Exception as e:
-        raise HTTPException(status_code=422, detail=str(e))
-
-    states = np.array([u.state for u in trajectory.units])
-    labels = [u.label for u in trajectory.units]
-
-    geometry = compute_path_geometry(states)
-    # geometry keys: deltas, magnitudes, kappas, drivers, path_length
-
-    steps = []
-    for t, (state, label) in enumerate(zip(states, labels)):
-        step = StepGeometry(
-            t=t,
-            state=state.tolist(),
-            label=label,
-        )
-        if t > 0:
-            step.delta = float(geometry["magnitudes"][t - 1])
-            step.kappa = (
-                float(geometry["kappas"][t])
-                if not np.isnan(geometry["kappas"][t])
-                else None
-            )
-            step.phi = DIMS[geometry["drivers"][t - 1]]["name"]
-        steps.append(step)
-
-    return AnalyzeResponse(
-        lang=req.lang,
-        steps=steps,
-        path_length=float(geometry["path_length"]),
-    )
+    return _run_analyze(req.lang)
 
 
 @app.post("/realize", response_model=RealizeResponse)
@@ -224,16 +225,13 @@ def realize(req: RealizeRequest):
     """
     Given a meaning state M_out and an output modality,
     return the nearest realization in that modality space.
-
-    The transformer has no knowledge of the modality.
-    This endpoint is the output edge.
+    This endpoint is the output edge. The transformer is not involved.
     """
     if len(req.M_out) != N_DIM:
         raise HTTPException(
             status_code=422,
             detail=f"M_out must have {N_DIM} dimensions, got {len(req.M_out)}.",
         )
-
     vocab = get_realizer(req.modality, req.lang)
     M_out = np.array(req.M_out)
     candidates_raw: List[Tuple[str, float]] = vocab.nearest(M_out, k=req.k)
@@ -252,18 +250,13 @@ def realize(req: RealizeRequest):
 @app.post("/pipeline", response_model=PipelineResponse)
 def pipeline(req: PipelineRequest):
     """
-    Full pipeline: prompt -> MeaningTrajectory -> realization.
-
+    Full pipeline: pilot encoder -> MeaningTrajectory -> realization.
     The transformer is modality-blind throughout.
     lang_in and lang_out are edge parameters only.
     """
-    # 1. Parse and compute geometry
-    analyze_resp = analyze(AnalyzeRequest(prompt=req.prompt, lang=req.lang_in))
-
-    # 2. Take final meaning state as M_out
+    analyze_resp = _run_analyze(req.lang_in)
     M_out_list = analyze_resp.steps[-1].state
 
-    # 3. Realize
     realize_resp = realize(RealizeRequest(
         M_out=M_out_list,
         modality=req.modality,
@@ -275,7 +268,7 @@ def pipeline(req: PipelineRequest):
         lang_in=req.lang_in,
         modality=req.modality,
         lang_out=req.lang_out,
-        trajectory=analyze_resp.steps,
-        path_length=analyze_resp.path_length,
+        steps=analyze_resp.steps,
+        path_loss=analyze_resp.path_loss,
         realization=realize_resp,
     )
