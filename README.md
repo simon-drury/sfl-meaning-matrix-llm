@@ -1,173 +1,220 @@
-# SFL-first LLM: Meaning-Matrix Architecture
+# SFL Meaning Matrix LLM
 
-## Purpose
-This project proposes a language model architecture in which lexical tokenization is not the primary computational substrate. Instead, lexical input is immediately compiled into a sequence of meaning-making matrices grounded in Systemic Functional Linguistics (SFL), and subsequent computation proceeds entirely in meaning space.
+> **Meaning before form. Language after meaning.**
 
-The goal is not to predict a lexical path but to compute a meaning path. Neural networks are used as calculators over meaning states, not as the theory of meaning itself.
+A research architecture that grounds transformer-based language models in
+Systemic Functional Linguistics (SFL). Instead of predicting the next token
+directly, the system computes a trajectory through a six-dimensional
+*semiotic manifold* — then realizes that trajectory as lexical output
+independently in each target language.
 
-## Core claim
-A prompt should be processed as a trajectory through a functional-semantic manifold rather than as a sequence of vocabulary items. The model begins with lexical surface form only long enough to project it into meaning space, then discards lexical items. Internal computation is performed only over meaning states and their deltas.
+English and Spanish are co-equal first languages. There is no translation step.
 
-## Initial pilot representation
-The pilot uses a sequence of 3×2 matrices. These are also interpretable as 6-point vectors.
+---
 
-| Metafunction / context pairing | Variable |
+## The core claim
+
+Current LLMs map form to form: token sequence in, token sequence out.
+This architecture maps form to meaning to form:
+
+```
+prompt (form)
+     |
+     v
+MeaningTrajectory in M   <-- semiotic manifold, 6 dimensions
+     |
+     v
+W_adapt: R^6 -> R^d_model   <-- adapter layer
+     |
+     v
+[transformer forward pass]
+     |
+     v
+M_out in M               <-- output meaning state
+     |
+     v
+w* in V_L                <-- nearest lexical item in language L
+```
+
+The manifold encodes the six metafunctions of SFL:
+**ideational, field, interpersonal, tenor, textual, mode.**
+Every meaning state is a point in this space. Every utterance is a trajectory.
+
+---
+
+## Quick start
+
+```bash
+git clone https://github.com/simon-drury/sfl-meaning-matrix-llm.git
+cd sfl-meaning-matrix-llm
+pip install numpy matplotlib
+
+# Run the geometry engine on the two pilot prompts
+python sfl_manifold.py
+
+# Run the de-matrixising demo (EN + ES co-equal realization)
+python sfl_realize.py
+
+# Produce all visualisation charts
+python sfl_visualise.py --no-anim       # static PNGs
+python sfl_visualise.py                 # + MP4 animation (needs ffmpeg)
+```
+
+Charts are written to `output/`.
+
+---
+
+## Repository map
+
+| File | Stage | Detail |
+|---|---|---|
+| `MANIFOLD.md` | Theory | Full formal specification with LaTeX |
+| `sfl_matrix_engine.py` | Parse | Prompt → `MeaningTrajectory` |
+| `sfl_manifold.py` | Geometry | delta_t, kappa_t, phi_t, L_sp |
+| `sfl_attention.py` | Attention | SFL-weighted self-attention mask |
+| `sfl_adapter.py` | Adapter | W_adapt: R^6 → R^d_model |
+| `sfl_realize.py` | Realize | M_out → w* in V_L (EN and ES) |
+| `sfl_visualise.py` | Visualise | 3D trajectory, step geometry, Gaussians, animation |
+
+Each module has two READMEs: English (`README-{module}.md`) and
+Spanish (`README-{module}-ES.md`).
+
+---
+
+## The two pilot prompts
+
+All pilot data derives from exactly two iconic prompts, one per language.
+
+**EN** — a human instructing an LLM:
+```
+hey  /  why dont you  /  print hello world  /  for me  /  please thank you
+```
+
+**ES** — a broadcast news opening:
+```
+buenos dias  /  hoy es viernes  /  Esto es CNN  /  dia importante  /  y para muchos
+```
+
+These were chosen because they span the full range of the semiotic manifold:
+from phatic interpersonal register (low ideational, high tenor) to
+institutional broadcast register (high field, high textual).
+
+---
+
+## The six dimensions
+
+| Dimension | What it encodes | Range |
+|---|---|---|
+| ideational | propositional / experiential content | [-1, 1] |
+| field | domain / subject matter specificity | [-1, 1] |
+| interpersonal | speaker-hearer relationship | [-1, 1] |
+| tenor | formality and power | [-1, 1] |
+| textual | discourse / cohesion | [-1, 1] |
+| mode | channel / written-spoken continuum | [-1, 1] |
+
+A meaning state M_t is a point in [-1, 1]^6.
+A meaning trajectory T is the ordered sequence M_0, M_1, ..., M_T.
+
+---
+
+## Key geometric quantities
+
+| Symbol | Name | What it measures |
+|---|---|---|
+| delta_t | displacement | how far meaning moved at step t |
+| kappa_t | curvature | how sharply the trajectory turned at step t |
+| phi_t | driver | which dimension drove the move |
+| L_sp | path length | total semantic distance traversed |
+
+A straight trajectory = coherent, low-energy meaning development.
+A sharp kappa peak = semantic event: register shift, evaluative move, field change.
+
+---
+
+## Co-equal multilingual realization
+
+The same M_out presented to V_EN and V_ES independently:
+
+```
+EN final state (please thank you):
+  EN best match : thank you
+  ES best match : gracias
+  (same M_out, different V_L -- no translation)
+```
+
+The meaning state encodes *gratitude + interpersonal closure*.
+Each vocabulary realizes it in its own language from the same geometric point.
+
+---
+
+## Determinism and probability
+
+The system is deliberately agnostic on this question at the current stage.
+A meaning state is modelled as a Gaussian region in the manifold
+(sigma = 0.20 in the pilot), not a point. This means:
+
+- Small displacements (delta_t < 0.3) are treated as within-region movement
+- Large displacements signal genuine semantic events
+- The nearest-neighbour retrieval in sfl_realize.py can be extended to
+  top-k stochastic sampling from the Gaussian at any time
+
+Whether the trajectory is deterministic (given sufficient context) or
+irreducibly probabilistic is an open research question.
+
+---
+
+## Visualisation outputs
+
+Running `sfl_visualise.py` produces:
+
+| File | What it shows |
 |---|---|
-| Ideational | Ideational |
-| Field | Field |
-| Interpersonal | Interpersonal |
-| Tenor | Tenor |
-| Textual | Textual |
-| Mode | Mode |
+| `output/manifold_3d.png` | EN and ES trajectories as paths through ideational/field/textual space |
+| `output/manifold_steps.png` | Displacement and curvature per step, coloured by dominant driver |
+| `output/manifold_gaussians.png` | Gaussian profiles for all 6 dimensions at final state |
+| `output/manifold_anim.mp4` | Animated EN trajectory, one frame per meaning unit |
 
-A convenient matrix layout for the first pilot is:
+---
 
-```text
-[ Ideational     Field ]
-[ Interpersonal  Tenor ]
-[ Textual        Mode  ]
-```
+## Formal theory
 
-This format is not intended as a rigid categorical box model. The six values are treated as free-floating, overlapping, and continuous rather than mutually exclusive. The underlying geometry is better understood as a semantic manifold with six primary regions or nodes.
+See [`MANIFOLD.md`](MANIFOLD.md) for the full mathematical specification,
+including the definition of M as a smooth Riemannian manifold, the
+geodesic path functional, the adapter projection, and the realization
+retrieval criterion.
 
-## Geometric intuition
-The first working intuition is a continuous semantic space with six primary nodes:
-
-1. Ideational
-2. Interpersonal
-3. Textual
-4. Field
-5. Tenor
-6. Mode
-
-These nodes are not discrete compartments. They are better imagined as overlapping Gaussian regions in a shared space, possibly on or within a sphere-like manifold. A single meaning state is therefore a weighted position across all six regions rather than a discrete choice among them.
-
-This means the model processes a meaning trajectory, not a token stream.
-
-## Matrix engine
-The matrix engine replaces conventional tokenization.
-
-### What a standard tokenizer does
-A standard tokenizer:
-- splits text into subword or wordpiece units,
-- maps them to vocabulary IDs,
-- passes lexical embeddings forward.
-
-In this setup, lexical form is primary and meaning is inferred indirectly.
-
-### What the matrix engine does
-The matrix engine:
-- receives lexical input once,
-- projects it immediately into a sequence of meaning-making matrices,
-- assigns values over Ideational, Interpersonal, Textual, Field, Tenor, and Mode,
-- discards lexical items after projection,
-- sends only matrices and matrix deltas downstream.
-
-So the downstream model never processes token IDs as its main substrate. It processes meaning states.
-
-## Delta principle
-The sequence is expected to be mostly delta-carrying rather than full-state repetition.
-
-- The initial state may be a fuller matrix.
-- Subsequent matrices primarily encode how meaning has shifted.
-- A matrix therefore represents a local semantic update, not a lexical event.
-
-This can be written schematically as:
-
-```text
-M0, Δ1, Δ2, Δ3, ... Δt
-```
-
-where each delta records changes in the six-dimensional meaning state.
-
-The aim is to reduce redundancy and keep the computation focused on semantic movement rather than on repeating a full lexical or semantic frame at every step.
-
-## Transformer stage
-After encoding, the matrices are passed to transformer-like mechanisms, but these are reconceived as attention clusters over meaning dimensions.
-
-The first pilot assumption is six attention heads or six primary attention clusters corresponding to:
-
-1. Ideational
-2. Interpersonal
-3. Textual
-4. Field
-5. Tenor
-6. Mode
-
-These heads do not attend over lexical tokens as primary units. They attend over sequences of meaning states and deltas. Their task is to locate, compare, and propagate meaningful contextual change within the semantic manifold.
-
-## The role of neural networks
-Neural networks are retained, but only as computational instruments.
-
-They are not taken to define meaning. The representational theory comes from SFL. The neural network is the numerical machinery that:
-- helps map text into meaning space,
-- computes over trajectories and deltas,
-- supports communication among functional/contextual attention clusters,
-- assists realization back into lexical output.
-
-In short, the neural network is the tool for the calculation, not the calculation itself.
-
-## Internal ontology
-This architecture changes the ontology of the model.
-
-### Standard LLM ontology
-- Internal state is primarily lexical/sublexical.
-- Meaning is an emergent by-product of token prediction.
-- Syntax and distribution dominate the computation.
-
-### Proposed ontology
-- Internal state is functional-semantic and contextual.
-- Meaning is explicit and primary.
-- Lexis is only an input/output realization layer.
-- Computation proceeds in meaning space.
-
-## Output stage
-Outputs are also represented first as meaning-making matrices.
-
-Only after the semantic trajectory has been computed does the system realize lexical output by selecting vocabulary items that best correspond to the computed meaning states. In this sense, lexical items are realizational selections from an already-computed semantic configuration.
-
-## Theoretical stance
-This design is grounded in Systemic Functional Linguistics rather than in a purely NLP-first view of language.
-
-Key commitments:
-- Meaning is function in context.
-- The three metafunctions and the contextual variables are not rigidly discrete.
-- The architecture is concerned with instantiation dynamics, not preserving lexical chains.
-- The system computes over contextualized meaning movement.
-
-## Working analogies
-Two analogies were identified as productive for later development.
-
-### 1. Lorenz / three-body style dynamics
-Meaning trajectories may behave like continuous, sensitive flows through a structured state space:
-- small changes in initial conditions can produce major trajectory shifts,
-- trajectories may orbit, bend, fold, or move between attractor-like regions,
-- discourse can be interpreted as a path through a dynamic semantic field.
-
-### 2. Quantum maze analogy
-The internal computation may be usefully imagined not as many lexical walkers exploring separate paths, but as one instantiated meaning-state distributed across a structured possibility space. Attention then acts more like coordinated projection across dimensions than serial token stepping.
-
-These are analogies, not final mathematical commitments, but they help clarify the intended non-lexical computational picture.
-
-## Near-term design questions
-The following questions remain open and should guide the next design phase:
-
-1. What exact topology should the meaning space have: plane, sphere, manifold, Gaussian mixture, or another form?
-2. What is the primitive numeric status of each value: scalar, vector, distribution, or hybrid?
-3. What exactly is a delta: displacement, reweighting, or constrained update?
-4. What composition operator combines successive meaning states?
-5. How should realization from meaning states back into lexical output be scored?
-6. How should the six primary heads communicate when dimensions overlap strongly?
-
-## Immediate next implementation step
-The best next move is not to build the full architecture at once, but to formalize one minimal pilot slice:
-
-- one compact state specification,
-- one delta/update rule,
-- one tiny example domain,
-- one toy realization procedure.
-
-That will allow the meaning-engine hypothesis to be tested before scaling.
+---
 
 ## Status
-This README records the first-pass conceptual architecture without loss, ready to be pushed to GitHub as the initial project description.
+
+| Component | Status |
+|---|---|
+| Semiotic manifold definition | complete |
+| Path geometry engine | complete |
+| SFL-weighted attention | complete |
+| Adapter layer W_adapt | complete |
+| Lexical realization V_L | complete (pilot vocabulary) |
+| Visualisation | complete |
+| api.py FastAPI wrapper | next |
+| Production vocabulary (corpus-learned) | future work |
+| Full transformer integration | future work |
+
+---
+
+## Theoretical grounding
+
+- Halliday, M.A.K. (1985). *An Introduction to Functional Grammar*. Arnold.
+- Halliday, M.A.K. & Matthiessen, C. (2014). *Halliday's Introduction to Functional Grammar* (4th ed.). Routledge.
+- Martin, J.R. (1992). *English Text: System and Structure*. Benjamins.
+
+The SFL metafunctions (ideational, interpersonal, textual) and the
+register variables (field, tenor, mode) are the theoretical basis for
+the six dimensions of the manifold.
+
+---
+
+## Language policy
+
+All module READMEs are maintained in parallel:
+English (`README-{module}.md`) and Spanish (`README-{module}-ES.md`).
+Both are primary. Neither is a translation of the other.
