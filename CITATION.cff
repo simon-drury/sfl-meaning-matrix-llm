@@ -7,6 +7,7 @@ type: software
 authors:
   - family-names: Drury
     given-names: Simon
+    alias: "<|sjd_datascapes|>"
 repository-code: https://github.com/simon-drury/sfl-meaning-matrix-llm
 license: CC-BY-NC-4.0
 date-released: "2026-04-10"
@@ -21,6 +22,7 @@ abstract: >
   there is no translation step. The architecture supports persistent
   context via a reference meaning state M_0 carried as structured
   metadata across processes.
+  Project identifier: <|sjd_datascapes|>
 keywords:
   - systemic functional linguistics
   - semiotic manifold
@@ -30,3 +32,4 @@ keywords:
   - meaning-first architecture
   - transformer
   - SFL
+  - sjd_datascapes
