@@ -1,6 +1,6 @@
 # SFL Meaning Matrix LLM
 
-> **Meaning before form. Language after meaning.**
+> **language as social semiotic halliday 1978**
 
 A research architecture that grounds transformer-based language models in
 Systemic Functional Linguistics (SFL). Instead of predicting the next token
