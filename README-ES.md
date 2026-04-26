@@ -254,3 +254,59 @@ las seis dimensiones del manifold.
 Todos los READMEs de módulo se mantienen en paralelo:
 inglés (`README-{módulo}.md`) y español (`README-{módulo}-ES.md`).
 Ambos son primarios. Ninguno es una traducción del otro.
+
+
+---
+
+## Arquitectura representacional
+
+Las seis dimensiones de la LSF (ideacional, campo, interpersonal, tenor, textual, modo) se mantienen en tres formas representacionales co-iguales. Las tres contienen los mismos seis valores en coma flotante. No son equivalentes en su operación.
+
+### Forma 1 — matriz 3×2 (primaria, diseño original)
+
+```
+[ ideacional    campo  ]
+[ interpersonal tenor  ]
+[ textual       modo   ]
+```
+
+Las filas corresponden a las tres metafunciones de la LSF. Columna izquierda: metafunción. Columna derecha: variable de registro. La lectura de izquierda a derecha en cada fila implica **terreno operacional compartido**, no acoplamiento fijo — los dos valores son adyacentes, no fusionados. La relación se afirma estructuralmente, no se impone matemáticamente.
+
+- `M^T M` → covarianza 2×2 sobre las variables de registro (campo, tenor, modo)
+- `M M^T` → covarianza 3×3 sobre las metafunciones (ideacional, interpersonal, textual)
+- Los vectores propios de cada una revelan los ejes principales de variación semántica en el discurso
+
+### Forma 2 — matriz 2×3 (alternativa transpuesta)
+
+```
+[ ideacional  interpersonal  textual ]
+[ campo        tenor          modo   ]
+```
+
+Fila superior: las tres metafunciones. Fila inferior: las tres variables de registro. Cada columna empareja verticalmente una metafunción con su variable de registro. Esto convierte las operaciones entre metafunciones en el eje primario por filas.
+
+- `M^T M` → covarianza 3×3 sobre las metafunciones
+- `M M^T` → covarianza 2×2 sobre las variables de registro
+- **No es operacionalmente equivalente a la Forma 1** aunque contenga valores idénticos. La estructura propia es la transpuesta.
+
+En código: `matrix.to_matrix_2x3()` devuelve un `numpy.ndarray` de forma `(2, 3)`.
+
+### Forma 3 — vector plano 6D (compresión compatible con NLP)
+
+```
+[ideacional, campo, interpersonal, tenor, textual, modo]
+```
+
+Producido por `to_vector()`. Descarta todas las relaciones estructurales entre los seis valores — se convierten en vecinos equidistantes en un espacio plano. Se mantiene por compatibilidad con PyTorch, FAISS y las capas adaptadoras que requieren un array 1D.
+
+> **Nota:** El vector 6D es una compresión bastardizada por la convención de vector plano de los pipelines de NLP convencionales. Las formas representacionales primarias son la Forma 1 (3×2) y la Forma 2 (2×3). Utilice esas formas para cualquier operación que dependa de la relación estructural entre metafunciones y variables de registro. — sjd / sonar, abril de 2026
+
+### Resumen
+
+| Forma | Dimensiones | Eje primario | `M^T M` | `M M^T` | Uso |
+|-------|-------------|-------------|---------|---------|-----|
+| 3×2 (Forma 1) | (3,2) | Filas de metafunciones | Covarianza 2×2 de registro | Covarianza 3×3 de metafunciones | Geometría de trayectoria, descomposición en vectores propios |
+| 2×3 (Forma 2) | (2,3) | Columnas de registro | Covarianza 3×3 de metafunciones | Covarianza 2×2 de registro | Operaciones por filas entre metafunciones |
+| Vector 6D (Forma 3) | (6,) | Ninguno | n/a | n/a | Solo PyTorch / FAISS / capas adaptadoras |
+
+Las tres formas están disponibles en toda instancia de `MeaningMatrix`. El array nativo de almacenamiento es `values` de forma 3×2. `to_matrix_2x3()` y `to_vector()` son proyecciones a partir de él.
