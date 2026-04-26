@@ -47,7 +47,7 @@ Every meaning state is a point in this space. Every utterance is a trajectory.
 ```bash
 git clone https://github.com/simon-drury/sfl-meaning-matrix-llm.git
 cd sfl-meaning-matrix-llm
-pip install numpy matplotlib fastapi uvicorn
+pip install -r requirements.txt
 
 # Run the geometry engine on the two pilot prompts
 python sfl_manifold.py
@@ -80,6 +80,7 @@ Charts are written to `output/`.
 | `sfl_realize.py` | Realize | M_out -> w* in V_L (EN and ES) |
 | `sfl_visualise.py` | Visualise | 3D trajectory, step geometry, Gaussians, animation |
 | `api.py` | API | FastAPI wrapper, modality-first, full pipeline endpoint |
+| `wadapt_lora_training_sketch.ipynb` | Research | Colab sketch: LoRA adapter training toward Llama-3.2 |
 
 Each module has two READMEs: English (`README-{module}.md`) and
 Spanish (`README-{module}-ES.md`).
@@ -209,19 +210,30 @@ retrieval criterion.
 
 ---
 
-## Status
+## Implementation status
 
-| Component | Status |
-|---|---|
-| Semiotic manifold definition | complete |
-| Path geometry engine | complete |
-| SFL-weighted attention | complete |
-| Adapter layer W_adapt | complete |
-| Lexical realization V_L | complete (pilot vocabulary) |
-| Visualisation | complete |
-| FastAPI wrapper | complete |
-| Production vocabulary (corpus-learned) | future work |
-| Full transformer integration | future work |
+**Phase 1 — meaning manifold pipeline: complete and runnable.**
+
+| Component | File | Status |
+|---|---|---|
+| Semantic parser (matrix engine) | `sfl_matrix_engine.py` | ✅ Operational |
+| Manifold geometry | `sfl_manifold.py` | ✅ Operational |
+| SFL attention layer | `sfl_attention.py` | ✅ Operational |
+| Lexical realization (EN/ES/PT/IT/ZH) | `sfl_realize.py` | ✅ Operational |
+| Trajectory visualisation | `sfl_visualise.py` | ✅ Operational |
+| FastAPI pipeline wrapper | `api.py` | ✅ Operational |
+| LoRA adapter sketch (Colab) | `wadapt_lora_training_sketch.ipynb` | ✅ Runnable in Colab |
+
+**Phase 2 — transformer integration: architecture specified, implementation in progress.**
+
+| Component | File | Status | Requires |
+|---|---|---|---|
+| Adapter projection W_adapt | `sfl_adapter.py` | 🔧 Integration pending | GPT4All local install |
+| GPT4All bridge | `sfl_gpt4all.py` | 🔧 Integration pending | GPT4All local install + model (~4 GB) |
+| Wadapt LoRA training | `wadapt_lora_training_sketch.ipynb` | 🔧 Training targets pending | Llama-3.2 hidden states |
+
+Phase 1 components run with `pip install -r requirements.txt` — no GPU, no model downloads, under 50 MB total.
+Phase 2 components require a local transformer installation and are the subject of ongoing research.
 
 ---
 
