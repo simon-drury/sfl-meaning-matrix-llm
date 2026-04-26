@@ -254,3 +254,59 @@ the six dimensions of the manifold.
 All module READMEs are maintained in parallel:
 English (`README-{module}.md`) and Spanish (`README-{module}-ES.md`).
 Both are primary. Neither is a translation of the other.
+
+
+---
+
+## Representational architecture
+
+The six SFL dimensions (ideational, field, interpersonal, tenor, textual, mode) are held in three co-equal representational forms. All three contain the same six floating-point values. They are not equivalent in operation.
+
+### Form 1 — 3×2 matrix (primary, original design)
+
+```
+[ ideational    field  ]
+[ interpersonal tenor  ]
+[ textual       mode   ]
+```
+
+Rows are the three SFL metafunctions. Left column: metafunction. Right column: register variable. Reading left to right across a row implies **shared operational ground**, not fixed coupling — the two values are adjacent, not fused. The relationship is asserted structurally, not mathematically enforced.
+
+- `M^T M` → 2×2 covariance over the register variables (field, tenor, mode)
+- `M M^T` → 3×3 covariance over the metafunctions (ideational, interpersonal, textual)
+- Eigenvectors of each reveal the principal axes of semantic variation in the discourse
+
+### Form 2 — 2×3 matrix (transposed alternative)
+
+```
+[ ideational  interpersonal  textual ]
+[ field        tenor          mode   ]
+```
+
+Top row: all three metafunctions. Bottom row: all three register variables. Each column pairs a metafunction with its register variable vertically. This makes cross-metafunction operations the primary row-wise axis.
+
+- `M^T M` → 3×3 covariance over metafunctions
+- `M M^T` → 2×2 covariance over register variables
+- **Not operationally equivalent to Form 1** despite holding identical values. The eigenstructure is transposed.
+
+In code: `matrix.to_matrix_2x3()` returns `numpy.ndarray` of shape `(2, 3)`.
+
+### Form 3 — 6D flat vector (NLP-compatible compression)
+
+```
+[ideational, field, interpersonal, tenor, textual, mode]
+```
+
+Produced by `to_vector()`. Discards all structural relationships between the six values — they become equidistant neighbours in a flat space. Retained for compatibility with PyTorch, FAISS, and adapter layers that require a 1D array.
+
+> **Note:** The 6D vector is a bastardised compression by the flat-vector convention of mainstream NLP pipelines. The primary representational forms are Form 1 (3×2) and Form 2 (2×3). Use those for any operation that depends on the structural relationship between metafunctions and register variables. — sjd / sonar, April 2026
+
+### Summary
+
+| Form | Shape | Primary axis | `M^T M` | `M M^T` | Use for |
+|------|-------|-------------|---------|---------|--------|
+| 3×2 (Form 1) | (3,2) | Metafunction rows | 2×2 register covariance | 3×3 metafunction covariance | Trajectory geometry, eigenvector decomposition |
+| 2×3 (Form 2) | (2,3) | Register columns | 3×3 metafunction covariance | 2×2 register covariance | Cross-metafunction row operations |
+| 6D vector (Form 3) | (6,) | None | n/a | n/a | PyTorch / FAISS / adapter layers only |
+
+All three are available on every `MeaningMatrix` instance. The 3×2 `values` array is the native storage form. `to_matrix_2x3()` and `to_vector()` are projections from it.
