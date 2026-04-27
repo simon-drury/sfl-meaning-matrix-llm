@@ -146,4 +146,4 @@ with gr.Blocks(title="SFL Meaning Matrix") as demo:
         )
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(share=True)
