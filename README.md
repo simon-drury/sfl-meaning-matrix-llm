@@ -75,9 +75,9 @@ Charts are written to `output/`.
 | `MANIFOLD.md` | Theory | Full formal specification with LaTeX |
 | `sfl_matrix_engine.py` | Parse | Prompt -> `MeaningTrajectory` |
 | `sfl_manifold.py` | Geometry | delta_t, kappa_t, phi_t, L_sp |
-| `sfl_attention.py` | Attention | SFL-weighted self-attention mask |
+| `sfl_attention.py` | Attention | SFL metafunctional cluster attention weights over trajectory steps (mv0: computed from trajectory geometry; mv1: learned) |
 | `sfl_adapter.py` | Adapter | W_adapt: R^6 -> R^d_model |
-| `sfl_realize.py` | Realize | M_out -> w* in V_L (EN and ES) |
+| `sfl_realize.py` | Realize | M_out -> w* in V_L (EN, ES, PT, IT, ZH) |
 | `sfl_visualise.py` | Visualise | 3D trajectory, step geometry, Gaussians, animation |
 | `api.py` | API | FastAPI wrapper, modality-first, full pipeline endpoint |
 | `wadapt_lora_training_sketch.ipynb` | Research | Colab sketch: LoRA adapter training toward Llama-3.2 |
