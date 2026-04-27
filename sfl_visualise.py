@@ -33,6 +33,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
+from sfl_matrix_engine import encode_en, encode_es
+
 os.makedirs('output', exist_ok=True)
 
 # ── Palette ───────────────────────────────────────────────────────────────────
@@ -53,24 +55,15 @@ plt.rcParams.update({
     'axes.spines.right': False,
 })
 
-# ── Trajectory data ───────────────────────────────────────────────────────────
-en_labels = ['hey', 'why dont you', 'print hello world', 'for me', 'please thank you']
-en_states = np.array([
-    [-0.7, -0.5,  0.8,  0.9,  0.6, -0.6],
-    [-0.6, -0.3,  0.9,  0.9,  0.8, -0.6],
-    [ 0.3,  0.6,  1.0,  0.8,  1.0, -0.6],
-    [ 0.4,  0.6,  0.9,  0.9,  1.0, -0.6],
-    [ 0.1,  0.6,  1.0,  1.0,  0.8, -0.6],
-])
+# ── Trajectory data (sourced from sfl_matrix_engine) ─────────────────────────
+_en_traj = encode_en()
+_es_traj = encode_es()
 
-es_labels = ['buenos dias', 'hoy es viernes', 'Esto es CNN', 'dia importante', 'y para muchos']
-es_states = np.array([
-    [-0.6, -0.3,  0.8,  0.7,  0.7,  0.4],
-    [-0.2,  0.1,  0.8,  0.7,  0.9,  0.4],
-    [ 0.3,  0.9,  1.0,  0.4,  1.0,  0.7],
-    [ 0.5,  0.8,  0.9,  0.7,  1.0,  0.6],
-    [ 0.7,  0.9,  1.0,  0.9,  1.0,  0.6],
-])
+en_labels = [s.label for s in _en_traj.states]
+es_labels = [s.label for s in _es_traj.states]
+
+en_states = np.array([s.to_vector() for s in _en_traj.states])
+es_states = np.array([s.to_vector() for s in _es_traj.states])
 
 
 def compute_geometry(states):
@@ -151,7 +144,6 @@ def plot_steps():
     ax.spines['bottom'].set_color('#333')
     ax.spines['left'].set_color('#333')
 
-    # Legend for dimension colours
     from matplotlib.patches import Patch
     legend_els = [Patch(facecolor=COLORS[i], label=DIM[i]) for i in range(6)]
     legend_els.append(
