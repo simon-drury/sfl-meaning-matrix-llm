@@ -5,6 +5,29 @@ Code does not belong here. This is the jotter.
 
 ---
 
+## 2026-04-27
+
+### NLP retained at the output edge — architectural decision
+
+The realizer (`sfl_realize.py`) uses k-nearest-neighbour retrieval (k-NN)
+to map a meaning state M_out to a lexical item in V_L. This is standard NLP.
+
+This is not a compromise. It is a deliberate boundary decision:
+
+- The architecture does not discard NLP. It relocates it.
+- NLP operates at the output edge only, after meaning has been computed.
+- The transformer (Pathformer) never sees token sequences or lexical embeddings.
+  It operates on meaning states in M throughout.
+- k-NN at the output edge can use GPU-accelerated vector search (FAISS) at scale.
+  It is hardware-compatible and well-understood.
+- The realizer is modular and swappable: k-NN now (mv0), learned decoder later (mv1+).
+  The architecture does not change when the realizer is upgraded.
+
+The key distinction: NLP does the retrieval. SFL does the reasoning.
+The decoder is not corrupt — it is correctly scoped.
+
+---
+
 ## 2026-04-10
 
 ### Architecture decisions
