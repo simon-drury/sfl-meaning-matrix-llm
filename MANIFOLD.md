@@ -1,7 +1,7 @@
 # MANIFOLD.md
 # SFL Meaning Matrix: Formal Specification
 
-> Meaning before form. Language after meaning.
+> Language as social semiotic (Halliday, 1978)
 
 This document is the mathematical ground truth for the architecture.
 All module implementations are derived from the definitions here.
