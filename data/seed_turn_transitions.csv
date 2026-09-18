@@ -1,0 +1,21 @@
+id,source_text,target_text,src_ideational,src_field,src_interpersonal,src_tenor,src_textual,src_mode,tgt_ideational,tgt_field,tgt_interpersonal,tgt_tenor,tgt_textual,tgt_mode
+1,Could you send the report by Friday?,I will send the report by Friday.,0.62,0.55,0.42,0.35,0.36,0.10,0.64,0.58,0.30,0.18,0.42,0.12
+2,Please close the door.,Of course.,0.20,0.08,0.78,0.28,0.12,-0.35,0.08,0.04,0.38,0.08,0.12,-0.42
+3,The deployment failed after the schema migration.,I will roll back the migration and inspect the logs.,0.88,0.82,0.18,0.30,0.62,0.34,0.92,0.86,0.46,0.22,0.68,0.38
+4,Can we meet tomorrow morning?,Yes, ten o'clock works for me.,0.42,0.28,0.52,0.16,0.32,0.05,0.48,0.32,0.40,0.08,0.42,0.06
+5,I disagree with that conclusion.,What evidence would change your view?,0.54,0.45,-0.62,0.12,0.44,0.20,0.60,0.48,0.34,0.10,0.58,0.24
+6,Welcome to the workshop.,Thank you for having me.,0.28,0.18,0.72,-0.10,0.42,0.16,0.20,0.12,0.62,-0.16,0.36,0.18
+7,The patient needs urgent review.,I will contact the on-call clinician now.,0.82,0.88,0.70,0.46,0.56,0.24,0.76,0.84,0.78,0.38,0.52,0.18
+8,Here is the draft contract.,I will review clause seven first.,0.76,0.74,0.22,0.42,0.54,0.30,0.72,0.78,0.30,0.38,0.62,0.32
+9,That was a brilliant presentation.,Thank you, I appreciate that.,0.32,0.18,0.86,-0.04,0.34,0.08,0.18,0.10,0.76,-0.10,0.32,0.10
+10,Why did the test suite fail?,The authentication mock was not reset.,0.58,0.66,0.34,0.10,0.44,0.28,0.72,0.70,0.10,0.06,0.52,0.30
+11,Please explain this equation.,It defines curvature between consecutive state changes.,0.64,0.50,0.48,0.14,0.56,0.42,0.82,0.62,0.24,0.12,0.66,0.44
+12,We cannot approve the request yet.,What information is still missing?,0.50,0.56,-0.38,0.54,0.46,0.22,0.46,0.50,0.26,0.36,0.48,0.22
+13,Can you make that less formal?,Sure, here is a simpler version.,0.34,0.20,0.38,0.30,0.46,0.18,0.30,0.18,0.46,-0.24,0.44,0.12
+14,The figures show a significant increase.,How large is the increase in absolute terms?,0.76,0.62,0.16,0.28,0.58,0.36,0.72,0.66,0.32,0.20,0.60,0.38
+15,Let's pause and revisit this later.,Agreed, I will document the open questions.,0.28,0.26,0.32,0.06,0.42,0.08,0.50,0.36,0.38,0.12,0.58,0.18
+16,The client is unhappy with the delay.,I understand; I will give them an update today.,0.48,0.52,-0.42,0.40,0.42,0.16,0.56,0.60,0.68,0.28,0.52,0.18
+17,This section needs a citation.,I will add the primary source before submission.,0.54,0.44,0.28,0.30,0.58,0.38,0.64,0.52,0.34,0.24,0.64,0.40
+18,Would you like tea or coffee?,Coffee, please.,0.18,0.06,0.48,-0.12,0.22,-0.18,0.10,0.04,0.36,-0.18,0.18,-0.22
+19,The model is overfitting the training set.,We should reduce capacity and hold out validation data.,0.84,0.80,0.24,0.24,0.62,0.42,0.88,0.84,0.46,0.20,0.70,0.44
+20,Please keep this confidential.,Understood; I will not share it.,0.30,0.24,0.70,0.52,0.32,0.04,0.22,0.16,0.62,0.46,0.30,0.02
