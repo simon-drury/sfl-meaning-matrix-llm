@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SFLMeaningMatrixSchemaV0.1",
+  "description": "JSON schema for 3x3 Systemic Functional Linguistics Meaning Matrix (M_t in R^{3x3}) and discourse trajectory states.",
+  "type": "object",
+  "required": [
+    "metafunctions",
+    "registers",
+    "matrix_3x3",
+    "vector_9d",
+    "systemic_features"
+  ],
+  "properties": {
+    "step_index": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Zero-based temporal step index t in the discourse trajectory."
+    },
+    "surface_text": {
+      "type": "string",
+      "description": "Surface realization fragment corresponding to this trajectory step."
+    },
+    "metafunctions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 3,
+      "maxItems": 3,
+      "default": ["ideational", "interpersonal", "textual"]
+    },
+    "registers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 3,
+      "maxItems": 3,
+      "default": ["field", "tenor", "mode"]
+    },
+    "matrix_3x3": {
+      "type": "array",
+      "description": "3x3 continuous semantic state matrix M_t with values bounded in [-1.0, 1.0]. Rows: Ideational, Interpersonal, Textual. Columns: Field, Tenor, Mode.",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number",
+          "minimum": -1.0,
+          "maximum": 1.0
+        }
+      }
+    },
+    "vector_9d": {
+      "type": "array",
+      "description": "Row-major unrolled 9D coordinate vector m_t for neural adapter projection.",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": {
+        "type": "number",
+        "minimum": -1.0,
+        "maximum": 1.0
+      }
+    },
+    "systemic_features": {
+      "type": "object",
+      "required": ["ideational", "interpersonal", "textual"],
+      "properties": {
+        "ideational": {
+          "type": "object",
+          "required": ["process_type"],
+          "properties": {
+            "process_type": {
+              "type": "string",
+              "enum": ["material", "mental", "relational", "behavioral", "verbal", "existential"]
+            },
+            "participant_roles": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "circumstances": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "interpersonal": {
+          "type": "object",
+          "required": ["speech_function", "modality_polarity"],
+          "properties": {
+            "speech_function": {
+              "type": "string",
+              "enum": ["statement", "question", "command", "offer", "exclamation"]
+            },
+            "social_distance": {
+              "type": "string",
+              "enum": ["intimate", "informal", "consultative", "formal", "frozen"]
+            },
+            "power_hierarchy": {
+              "type": "string",
+              "enum": ["equal", "superior_to_inferior", "inferior_to_superior"]
+            },
+            "modality_polarity": {
+              "type": "number",
+              "minimum": -1.0,
+              "maximum": 1.0
+            }
+          }
+        },
+        "textual": {
+          "type": "object",
+          "required": ["theme_type", "medium"],
+          "properties": {
+            "theme_type": {
+              "type": "string",
+              "enum": ["topical", "interpersonal", "textual_structural", "multiple"]
+            },
+            "medium": {
+              "type": "string",
+              "enum": ["spoken_spontaneous", "spoken_prepared", "written_informal", "written_formal"]
+            },
+            "cohesion_index": {
+              "type": "number",
+              "minimum": -1.0,
+              "maximum": 1.0
+            }
+          }
+        }
+      }
+    }
+  }
+}
