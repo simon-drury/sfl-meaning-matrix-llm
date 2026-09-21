@@ -2,6 +2,12 @@ name: train SFL model
 
 on:
   workflow_dispatch:
+    inputs:
+      epochs:
+        description: 'Number of training epochs'
+        required: true
+        default: '25'
+        type: string
 
 permissions:
   contents: write
@@ -25,7 +31,7 @@ jobs:
 
       - name: Run genuine training on empirical data
         run: |
-          python traincore.py --data_path data/empirical_trajectories.jsonl --output_path sfl_model_3x3.pt --epochs 25
+          python traincore.py --data_path data/empirical_trajectories.jsonl --output_path sfl_model_3x3.pt --epochs ${{ inputs.epochs || '25' }}
 
       - name: Commit and push trained model weights
         run: |
@@ -35,6 +41,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes in model weights."
           else
-            git commit -m "Auto-update trained sfl_model_3x3.pt from empirical training workflow"
+            git commit -m "Auto-update trained sfl_model_3x3.pt (${{ inputs.epochs || '25' }} epochs)"
             git push origin main
           fi
