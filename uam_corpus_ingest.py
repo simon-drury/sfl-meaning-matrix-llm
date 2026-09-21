@@ -30,3 +30,19 @@ class UAMCorpusIngest:
             features = [f.strip() for f in segment.get('features', '').split(';') if f.strip()]
             units.append({'start': start, 'end': end, 'features': features})
         return units
+
+    def project_to_matrix(self, trans_feats, mood_feats, theme_feats):
+        m = np.zeros((3, 3), dtype=np.float32)
+        for f in trans_feats:
+            f_low = f.lower()
+            if f_low in self.TRANSITIVITY_FIELD_MAP:
+                m[0, 0] = self.TRANSITIVITY_FIELD_MAP[f_low]
+        for f in mood_feats:
+            f_low = f.lower()
+            if f_low in self.MOOD_TENOR_MAP:
+                m[1, 0] = self.MOOD_TENOR_MAP[f_low]
+        for f in theme_feats:
+            f_low = f.lower()
+            if f_low in self.THEME_MODE_MAP:
+                m[2, 0] = self.THEME_MODE_MAP[f_low]
+        return np.clip(m, -1.0, 1.0)
