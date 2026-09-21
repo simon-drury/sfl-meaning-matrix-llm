@@ -1,7 +1,7 @@
 """
 interact.py - CLI pipeline for SFL Manifold Trajectory Inference & Grammatical Realization.
 Maps input prompt -> SFL Metafunctional Semantic Parsing -> Manifold Transformer Drift -> Empirical Voronoi Realization.
-Ingests real empirical vocabulary centroids directly from data/empirical_vocabulary_9d.json.
+Flexibly ingests empirical vocabulary centroids regardless of JSON nesting structure.
 """
 
 import os
@@ -31,24 +31,47 @@ except Exception:
             h = self.transformer(h)
             return self.out_proj(h.squeeze(1))
 
-# Load empirical centroids from data/empirical_vocabulary_9d.json
+# Robust parser for any JSON schema structure in data/empirical_vocabulary_9d.json
 def load_empirical_lexicon(path="data/empirical_vocabulary_9d.json"):
     lexicon = {}
     if os.path.exists(path):
         try:
             with open(path, "r", encoding="utf-8") as f:
                 raw = json.load(f)
-            for word, coords in raw.items():
-                if isinstance(coords, list) and len(coords) == 9:
-                    lexicon[word] = np.array(coords, dtype=np.float32)
-                elif isinstance(coords, dict) and "centroid" in coords:
-                    lexicon[word] = np.array(coords["centroid"], dtype=np.float32)
+            
+            # Case 1: wrapped in a root key (e.g. {"vocabulary": {...}} or {"centroids": [...]})
+            if isinstance(raw, dict) and len(raw) == 1 and isinstance(list(raw.values())[0], (dict, list)):
+                raw = list(raw.values())[0]
+
+            # Case 2: Dict of items
+            if isinstance(raw, dict):
+                for word, entry in raw.items():
+                    if isinstance(entry, list) and len(entry) == 9:
+                        lexicon[str(word).lower()] = np.array(entry, dtype=np.float32)
+                    elif isinstance(entry, dict):
+                        # check for common vector keys
+                        for k in ["centroid", "vector", "coords", "matrix", "m_9d", "values"]:
+                            if k in entry and isinstance(entry[k], list) and len(entry[k]) == 9:
+                                lexicon[str(word).lower()] = np.array(entry[k], dtype=np.float32)
+                                break
+
+            # Case 3: List of records [{"word": ..., "centroid": [...]}]
+            elif isinstance(raw, list):
+                for item in raw:
+                    if isinstance(item, dict):
+                        word = item.get("word") or item.get("token") or item.get("term") or item.get("lemma")
+                        for k in ["centroid", "vector", "coords", "matrix", "m_9d", "values"]:
+                            if k in item and isinstance(item[k], list) and len(item[k]) == 9:
+                                if word:
+                                    lexicon[str(word).lower()] = np.array(item[k], dtype=np.float32)
+                                break
+
             print(f"[Lexicon] Ingested {len(lexicon)} empirical 9D centroids from {path}")
         except Exception as e:
-            print(f"[Lexicon] Note loading {path}: {e}")
+            print(f"[Lexicon] Error parsing {path}: {e}")
             
     if not lexicon:
-        print("[Lexicon] Using baseline empirical centroids.")
+        print("[Lexicon] Falling back to canonical political-economy domain anchors.")
         lexicon = {
             "adam smith": np.array([0.80, 0.90, 0.70, 0.40, 0.50, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
             "division of labour": np.array([0.85, 0.85, 0.70, 0.35, 0.45, 0.65, 0.60, 0.50, 0.55], dtype=np.float32),
@@ -132,7 +155,7 @@ def sfl_parse_clause(text):
     }
     return m3x3.flatten(), meta
 
-def realize_voronoi(vec, lexicon, top_k=2):
+def realize_voronoi(vec, lexicon, top_k=3):
     dists = {w: float(np.linalg.norm(vec - c)) for w, c in lexicon.items()}
     sorted_items = sorted(dists.items(), key=lambda x: x[1])
     return [w for w, _ in sorted_items[:top_k]]
@@ -177,7 +200,7 @@ def run_sfl_pipeline(prompt, model_path="sfl_model_3x3.pt", vocab_path="data/emp
             delta = 0.04 * np.cos(current_m * (s + 1))
 
         current_m = np.clip(current_m + delta, 0.0, 1.0)
-        closest_candidates = realize_voronoi(current_m, lexicon, top_k=2)
+        closest_candidates = realize_voronoi(current_m, lexicon, top_k=3)
         
         chosen = closest_candidates[0]
         if trajectory_phrases and chosen == trajectory_phrases[-1] and len(closest_candidates) > 1:
