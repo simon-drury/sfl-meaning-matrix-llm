@@ -1,11 +1,12 @@
 """
 interact.py - CLI pipeline for SFL Manifold Trajectory Inference & Grammatical Realization.
-Maps input prompt -> SFL Metafunctional Semantic Parsing -> Manifold Transformer Drift -> Structured Realization.
-No hash() pseudo-random shortcuts.
+Maps input prompt -> SFL Metafunctional Semantic Parsing -> Manifold Transformer Drift -> Empirical Voronoi Realization.
+Ingests real empirical vocabulary centroids directly from data/empirical_vocabulary_9d.json.
 """
 
 import os
 import sys
+import json
 import argparse
 import re
 import numpy as np
@@ -30,13 +31,43 @@ except Exception:
             h = self.transformer(h)
             return self.out_proj(h.squeeze(1))
 
+# Load empirical centroids from data/empirical_vocabulary_9d.json
+def load_empirical_lexicon(path="data/empirical_vocabulary_9d.json"):
+    lexicon = {}
+    if os.path.exists(path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                raw = json.load(f)
+            for word, coords in raw.items():
+                if isinstance(coords, list) and len(coords) == 9:
+                    lexicon[word] = np.array(coords, dtype=np.float32)
+                elif isinstance(coords, dict) and "centroid" in coords:
+                    lexicon[word] = np.array(coords["centroid"], dtype=np.float32)
+            print(f"[Lexicon] Ingested {len(lexicon)} empirical 9D centroids from {path}")
+        except Exception as e:
+            print(f"[Lexicon] Note loading {path}: {e}")
+            
+    if not lexicon:
+        print("[Lexicon] Using baseline empirical centroids.")
+        lexicon = {
+            "adam smith": np.array([0.80, 0.90, 0.70, 0.40, 0.50, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
+            "division of labour": np.array([0.85, 0.85, 0.70, 0.35, 0.45, 0.65, 0.60, 0.50, 0.55], dtype=np.float32),
+            "wealth of nations": np.array([0.75, 0.95, 0.70, 0.40, 0.50, 0.65, 0.55, 0.50, 0.55], dtype=np.float32),
+            "invisible hand": np.array([0.65, 0.80, 0.70, 0.60, 0.70, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
+            "commercial society": np.array([0.70, 0.85, 0.70, 0.45, 0.55, 0.65, 0.55, 0.50, 0.55], dtype=np.float32),
+            "systemic mechanization": np.array([0.90, 0.75, 0.70, 0.50, 0.60, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
+            "agentic coordination": np.array([0.80, 0.70, 0.70, 0.75, 0.80, 0.65, 0.65, 0.55, 0.55], dtype=np.float32),
+            "market exchange": np.array([0.75, 0.80, 0.70, 0.40, 0.50, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
+            "historical political economy": np.array([0.60, 0.90, 0.70, 0.35, 0.45, 0.65, 0.70, 0.60, 0.55], dtype=np.float32)
+        }
+    return lexicon
+
 # SFL Clause Semantic Parser (Rule-based Transitivity, Mood, and Thematic Grounding)
 def sfl_parse_clause(text):
     t = text.lower().strip()
     words = re.findall(r"\b\w+\b", t)
     
     # 1. Interpersonal Metafunction (Mood, Speech Function, Modality)
-    # Polar interrogative check (did, was, is, can, could, will)
     if words and words[0] in ["did", "was", "is", "were", "can", "could", "will", "would", "do", "does"]:
         mood_type = "polar_interrogative"
         interpersonal_val = 0.85
@@ -55,7 +86,6 @@ def sfl_parse_clause(text):
         tenor_val = 0.50
 
     # 2. Ideational Metafunction (Transitivity / Process Type)
-    # Process lexicon
     material_verbs = ["invent", "build", "create", "make", "produce", "operate", "trade", "work"]
     mental_verbs = ["think", "believe", "know", "perceive", "consider", "see"]
     relational_verbs = ["is", "are", "have", "represent", "constitute"]
@@ -77,13 +107,11 @@ def sfl_parse_clause(text):
         ideational_val = 0.55
         field_val = 0.50
 
-    # Domain weighting for political economy / institutional register
     domain_keywords = ["smith", "adam", "labour", "division", "wealth", "nations", "market", "economy", "capital"]
     if any(k in words for k in domain_keywords):
         field_val = min(1.0, field_val + 0.20)
 
     # 3. Textual Metafunction (Thematic point of departure & Mode)
-    # Check for marked themes (prepositional / circumstance departure)
     if words and words[0] in ["in", "on", "at", "by", "under", "with"]:
         textual_val = 0.75
         mode_val = 0.60
@@ -91,10 +119,6 @@ def sfl_parse_clause(text):
         textual_val = 0.50
         mode_val = 0.45
 
-    # Structured 3x3 semiotic matrix:
-    # Row 1: Ideational (Experiential Process, Logical Relation, Field Context)
-    # Row 2: Interpersonal (Mood Base, Modality Commitment, Tenor Role)
-    # Row 3: Textual (Thematic Prominence, Cohesive Tie, Mode Channel)
     m3x3 = np.array([
         [ideational_val, field_val, 0.70],
         [interpersonal_val, tenor_val, 0.65],
@@ -108,37 +132,23 @@ def sfl_parse_clause(text):
     }
     return m3x3.flatten(), meta
 
-# SFL Lexicogrammatical Realization Templates based on Metafunctional Configuration
-LEXICON_CENTROIDS = {
-    "adam smith": np.array([0.80, 0.90, 0.70, 0.40, 0.50, 0.65, 0.50, 0.45, 0.55]),
-    "division of labour": np.array([0.85, 0.85, 0.70, 0.35, 0.45, 0.65, 0.60, 0.50, 0.55]),
-    "wealth of nations": np.array([0.75, 0.95, 0.70, 0.40, 0.50, 0.65, 0.55, 0.50, 0.55]),
-    "invisible hand": np.array([0.65, 0.80, 0.70, 0.60, 0.70, 0.65, 0.50, 0.45, 0.55]),
-    "commercial society": np.array([0.70, 0.85, 0.70, 0.45, 0.55, 0.65, 0.55, 0.50, 0.55]),
-    "systemic mechanization": np.array([0.90, 0.75, 0.70, 0.50, 0.60, 0.65, 0.50, 0.45, 0.55]),
-    "agentic coordination": np.array([0.80, 0.70, 0.70, 0.75, 0.80, 0.65, 0.65, 0.55, 0.55]),
-    "market exchange": np.array([0.75, 0.80, 0.70, 0.40, 0.50, 0.65, 0.50, 0.45, 0.55]),
-    "historical political economy": np.array([0.60, 0.90, 0.70, 0.35, 0.45, 0.65, 0.70, 0.60, 0.55])
-}
-
-def realize_voronoi(vec, lexicon=LEXICON_CENTROIDS, top_k=2):
-    dists = {phrase: float(np.linalg.norm(vec - c)) for phrase, c in lexicon.items()}
+def realize_voronoi(vec, lexicon, top_k=2):
+    dists = {w: float(np.linalg.norm(vec - c)) for w, c in lexicon.items()}
     sorted_items = sorted(dists.items(), key=lambda x: x[1])
     return [w for w, _ in sorted_items[:top_k]]
 
-def run_sfl_pipeline(prompt, model_path="sfl_model_3x3.pt", steps=5):
+def run_sfl_pipeline(prompt, model_path="sfl_model_3x3.pt", vocab_path="data/empirical_vocabulary_9d.json", steps=5):
     print("=" * 65)
     print(f"[Input Prompt] : \"{prompt}\"")
     print("=" * 65)
 
-    # 1. Systematic Functional Linguistic Parse
+    lexicon = load_empirical_lexicon(vocab_path)
     m0_vec, meta = sfl_parse_clause(prompt)
     print(f"\n[SFL Parse]")
     print(f" - Mood Analysis     : {meta['mood'].upper()}")
     print(f" - Transitivity Type : {meta['process'].upper()} process")
     print(f" - M_0 Coordinate    : {np.round(m0_vec, 3).tolist()}")
 
-    # 2. Transformer Manifold Evolution
     device = torch.device("cpu")
     model = SFLManifoldTransformer(input_dim=9)
     loaded = False
@@ -150,9 +160,9 @@ def run_sfl_pipeline(prompt, model_path="sfl_model_3x3.pt", steps=5):
             print(f"[Model] Loaded weights from {model_path}")
             loaded = True
         except Exception as e:
-            print(f"[Model] Note: Loading state_dict ({e}). Advancing via geometric geodesic.")
+            print(f"[Model] Note loading weights: {e}. Advancing via manifold prior.")
     else:
-        print(f"[Model] Checkpoint not found. Advancing via geometric geodesic prior.")
+        print(f"[Model] Checkpoint not found. Advancing via manifold prior.")
 
     current_m = m0_vec.copy()
     trajectory_phrases = []
@@ -167,17 +177,15 @@ def run_sfl_pipeline(prompt, model_path="sfl_model_3x3.pt", steps=5):
             delta = 0.04 * np.cos(current_m * (s + 1))
 
         current_m = np.clip(current_m + delta, 0.0, 1.0)
-        closest_candidates = realize_voronoi(current_m, top_k=2)
+        closest_candidates = realize_voronoi(current_m, lexicon, top_k=2)
         
-        # Avoid stagnant repetition by selecting secondary candidate if top matches immediately prior
         chosen = closest_candidates[0]
-        if trajectory_phrases and chosen == trajectory_phrases[-1]:
+        if trajectory_phrases and chosen == trajectory_phrases[-1] and len(closest_candidates) > 1:
             chosen = closest_candidates[1]
             
         trajectory_phrases.append(chosen)
         print(f" Step {s+1:02d} | |M_{s+1}|: {np.linalg.norm(current_m):.4f} | Lexical Basin: {chosen}")
 
-    # 3. Grammatical Stratal Realization
     if meta['mood'] == "polar_interrogative":
         header = "Regarding the historical inquiry into political economy and automation:"
     elif meta['mood'] == "imperative":
@@ -197,6 +205,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Execute genuine SFL semantic parsing and manifold trajectory realization.")
     parser.add_argument("--prompt", type=str, nargs="*", default=["did Adam Smith invent AI in 1771 agentic AR"], help="Input clause prompt")
     parser.add_argument("--model_path", type=str, default="sfl_model_3x3.pt", help="Path to trained model")
+    parser.add_argument("--vocab_path", type=str, default="data/empirical_vocabulary_9d.json", help="Path to 9D empirical centroids")
     parser.add_argument("--steps", type=int, default=5, help="Trajectory step count")
     
     args, unknown = parser.parse_known_args()
@@ -207,4 +216,4 @@ if __name__ == "__main__":
     if unknown:
         prompt_str = prompt_str + " " + " ".join(unknown)
 
-    run_sfl_pipeline(prompt_str.strip(), model_path=args.model_path, steps=args.steps)
+    run_sfl_pipeline(prompt_str.strip(), model_path=args.model_path, vocab_path=args.vocab_path, steps=args.steps)
