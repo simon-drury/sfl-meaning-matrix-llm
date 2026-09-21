@@ -1,138 +1,187 @@
 """
-traincore.py - SFL Meaning Matrix Manifold Training Pipeline
-Trains a Transformer on meaning trajectories (M_t -> Delta_{t+1})
-respecting document boundaries from uam_meaning_trajectories.npz.
-Auto-generates the trajectory dataset if not present on disk.
+traincore.py - Genuine SFL Manifold Drift Training Engine.
+Strictly ingests empirical corpus data (data/empirical_trajectories.jsonl or data/uam_meaning_trajectories.npz).
+NO SYNTHETIC FALLBACKS OR RANDOM WALKS: fails with explicit errors if real empirical data is missing.
 """
 
 import os
 import sys
+import json
 import argparse
-import subprocess
 import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 
-class UAMTrajectoryDataset(Dataset):
-    def __init__(self, npz_path="uam_meaning_trajectories.npz", matrix_dim=9):
-        super().__init__()
-        self.samples = []
-        
-        # Auto-build dataset if missing (e.g. fresh CI runner checkout)
-        if not os.path.exists(npz_path):
-            print(f"[Dataset] '{npz_path}' not found. Generating via build_uam_dataset.py...")
-            if os.path.exists("build_uam_dataset.py"):
-                res = subprocess.run([sys.executable, "build_uam_dataset.py"], check=False)
-                if res.returncode != 0:
-                    print("[Dataset] build_uam_dataset.py failed or data unavailable, falling back to synthetic SFL corpus...")
-                    self._generate_fallback_trajectories(npz_path, matrix_dim)
-            else:
-                print("[Dataset] build_uam_dataset.py not found, generating fallback SFL trajectory dataset...")
-                self._generate_fallback_trajectories(npz_path, matrix_dim)
-
-        if not os.path.exists(npz_path):
-            self._generate_fallback_trajectories(npz_path, matrix_dim)
-
-        data = np.load(npz_path, allow_pickle=True)
-        keys = data.files
-        for key in keys:
-            traj = data[key]
-            traj = np.array(traj, dtype=np.float32)
-            if traj.ndim == 3:
-                for single_traj in traj:
-                    self._extract_pairs(single_traj, matrix_dim)
-            elif traj.ndim == 2:
-                self._extract_pairs(traj, matrix_dim)
-
-        print(f"[Dataset] Loaded {len(self.samples)} boundary-safe transitions from {npz_path}")
-
-    def _generate_fallback_trajectories(self, npz_path, matrix_dim, num_docs=20, steps_per_doc=15):
-        docs = {}
-        for d in range(num_docs):
-            doc_traj = np.cumsum(np.random.randn(steps_per_doc, matrix_dim) * 0.05, axis=0).astype(np.float32)
-            docs[f"doc_{d}"] = doc_traj
-        np.savez(npz_path, **docs)
-        print(f"[Dataset] Generated {num_docs} fallback trajectory sequences -> {npz_path}")
-
-    def _extract_pairs(self, traj, matrix_dim):
-        if traj.shape[-1] != matrix_dim and traj.size % matrix_dim == 0:
-            traj = traj.reshape(-1, matrix_dim)
-        
-        T = traj.shape[0]
-        for t in range(T - 1):
-            m_t = traj[t]
-            m_next = traj[t + 1]
-            delta = m_next - m_t
-            self.samples.append((m_t, delta))
-
-    def __len__(self):
-        return len(self.samples)
-
-    def __getitem__(self, idx):
-        m_t, delta = self.samples[idx]
-        return torch.tensor(m_t, dtype=torch.float32), torch.tensor(delta, dtype=torch.float32)
-
-
 class SFLManifoldTransformer(nn.Module):
-    def __init__(self, input_dim=9, d_model=64, nhead=4, num_layers=3, dim_feedforward=128):
+    def __init__(self, input_dim=9, d_model=128, nhead=4, num_layers=4, dim_feedforward=256, dropout=0.1):
         super().__init__()
+        self.input_dim = input_dim
         self.in_proj = nn.Linear(input_dim, d_model)
+        self.pos_encoder = nn.Parameter(torch.zeros(1, 64, d_model))
         encoder_layer = nn.TransformerEncoderLayer(
-            d_model=d_model, nhead=nhead, dim_feedforward=dim_feedforward, batch_first=True
+            d_model=d_model, nhead=nhead, dim_feedforward=dim_feedforward,
+            dropout=dropout, batch_first=True
         )
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
         self.out_proj = nn.Linear(d_model, input_dim)
 
     def forward(self, x):
-        h = self.in_proj(x).unsqueeze(1)
-        h = self.transformer(h)
-        delta = self.out_proj(h.squeeze(1))
-        return delta
+        # x: (batch_size, seq_len, input_dim) or (batch_size, input_dim)
+        if x.dim() == 2:
+            x = x.unsqueeze(1)
+        b, s, _ = x.shape
+        h = self.in_proj(x) + self.pos_encoder[:, :s, :]
+        out = self.transformer(h)
+        delta = self.out_proj(out)
+        return delta.squeeze(1) if s == 1 else delta
 
+class EmpiricalSFLDataset(Dataset):
+    def __init__(self, data_path="data/empirical_trajectories.jsonl", npz_path="data/uam_meaning_trajectories.npz"):
+        self.trajectories = []
+        
+        # 1. Primary: empirical_trajectories.jsonl
+        if os.path.exists(data_path):
+            print(f"[Dataset] Loading authentic empirical trajectories from {data_path}...")
+            with open(data_path, "r", encoding="utf-8") as f:
+                for line_idx, line in enumerate(f):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        record = json.loads(line)
+                        # Extract sequence of 9D state matrices
+                        seq = None
+                        for key in ["trajectory", "matrices", "states", "m_seq", "points"]:
+                            if key in record and isinstance(record[key], list) and len(record[key]) > 1:
+                                seq = record[key]
+                                break
+                        if seq is None and isinstance(record, list) and len(record) > 1:
+                            seq = record
 
-def train(args):
+                        if seq:
+                            parsed_seq = []
+                            for pt in seq:
+                                arr = np.array(pt, dtype=np.float32).flatten()
+                                if len(arr) == 9:
+                                    parsed_seq.append(arr)
+                            if len(parsed_seq) >= 2:
+                                self.trajectories.append(np.array(parsed_seq, dtype=np.float32))
+                    except Exception as e:
+                        pass
+            print(f"[Dataset] Ingested {len(self.trajectories)} empirical multi-step trajectories.")
+
+        # 2. Secondary: uam_meaning_trajectories.npz
+        elif os.path.exists(npz_path):
+            print(f"[Dataset] Loading authentic empirical trajectories from {npz_path}...")
+            data = np.load(npz_path, allow_pickle=True)
+            for k in data.files:
+                arr = data[k]
+                if arr.ndim == 2 and arr.shape[1] == 9 and len(arr) >= 2:
+                    self.trajectories.append(arr.astype(np.float32))
+                elif arr.ndim == 3 and arr.shape[2] == 9:
+                    for item in arr:
+                        if len(item) >= 2:
+                            self.trajectories.append(item.astype(np.float32))
+            print(f"[Dataset] Ingested {len(self.trajectories)} empirical trajectory matrices from NPZ.")
+
+        # Fail explicitly if no real data is found - NEVER use synthetic noise
+        if len(self.trajectories) == 0:
+            raise FileNotFoundError(
+                f"FATAL: No empirical trajectory datasets found at '{data_path}' or '{npz_path}'. "
+                "Synthetic fallbacks are disabled to prevent training on mock data. "
+                "Ensure data/empirical_trajectories.jsonl is populated."
+            )
+
+        # Build pair transitions (M_t -> M_{t+1})
+        self.transitions = []
+        for traj in self.trajectories:
+            for t in range(len(traj) - 1):
+                self.transitions.append((traj[t], traj[t+1]))
+
+        print(f"[Dataset] Total authentic empirical transitions (M_t -> M_{{t+1}}): {len(self.transitions)}")
+
+    def __len__(self):
+        return len(self.transitions)
+
+    def __getitem__(self, idx):
+        m_t, m_next = self.transitions[idx]
+        delta = m_next - m_t
+        return torch.tensor(m_t, dtype=torch.float32), torch.tensor(delta, dtype=torch.float32), torch.tensor(m_next, dtype=torch.float32)
+
+def train_sfl_manifold(
+    data_path="data/empirical_trajectories.jsonl",
+    output_path="sfl_model_3x3.pt",
+    epochs=25,
+    batch_size=32,
+    lr=1e-3
+):
+    print("=" * 65)
+    print("SFL MANIFOLD DRIFT MODEL - AUTHENTIC EMPIRICAL TRAINING")
+    print("=" * 65)
+
+    dataset = EmpiricalSFLDataset(data_path=data_path)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"[Train] Using device: {device}")
+    print(f"[Device] Using {device} for training.")
 
-    dataset = UAMTrajectoryDataset(args.data_path, matrix_dim=args.dim)
-    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    model = SFLManifoldTransformer(input_dim=9).to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
+    criterion_delta = nn.MSELoss()
+    criterion_cosine = nn.CosineSimilarity(dim=-1)
 
-    model = SFLManifoldTransformer(input_dim=args.dim, d_model=args.d_model).to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
-    criterion = nn.MSELoss()
-
-    model.train()
-    for epoch in range(args.epochs):
+    print(f"\nStarting {epochs} epochs of authentic manifold drift learning...\n")
+    for epoch in range(1, epochs + 1):
+        model.train()
         total_loss = 0.0
-        for m_t, delta in dataloader:
-            m_t, delta = m_t.to(device), delta.to(device)
+        total_batches = 0
+
+        for m_t, delta_target, m_next in dataloader:
+            m_t = m_t.to(device)
+            delta_target = delta_target.to(device)
+            m_next = m_next.to(device)
 
             optimizer.zero_grad()
-            pred_delta = model(m_t)
-            loss = criterion(pred_delta, delta)
+            delta_pred = model(m_t)
+            
+            # Loss: MSE on step delta + Cosine alignment on resulting next state
+            pred_next = m_t + delta_pred
+            loss_mse = criterion_delta(delta_pred, delta_target)
+            loss_cos = 1.0 - criterion_cosine(pred_next, m_next).mean()
+            loss = loss_mse + 0.5 * loss_cos
+
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
 
-            total_loss += loss.item() * len(m_t)
+            total_loss += loss.item()
+            total_batches += 1
 
-        avg_loss = total_loss / max(1, len(dataset))
-        if (epoch + 1) % max(1, args.epochs // 10) == 0 or epoch == 0:
-            print(f"Epoch {epoch+1:03d}/{args.epochs:03d} | Geodesic Delta Loss: {avg_loss:.6f}")
+        scheduler.step()
+        avg_loss = total_loss / max(1, total_batches)
+        if epoch % 5 == 0 or epoch == 1 or epoch == epochs:
+            print(f"Epoch {epoch:02d}/{epochs} | Loss: {avg_loss:.6f} | LR: {scheduler.get_last_lr()[0]:.6f}")
 
-    torch.save(model.state_dict(), args.save_path)
-    print(f"[Done] Model saved successfully to {args.save_path}")
-
+    torch.save(model.state_dict(), output_path)
+    print("\n" + "=" * 65)
+    print(f"[Success] Checkpoint saved directly to {output_path}")
+    print("=" * 65 + "\n")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train SFL manifold model on meaning trajectories.")
-    parser.add_argument("--data_path", type=str, default="uam_meaning_trajectories.npz", help="Path to trajectory NPZ")
-    parser.add_argument("--save_path", type=str, default="sfl_model_3x3.pt", help="Checkpoint destination")
-    parser.add_argument("--dim", type=int, default=9, help="Flat dimension of meaning matrix (9 for 3x3, 6 for 3x2)")
-    parser.add_argument("--d_model", type=int, default=64, help="Transformer latent dimension")
-    parser.add_argument("--epochs", type=int, default=20, help="Training epochs")
+    parser = argparse.ArgumentParser(description="Train SFL Manifold Drift Transformer on Empirical Datasets.")
+    parser.add_argument("--data_path", type=str, default="data/empirical_trajectories.jsonl", help="Path to empirical JSONL")
+    parser.add_argument("--output_path", type=str, default="sfl_model_3x3.pt", help="Path to save model weights")
+    parser.add_argument("--epochs", type=int, default=25, help="Number of training epochs")
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size")
     parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
     args = parser.parse_args()
 
-    train(args)
+    train_sfl_manifold(
+        data_path=args.data_path,
+        output_path=args.output_path,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        lr=args.lr
+    )
