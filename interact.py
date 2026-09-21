@@ -14,6 +14,24 @@ import numpy as np
 
 from traincore import SFLMeaningTransformer
 
+def extract_vector(val):
+    """
+    Extracts a raw 9D list/array whether the vocabulary entry is:
+    - a list of 9 floats: [v1, ..., v9]
+    - a dict: {'centroid': [...]} or {'vector': [...]} or {'coords': [...]}
+    """
+    if isinstance(val, (list, tuple)):
+        return list(val)
+    elif isinstance(val, dict):
+        for k in ['centroid', 'vector', 'coords', 'values']:
+            if k in val and isinstance(val[k], (list, tuple)):
+                return list(val[k])
+        # If it's a dict of coordinate pairs, take values
+        for v in val.values():
+            if isinstance(v, (list, tuple)):
+                return list(v)
+    return None
+
 def parse_input_to_9d(text: str, vocab_9d: dict) -> np.ndarray:
     """
     Projects raw user input text into a continuous 9D SFL meaning vector
@@ -21,10 +39,16 @@ def parse_input_to_9d(text: str, vocab_9d: dict) -> np.ndarray:
     Falls back to a default neutral state if words are out-of-vocabulary.
     """
     words = [w.strip(".,!?;:\"'()").lower() for w in text.split()]
-    coords = [vocab_9d[w] for w in words if w in vocab_9d]
+    coords = []
+    for w in words:
+        if w in vocab_9d:
+            vec = extract_vector(vocab_9d[w])
+            if vec is not None:
+                coords.append(vec)
     
     if coords:
-        m0 = np.mean(coords, axis=0)
+        coords_arr = np.array(coords, dtype=np.float32)
+        m0 = np.mean(coords_arr, axis=0)
     else:
         # Default conversational baseline: moderate interpersonal, balanced ideational/textual
         m0 = np.array([0.5, 0.2, 0.0, 0.6, 0.7, -0.3, 0.4, 0.2, 0.1], dtype=np.float32)
@@ -37,9 +61,11 @@ def realize_text(m_out: np.ndarray, vocab_9d: dict, top_k: int = 5) -> list:
     learned empirical 9D centroids in meaning space.
     """
     candidates = []
-    for word, centroid in vocab_9d.items():
-        dist = np.linalg.norm(m_out - np.array(centroid))
-        candidates.append((dist, word))
+    for word, raw_centroid in vocab_9d.items():
+        vec = extract_vector(raw_centroid)
+        if vec is not None:
+            dist = np.linalg.norm(m_out - np.array(vec, dtype=np.float32))
+            candidates.append((dist, word))
         
     candidates.sort(key=lambda x: x[0])
     return candidates[:top_k]
