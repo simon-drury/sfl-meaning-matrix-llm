@@ -8,3 +8,7 @@ class UAMCorpusIngest:
         'verbal': -0.55, 'relational-attributive': 0.10,
         'relational-identifying': 0.25, 'existential': -0.75,
     }
+    MOOD_TENOR_MAP = {
+        'declarative': 0.35, 'interrogative-polar': -0.40,
+        'interrogative-wh': -0.60, 'imperative': -0.85,
+    }
