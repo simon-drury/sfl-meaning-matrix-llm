@@ -12,3 +12,7 @@ class UAMCorpusIngest:
         'declarative': 0.35, 'interrogative-polar': -0.40,
         'interrogative-wh': -0.60, 'imperative': -0.85,
     }
+    THEME_MODE_MAP = {
+        'textual-theme': 0.50, 'interpersonal-theme': 0.65,
+        'topical-theme': 0.90, 'rheme': -0.40,
+    }
