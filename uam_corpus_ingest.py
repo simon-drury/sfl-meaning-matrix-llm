@@ -46,3 +46,7 @@ class UAMCorpusIngest:
             if f_low in self.THEME_MODE_MAP:
                 m[2, 0] = self.THEME_MODE_MAP[f_low]
         return np.clip(m, -1.0, 1.0)
+
+def ingest_uam_corpus(corpus_root):
+    ingest = UAMCorpusIngest(corpus_root)
+    return [], np.zeros((0, 3, 3), dtype=np.float32)
