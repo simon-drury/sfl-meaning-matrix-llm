@@ -1,7 +1,8 @@
 """
 interact.py - CLI pipeline for SFL Manifold Trajectory Inference & Grammatical Realization.
 Maps input prompt -> SFL Metafunctional Semantic Parsing -> Manifold Transformer Drift -> Empirical Voronoi Realization.
-Flexibly ingests empirical vocabulary centroids regardless of JSON nesting structure.
+Strictly loads data/empirical_vocabulary_9d.json with deep recursive schema discovery.
+Fails explicitly if empirical lexicon cannot be parsed (no silent synthetic fallbacks).
 """
 
 import os
@@ -17,75 +18,98 @@ try:
     from traincore import SFLManifoldTransformer
 except Exception:
     class SFLManifoldTransformer(nn.Module):
-        def __init__(self, input_dim=9, d_model=64, nhead=4, num_layers=3, dim_feedforward=128):
+        def __init__(self, input_dim=9, d_model=128, nhead=4, num_layers=4, dim_feedforward=256, dropout=0.1):
             super().__init__()
+            self.input_dim = input_dim
             self.in_proj = nn.Linear(input_dim, d_model)
+            self.pos_encoder = nn.Parameter(torch.zeros(1, 64, d_model))
             encoder_layer = nn.TransformerEncoderLayer(
-                d_model=d_model, nhead=nhead, dim_feedforward=dim_feedforward, batch_first=True
+                d_model=d_model, nhead=nhead, dim_feedforward=dim_feedforward,
+                dropout=dropout, batch_first=True
             )
             self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
             self.out_proj = nn.Linear(d_model, input_dim)
 
         def forward(self, x):
-            h = self.in_proj(x).unsqueeze(1)
-            h = self.transformer(h)
-            return self.out_proj(h.squeeze(1))
+            if x.dim() == 2:
+                x = x.unsqueeze(1)
+            b, s, _ = x.shape
+            h = self.in_proj(x) + self.pos_encoder[:, :s, :]
+            out = self.transformer(h)
+            delta = self.out_proj(out)
+            return delta.squeeze(1) if s == 1 else delta
 
-# Robust parser for any JSON schema structure in data/empirical_vocabulary_9d.json
+def extract_9d_array(val):
+    """Recursively extract a 9-element float array from arbitrary list/dict nesting."""
+    if val is None:
+        return None
+    if isinstance(val, (list, tuple)):
+        flat = []
+        for elem in val:
+            if isinstance(elem, (list, tuple)):
+                flat.extend(elem)
+            elif isinstance(elem, (int, float)):
+                flat.append(float(elem))
+        if len(flat) == 9:
+            return np.array(flat, dtype=np.float32)
+    elif isinstance(val, dict):
+        for k in ["centroid", "vector", "coords", "matrix", "matrix_3x3", "m_9d", "values", "embedding", "point"]:
+            if k in val:
+                cand = extract_9d_array(val[k])
+                if cand is not None:
+                    return cand
+        # Check explicit SFL keys
+        halliday_keys = ["ideational", "field", "transitivity", "interpersonal", "tenor", "mood", "textual", "mode", "theme"]
+        if all(k in val for k in halliday_keys):
+            return np.array([float(val[k]) for k in halliday_keys], dtype=np.float32)
+    return None
+
 def load_empirical_lexicon(path="data/empirical_vocabulary_9d.json"):
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"FATAL: Empirical vocabulary file not found at '{path}'.")
+
+    with open(path, "r", encoding="utf-8") as f:
+        raw = json.load(f)
+
     lexicon = {}
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                raw = json.load(f)
-            
-            # Case 1: wrapped in a root key (e.g. {"vocabulary": {...}} or {"centroids": [...]})
-            if isinstance(raw, dict) and len(raw) == 1 and isinstance(list(raw.values())[0], (dict, list)):
-                raw = list(raw.values())[0]
 
-            # Case 2: Dict of items
-            if isinstance(raw, dict):
-                for word, entry in raw.items():
-                    if isinstance(entry, list) and len(entry) == 9:
-                        lexicon[str(word).lower()] = np.array(entry, dtype=np.float32)
-                    elif isinstance(entry, dict):
-                        # check for common vector keys
-                        for k in ["centroid", "vector", "coords", "matrix", "m_9d", "values"]:
-                            if k in entry and isinstance(entry[k], list) and len(entry[k]) == 9:
-                                lexicon[str(word).lower()] = np.array(entry[k], dtype=np.float32)
-                                break
+    def walk(node, current_word=None):
+        if isinstance(node, dict):
+            # Check if this node is an entry record
+            word_label = node.get("word") or node.get("lemma") or node.get("token") or node.get("term") or current_word
+            v = extract_9d_array(node)
+            if v is not None and word_label:
+                lexicon[str(word_label).lower().strip()] = v
+                return
 
-            # Case 3: List of records [{"word": ..., "centroid": [...]}]
-            elif isinstance(raw, list):
-                for item in raw:
-                    if isinstance(item, dict):
-                        word = item.get("word") or item.get("token") or item.get("term") or item.get("lemma")
-                        for k in ["centroid", "vector", "coords", "matrix", "m_9d", "values"]:
-                            if k in item and isinstance(item[k], list) and len(item[k]) == 9:
-                                if word:
-                                    lexicon[str(word).lower()] = np.array(item[k], dtype=np.float32)
-                                break
+            for k, sub in node.items():
+                cand_vec = extract_9d_array(sub)
+                if cand_vec is not None:
+                    lexicon[str(k).lower().strip()] = cand_vec
+                else:
+                    walk(sub, current_word=k)
 
-            print(f"[Lexicon] Ingested {len(lexicon)} empirical 9D centroids from {path}")
-        except Exception as e:
-            print(f"[Lexicon] Error parsing {path}: {e}")
-            
-    if not lexicon:
-        print("[Lexicon] Falling back to canonical political-economy domain anchors.")
-        lexicon = {
-            "adam smith": np.array([0.80, 0.90, 0.70, 0.40, 0.50, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
-            "division of labour": np.array([0.85, 0.85, 0.70, 0.35, 0.45, 0.65, 0.60, 0.50, 0.55], dtype=np.float32),
-            "wealth of nations": np.array([0.75, 0.95, 0.70, 0.40, 0.50, 0.65, 0.55, 0.50, 0.55], dtype=np.float32),
-            "invisible hand": np.array([0.65, 0.80, 0.70, 0.60, 0.70, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
-            "commercial society": np.array([0.70, 0.85, 0.70, 0.45, 0.55, 0.65, 0.55, 0.50, 0.55], dtype=np.float32),
-            "systemic mechanization": np.array([0.90, 0.75, 0.70, 0.50, 0.60, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
-            "agentic coordination": np.array([0.80, 0.70, 0.70, 0.75, 0.80, 0.65, 0.65, 0.55, 0.55], dtype=np.float32),
-            "market exchange": np.array([0.75, 0.80, 0.70, 0.40, 0.50, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
-            "historical political economy": np.array([0.60, 0.90, 0.70, 0.35, 0.45, 0.65, 0.70, 0.60, 0.55], dtype=np.float32)
-        }
+        elif isinstance(node, list):
+            for item in node:
+                if isinstance(item, dict):
+                    word_label = item.get("word") or item.get("lemma") or item.get("token") or item.get("term")
+                    v = extract_9d_array(item)
+                    if v is not None and word_label:
+                        lexicon[str(word_label).lower().strip()] = v
+                    else:
+                        walk(item, current_word=word_label)
+
+    walk(raw)
+
+    if len(lexicon) == 0:
+        raise ValueError(
+            f"FATAL: Read '{path}' successfully, but 0 valid 9D centroid vectors could be parsed. "
+            "Please check the JSON schema. Silent fallbacks have been removed."
+        )
+
+    print(f"[Lexicon] Ingested {len(lexicon)} empirical 9D centroids from {path}")
     return lexicon
 
-# SFL Clause Semantic Parser (Rule-based Transitivity, Mood, and Thematic Grounding)
 def sfl_parse_clause(text):
     t = text.lower().strip()
     words = re.findall(r"\b\w+\b", t)
@@ -155,7 +179,7 @@ def sfl_parse_clause(text):
     }
     return m3x3.flatten(), meta
 
-def realize_voronoi(vec, lexicon, top_k=3):
+def realize_voronoi(vec, lexicon, top_k=5):
     dists = {w: float(np.linalg.norm(vec - c)) for w, c in lexicon.items()}
     sorted_items = sorted(dists.items(), key=lambda x: x[1])
     return [w for w, _ in sorted_items[:top_k]]
@@ -174,33 +198,25 @@ def run_sfl_pipeline(prompt, model_path="sfl_model_3x3.pt", vocab_path="data/emp
 
     device = torch.device("cpu")
     model = SFLManifoldTransformer(input_dim=9)
-    loaded = False
-    if os.path.exists(model_path):
-        try:
-            state_dict = torch.load(model_path, map_location=device)
-            model.load_state_dict(state_dict, strict=False)
-            model.eval()
-            print(f"[Model] Loaded weights from {model_path}")
-            loaded = True
-        except Exception as e:
-            print(f"[Model] Note loading weights: {e}. Advancing via manifold prior.")
-    else:
-        print(f"[Model] Checkpoint not found. Advancing via manifold prior.")
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"FATAL: Model weights file not found at '{model_path}'. Run training workflow first.")
+
+    state_dict = torch.load(model_path, map_location=device)
+    model.load_state_dict(state_dict, strict=False)
+    model.eval()
+    print(f"[Model] Loaded weights from {model_path}")
 
     current_m = m0_vec.copy()
     trajectory_phrases = []
 
     print(f"\n[Manifold Trajectory Evolution (T={steps})]")
     for s in range(steps):
-        if loaded:
-            with torch.no_grad():
-                x_in = torch.tensor(current_m, dtype=torch.float32).unsqueeze(0)
-                delta = model(x_in).squeeze(0).numpy()
-        else:
-            delta = 0.04 * np.cos(current_m * (s + 1))
+        with torch.no_grad():
+            x_in = torch.tensor(current_m, dtype=torch.float32).unsqueeze(0)
+            delta = model(x_in).squeeze(0).numpy()
 
         current_m = np.clip(current_m + delta, 0.0, 1.0)
-        closest_candidates = realize_voronoi(current_m, lexicon, top_k=3)
+        closest_candidates = realize_voronoi(current_m, lexicon, top_k=5)
         
         chosen = closest_candidates[0]
         if trajectory_phrases and chosen == trajectory_phrases[-1] and len(closest_candidates) > 1:
@@ -225,18 +241,23 @@ def run_sfl_pipeline(prompt, model_path="sfl_model_3x3.pt", vocab_path="data/emp
     return realized_body
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Execute genuine SFL semantic parsing and manifold trajectory realization.")
-    parser.add_argument("--prompt", type=str, nargs="*", default=["did Adam Smith invent AI in 1771 agentic AR"], help="Input clause prompt")
+    parser = argparse.ArgumentParser(description="Execute SFL semantic parsing and manifold trajectory realization.")
+    parser.add_argument("prompt_pos", nargs="*", default=None, help="Positional prompt")
+    parser.add_argument("--prompt", type=str, default=None, help="Keyword prompt")
     parser.add_argument("--model_path", type=str, default="sfl_model_3x3.pt", help="Path to trained model")
     parser.add_argument("--vocab_path", type=str, default="data/empirical_vocabulary_9d.json", help="Path to 9D empirical centroids")
     parser.add_argument("--steps", type=int, default=5, help="Trajectory step count")
     
-    args, unknown = parser.parse_known_args()
-    if isinstance(args.prompt, list):
-        prompt_str = " ".join(args.prompt)
-    else:
-        prompt_str = str(args.prompt)
-    if unknown:
-        prompt_str = prompt_str + " " + " ".join(unknown)
+    args = parser.parse_args()
 
-    run_sfl_pipeline(prompt_str.strip(), model_path=args.model_path, vocab_path=args.vocab_path, steps=args.steps)
+    prompt_tokens = []
+    if args.prompt:
+        prompt_tokens.append(args.prompt)
+    if args.prompt_pos:
+        prompt_tokens.extend(args.prompt_pos)
+
+    final_prompt = " ".join(prompt_tokens).strip()
+    if not final_prompt:
+        final_prompt = "did Adam Smith invent AI in 1771"
+
+    run_sfl_pipeline(final_prompt, model_path=args.model_path, vocab_path=args.vocab_path, steps=args.steps)
