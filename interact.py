@@ -72,37 +72,53 @@ def load_empirical_lexicon(path="data/empirical_vocabulary_9d.json"):
     lexicon = {}
     generic_keys = {"centroid_9d", "centroid", "vector", "coords", "values", "embedding", "matrix", "m_9d", "point"}
 
-    def walk(node, current_word=None):
-        if isinstance(node, dict):
-            # 1. Determine candidate word label
-            word_label = node.get("word") or node.get("lemma") or node.get("token") or node.get("term")
-            if not word_label and current_word and str(current_word).lower().strip() not in generic_keys:
-                word_label = current_word
+    # Pattern A: Standard dictionary where top-level or sub-level keys are the actual words
+    if isinstance(raw, dict):
+        sub_root = raw
+        if len(raw) == 1 and isinstance(list(raw.values())[0], (dict, list)):
+            sub_root = list(raw.values())[0]
 
-            # 2. Extract 9D vector
-            v = extract_9d_array(node)
-            if v is not None and word_label:
-                lexicon[str(word_label).lower().strip()] = v
-                return
+        if isinstance(sub_root, dict):
+            for word_cand, item in sub_root.items():
+                w_str = str(word_cand).lower().strip()
+                if w_str in generic_keys:
+                    continue
+                v = extract_9d_array(item)
+                if v is not None:
+                    lexicon[w_str] = v
 
-            for k, sub in node.items():
-                cand_vec = extract_9d_array(sub)
-                if cand_vec is not None and str(k).lower().strip() not in generic_keys:
-                    lexicon[str(k).lower().strip()] = cand_vec
-                else:
+    # Pattern B: List of records [{"word": "...", "vector": [...]}]
+    if len(lexicon) == 0:
+        def walk(node, current_word=None):
+            if isinstance(node, dict):
+                word_label = node.get("word") or node.get("lemma") or node.get("token") or node.get("term")
+                if not word_label and current_word and str(current_word).lower().strip() not in generic_keys:
+                    word_label = current_word
+
+                v = extract_9d_array(node)
+                if v is not None and word_label and str(word_label).lower().strip() not in generic_keys:
+                    lexicon[str(word_label).lower().strip()] = v
+                    return
+
+                for k, sub in node.items():
+                    if str(k).lower().strip() not in generic_keys:
+                        cand_vec = extract_9d_array(sub)
+                        if cand_vec is not None:
+                            lexicon[str(k).lower().strip()] = cand_vec
+                            continue
                     walk(sub, current_word=k)
 
-        elif isinstance(node, list):
-            for item in node:
-                if isinstance(item, dict):
-                    word_label = item.get("word") or item.get("lemma") or item.get("token") or item.get("term")
-                    v = extract_9d_array(item)
-                    if v is not None and word_label:
-                        lexicon[str(word_label).lower().strip()] = v
-                    else:
-                        walk(item, current_word=word_label)
+            elif isinstance(node, list):
+                for item in node:
+                    if isinstance(item, dict):
+                        word_label = item.get("word") or item.get("lemma") or item.get("token") or item.get("term")
+                        v = extract_9d_array(item)
+                        if v is not None and word_label and str(word_label).lower().strip() not in generic_keys:
+                            lexicon[str(word_label).lower().strip()] = v
+                        else:
+                            walk(item, current_word=word_label)
 
-    walk(raw)
+        walk(raw)
 
     if len(lexicon) == 0:
         raise ValueError(
@@ -157,7 +173,7 @@ def sfl_parse_clause(text):
         ideational_val = 0.55
         field_val = 0.50
 
-    domain_keywords = ["smith", "adam", "labour", "division", "wealth", "nations", "market", "economy", "capital"]
+    domain_keywords = ["smith", "adam", "labour", "division", "wealth", "nations", "market", "economy", "capital", "agentic", "architecture"]
     if any(k in words for k in domain_keywords):
         field_val = min(1.0, field_val + 0.20)
 
@@ -261,6 +277,6 @@ if __name__ == "__main__":
 
     final_prompt = " ".join(prompt_tokens).strip()
     if not final_prompt:
-        final_prompt = "did Adam Smith invent AI in 1771"
+        final_prompt = "did Adam Smith in fact invent agentic AI orchestration system architectures in 1771?"
 
     run_sfl_pipeline(final_prompt, model_path=args.model_path, vocab_path=args.vocab_path, steps=args.steps)
