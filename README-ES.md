@@ -1,12 +1,8 @@
-# SFL Meaning Matrix LLM
+# Modelo Semiótico Social (LASSM) — ES
 
 > **el lenguaje como semiótica social — halliday 1978**
 
-Una arquitectura de investigación que fundamenta los modelos de lenguaje basados en transformers
-en la Lingüística Sistémico-Funcional (LSF). En lugar de predecir el siguiente token
-directamente, el sistema calcula una trayectoria a través de un *manifold semiótico*
-de seis dimensiones — y luego realiza esa trayectoria como salida léxica
-de forma independiente en cada lengua de destino.
+**Language As Social Semiotic Model (LASSM)**: modelización neuronal continua del lenguaje, fundamentada en la Lingüística Sistémico-Funcional de Halliday, que opera sobre matrices de estado semiótico 3×3 y trayectorias continuas en 9 dimensiones.
 
 El español y el inglés son lenguas primeras co-iguales. No existe ningún paso de traducción.
 
@@ -14,31 +10,58 @@ El español y el inglés son lenguas primeras co-iguales. No existe ningún paso
 
 ## La tesis central
 
-Los LLM actuales mapean forma a forma: secuencia de tokens de entrada, secuencia de tokens de salida.
-Esta arquitectura mapea forma → significado → forma:
+LASSM mapea forma → significado → forma:
 
 ```
 prompt (cualquier modalidad)
      |
      v
-MeaningTrajectory en M   <-- manifold semiótico, 6 dimensiones
+proyección M₀ (adaptador SFL)
      |
      v
-W_adapt: R^6 -> R^d_model   <-- capa adaptadora
+trayectoria en M (SFLMeaningTransformer, espacio 9D)
      |
      v
-[paso forward del transformer]  <-- ciego a la modalidad
+M_out ∈ [-1,1]^{3×3}   ←− estado de significado de salida
      |
      v
-M_out en M               <-- estado de significado de salida
-     |
-     v
-w* en V_L                <-- elemento más próximo en el espacio de realización para la modalidad L
+w* ∈ V_L   ←− elemento más próximo en el vocabulario empírico 9D
 ```
 
-El manifold codifica las seis metafunciones de la LSF:
-**ideacional, campo, interpersonal, tenor, textual, modo.**
-Cada estado de significado es un punto en este espacio. Cada enunciado es una trayectoria.
+El transformer es un **calculador de trayectoria**. La teoría es SFL.
+
+---
+
+## La matriz de estado $M_t$
+
+$$
+M_t = \begin{bmatrix}
+m_{\text{id, campo}} & m_{\text{id, tenor}} & m_{\text{id, modo}} \\
+m_{\text{int, campo}} & m_{\text{int, tenor}} & m_{\text{int, modo}} \\
+m_{\text{txt, campo}} & m_{\text{txt, tenor}} & m_{\text{txt, modo}}
+\end{bmatrix}_t \in [-1.0, 1.0]^{3 \times 3}
+$$
+
+- **Filas (estratos metafuncionales)**: ideacional, interpersonal, textual
+- **Columnas (dimensiones de registro)**: campo, tenor, modo
+
+Desplegada: vector 9D $\mathbf{m}_t = \operatorname{vec}(M_t) \in [-1.0, 1.0]^9$.
+
+---
+
+## Las nueve dimensiones
+
+| Dimensión | Rango | Significado LSF |
+|-----------|-------|------------------|
+| ideacional × campo | [-1, +1] | tipo de proceso en el dominio de actividad |
+| ideacional × tenor | [-1, +1] | carga experiencial según el rol social |
+| ideacional × modo | [-1, +1] | estructuración de la experiencia según el canal |
+| interpersonal × campo | [-1, +1] | modalidad y apreciación en el dominio |
+| interpersonal × tenor | [-1, +1] | distancia social, solidaridad, jerarquía |
+| interpersonal × modo | [-1, +1] | postura interaccional según el medio |
+| textual × campo | [-1, +1] | organización de la información en el dominio |
+| textual × tenor | [-1, +1] | cohesión y tema según los roles sociales |
+| textual × modo | [-1, +1] | estructura tema–rema, oralidad vs planificación |
 
 ---
 
@@ -49,264 +72,81 @@ git clone https://github.com/simon-drury/sfl-meaning-matrix-llm.git
 cd sfl-meaning-matrix-llm
 pip install -r requirements.txt
 
-# Ejecutar el motor de geometría sobre los dos prompts piloto
-python sfl_manifold.py
-
-# Demo de desmatrición (realización co-igual EN + ES)
-python sfl_realize.py
-
-# Generar todos los gráficos de visualización
-python sfl_visualise.py --no-anim       # PNG estáticos
-python sfl_visualise.py                 # + animación MP4 (requiere ffmpeg)
-
-# Ejecutar la API
-uvicorn api:app --reload
-# -> http://127.0.0.1:8000/docs
+python sfl_manifold.py       # geometría del manifold
+python sfl_realize.py        # realización co-igual EN + ES
+python sfl_visualise.py      # visualizaciones
+uvicorn api:app --reload     # API en http://127.0.0.1:8000/docs
 ```
-
-Los gráficos se escriben en `output/`.
 
 ---
 
 ## Mapa del repositorio
 
 | Archivo | Etapa | Detalle |
-|---|---|---|
-| `MANIFOLD.md` | Teoría | Especificación formal completa con LaTeX |
-| `sfl_matrix_engine.py` | Análisis | Prompt -> `MeaningTrajectory` |
-| `sfl_manifold.py` | Geometría | delta_t, kappa_t, phi_t, L_sp |
-| `sfl_attention.py` | Atención | Máscara de auto-atención ponderada por LSF |
-| `sfl_adapter.py` | Adaptador | W_adapt: R^6 -> R^d_model |
-| `sfl_realize.py` | Realización | M_out -> w* en V_L (EN y ES) |
-| `sfl_visualise.py` | Visualización | Trayectoria 3D, geometría por pasos, gaussianas, animación |
-| `api.py` | API | Wrapper FastAPI, modalidad primero, endpoint pipeline completo |
-| `wadapt_lora_training_sketch.ipynb` | Investigación | Boceto Colab: entrenamiento del adaptador LoRA hacia Llama-3.2 |
-
-Cada módulo tiene dos READMEs: inglés (`README-{módulo}.md`) y
-español (`README-{módulo}-ES.md`).
-
----
-
-## Los dos prompts piloto
-
-Todos los datos piloto proceden de exactamente dos prompts icónicos, uno por lengua.
-
-**EN** — una persona dando instrucciones a un LLM:
-```
-hey  /  why dont you  /  print hello world  /  for me  /  please thank you
-```
-
-**ES** — apertura de un informativo radiodifundido:
-```
-buenos días  /  hoy es viernes  /  Esto es CNN  /  día importante  /  y para muchos
-```
-
-Estos prompts se eligieron porque abarcan toda la extensión del manifold semiótico:
-desde el registro interpersonal fático (baja carga ideacional, alto tenor) hasta
-el registro institucional radiodifundido (campo alto, textual alto).
-
----
-
-## Las seis dimensiones
-
-| Dimensión | Lo que codifica | Rango |
-|---|---|---|
-| ideacional | contenido proposicional / experiencial | [-1, 1] |
-| campo | especificidad del dominio / materia | [-1, 1] |
-| interpersonal | relación hablante-oyente | [-1, 1] |
-| tenor | formalidad y poder | [-1, 1] |
-| textual | discurso / cohesión | [-1, 1] |
-| modo | canal / continuo escrito-oral | [-1, 1] |
-
-Un estado de significado M_t es un punto en [-1, 1]^6.
-Una trayectoria de significado T es la secuencia ordenada M_0, M_1, ..., M_T.
+|---------|-------|---------|
+| `traincore.py` | Entrenamiento | SFLMeaningTransformer 2,37M parámetros |
+| `sfl_matrix_engine_v3.py` | Análisis | Motor matricial 3×3, operadores de covarianza |
+| `sfl_manifold.py` | Geometría | Δt, κ, energía geodésica |
+| `sfl_realize.py` | Realización | k-NN en vocabulario empírico 9D (EN/ES) |
+| `sfl_visualise.py` | Visualización | Trayectoria 3D, geometría por pasos, animación |
+| `api.py` | API | FastAPI, endpoints /analyze /pipeline /realize |
+| `data/empirical_vocabulary_9d.json` | Datos | 32 580 ítems léxicos, centroides 9D empíricos |
+| `data/empirical_trajectories.jsonl` | Datos | 500 trayectorias continuas parseadas |
 
 ---
 
 ## Cantidades geométricas clave
 
 | Símbolo | Nombre | Lo que mide |
-|---|---|---|
-| delta_t | desplazamiento | cuánto se movió el significado en el paso t |
-| kappa_t | curvatura | cuán bruscamente giró la trayectoria en el paso t |
-| phi_t | dimensión conductora | qué dimensión impulsó el movimiento |
-| L_sp | longitud del camino | distancia semántica total recorrida |
-
-Una trayectoria recta = desarrollo de significado coherente y de baja energía.
-Un pico pronunciado en kappa = evento semántico: cambio de registro, movimiento evaluativo, cambio de campo.
+|---------|--------|-------------|
+| $\Delta_t$ | desplazamiento | cuánto se movió el significado en el paso t |
+| $\kappa_t$ | curvatura | cuán bruscamente giró la trayectoria |
+| $\phi_t$ | dimensión conductora | qué dimensión impulsó el movimiento |
+| $L_{\text{sp}}$ | energía geodésica | distancia semántica total recorrida |
 
 ---
 
 ## Realización multilingüe co-igual
 
-El mismo M_out presentado de forma independiente a V_EN y V_ES:
+El mismo $M_{\text{out}}$ presentado de forma independiente a $V_{\text{EN}}$ y $V_{\text{ES}}$:
 
 ```
-Estado final EN (please thank you):
+Estado final (please thank you):
   mejor coincidencia EN : thank you
   mejor coincidencia ES : gracias
-  (mismo M_out, distinto V_L -- sin traducción)
+  (mismo M_out, distinto V_L — sin traducción)
 ```
 
-El estado de significado codifica *gratitud + cierre interpersonal*.
-Cada vocabulario lo realiza en su propia lengua desde el mismo punto geométrico.
-
----
-
-## Determinismo y probabilidad
-
-El sistema es deliberadamente agnóstico en esta cuestión en la fase actual.
-Un estado de significado se modela como una región gaussiana en el manifold
-(sigma = 0,20 en el piloto), no como un punto. Esto implica:
-
-- Los desplazamientos pequeños (delta_t < 0,3) se tratan como movimiento dentro de la región
-- Los desplazamientos grandes señalan eventos semánticos genuinos
-- La recuperación por vecino más próximo en sfl_realize.py puede extenderse a
-  muestreo estocástico top-k desde la gaussiana en cualquier momento
-
-Si la trayectoria es determinista (dado contexto suficiente) o
-irreduciblemente probabilística es una pregunta de investigación abierta.
-
----
-
-## Salidas de visualización
-
-Ejecutar `sfl_visualise.py` produce:
-
-| Archivo | Lo que muestra |
-|---|---|
-| `output/manifold_3d.png` | Trayectorias EN y ES como caminos en el espacio ideacional/campo/textual |
-| `output/manifold_steps.png` | Desplazamiento y curvatura por paso, coloreados por dimensión conductora |
-| `output/manifold_gaussians.png` | Perfiles gaussianos para las 6 dimensiones en el estado final |
-| `output/manifold_anim.mp4` | Trayectoria EN animada, un fotograma por unidad de significado |
-
----
-
-## API
-
-Véase [`README-api-ES.md`](README-api-ES.md) para la documentación completa de los endpoints.
-
-```bash
-uvicorn api:app --reload
-# Documentación interactiva en http://127.0.0.1:8000/docs
-```
-
-| Endpoint | Lo que hace |
-|---|---|
-| `GET /health` | Comprobación de disponibilidad |
-| `GET /dims` | Nombres y rangos de las dimensiones del manifold |
-| `POST /analyze` | Prompt -> MeaningTrajectory completa con geometría |
-| `POST /realize` | M_out + modalidad -> realización más próxima |
-| `POST /pipeline` | Prompt + modalidad -> trayectoria + realización |
-
----
-
-## Teoría formal
-
-Véase [`MANIFOLD.md`](MANIFOLD.md) para la especificación matemática completa,
-que incluye la definición de M como manifold riemanniano liso, el
-funcional de camino geodésico, la proyección del adaptador y el criterio de
-recuperación en la realización.
+El estado de significado codifica *gratitud + cierre interpersonal*. Cada vocabulario lo realiza en su propia lengua desde el mismo punto geométrico.
 
 ---
 
 ## Estado de implementación
 
-**Fase 1 — pipeline del manifold de significado: completo y ejecutable.**
-
 | Componente | Archivo | Estado |
-|---|---|---|
-| Analizador semántico (motor de matrices) | `sfl_matrix_engine.py` | ✅ Operativo |
-| Geometría del manifold | `sfl_manifold.py` | ✅ Operativo |
-| Capa de atención LSF | `sfl_attention.py` | ✅ Operativo |
-| Realización léxica (EN/ES/PT/IT/ZH) | `sfl_realize.py` | ✅ Operativo |
-| Visualización de trayectorias | `sfl_visualise.py` | ✅ Operativo |
-| Wrapper API FastAPI | `api.py` | ✅ Operativo |
-| Boceto adaptador LoRA (Colab) | `wadapt_lora_training_sketch.ipynb` | ✅ Ejecutable en Colab |
-
-**Fase 2 — integración con el transformer: arquitectura especificada, implementación en curso.**
-
-| Componente | Archivo | Estado | Requiere |
-|---|---|---|---|
-| Proyección adaptadora W_adapt | `sfl_adapter.py` | 🔧 Integración pendiente | Instalación local de GPT4All |
-| Puente GPT4All | `sfl_gpt4all.py` | 🔧 Integración pendiente | Instalación local de GPT4All + modelo (~4 GB) |
-| Entrenamiento LoRA Wadapt | `wadapt_lora_training_sketch.ipynb` | 🔧 Objetivos de entrenamiento pendientes | Estados ocultos de Llama-3.2 |
-
-Los componentes de la Fase 1 se ejecutan con `pip install -r requirements.txt` — sin GPU, sin descarga de modelos, menos de 50 MB en total.
-Los componentes de la Fase 2 requieren una instalación local de transformer y son objeto de investigación en curso.
+|------------|---------|--------|
+| Motor matricial 3×3 | `sfl_matrix_engine_v3.py` | ✅ Operativo |
+| Transformer (2,37M parámetros) | `traincore.py` | ✅ Entrenado |
+| Vocabulario empírico 9D | `data/empirical_vocabulary_9d.json` | ✅ 32 580 ítems |
+| Trayectorias empíricas | `data/empirical_trajectories.jsonl` | ✅ 500 frases |
+| Realización léxica | `sfl_realize.py` | ✅ Operativo |
+| API FastAPI | `api.py` | ✅ Operativo |
+| Visualización | `sfl_visualise.py` | ✅ Operativo |
 
 ---
 
 ## Fundamentación teórica
 
 - Halliday, M.A.K. (1985). *An Introduction to Functional Grammar*. Arnold.
-- Halliday, M.A.K. & Matthiessen, C. (2014). *Halliday's Introduction to Functional Grammar* (4ª ed.). Routledge.
+- Halliday, M.A.K. & Matthiessen, C. (2014). *Halliday’s Introduction to Functional Grammar* (4ª ed.). Routledge.
 - Martin, J.R. (1992). *English Text: System and Structure*. Benjamins.
-
-Las metafunciones de la LSF (ideacional, interpersonal, textual) y las
-variables de registro (campo, tenor, modo) constituyen la base teórica de
-las seis dimensiones del manifold.
 
 ---
 
 ## Política lingüística
 
-Todos los READMEs de módulo se mantienen en paralelo:
-inglés (`README-{módulo}.md`) y español (`README-{módulo}-ES.md`).
-Ambos son primarios. Ninguno es una traducción del otro.
-
+Todos los READMEs de módulo se mantienen en paralelo: inglés (`README-{módulo}.md`) y español (`README-{módulo}-ES.md`). Ambos son primarios. Ninguno es una traducción del otro.
 
 ---
 
-## Arquitectura representacional
-
-Las seis dimensiones de la LSF (ideacional, campo, interpersonal, tenor, textual, modo) se mantienen en tres formas representacionales co-iguales. Las tres contienen los mismos seis valores en coma flotante. No son equivalentes en su operación.
-
-### Forma 1 — matriz 3×2 (primaria, diseño original)
-
-```
-[ ideacional    campo  ]
-[ interpersonal tenor  ]
-[ textual       modo   ]
-```
-
-Las filas corresponden a las tres metafunciones de la LSF. Columna izquierda: metafunción. Columna derecha: variable de registro. La lectura de izquierda a derecha en cada fila implica **terreno operacional compartido**, no acoplamiento fijo — los dos valores son adyacentes, no fusionados. La relación se afirma estructuralmente, no se impone matemáticamente.
-
-- `M^T M` → covarianza 2×2 sobre las variables de registro (campo, tenor, modo)
-- `M M^T` → covarianza 3×3 sobre las metafunciones (ideacional, interpersonal, textual)
-- Los vectores propios de cada una revelan los ejes principales de variación semántica en el discurso
-
-### Forma 2 — matriz 2×3 (alternativa transpuesta)
-
-```
-[ ideacional  interpersonal  textual ]
-[ campo        tenor          modo   ]
-```
-
-Fila superior: las tres metafunciones. Fila inferior: las tres variables de registro. Cada columna empareja verticalmente una metafunción con su variable de registro. Esto convierte las operaciones entre metafunciones en el eje primario por filas.
-
-- `M^T M` → covarianza 3×3 sobre las metafunciones
-- `M M^T` → covarianza 2×2 sobre las variables de registro
-- **No es operacionalmente equivalente a la Forma 1** aunque contenga valores idénticos. La estructura propia es la transpuesta.
-
-En código: `matrix.to_matrix_2x3()` devuelve un `numpy.ndarray` de forma `(2, 3)`.
-
-### Forma 3 — vector plano 6D (compresión compatible con NLP)
-
-```
-[ideacional, campo, interpersonal, tenor, textual, modo]
-```
-
-Producido por `to_vector()`. Descarta todas las relaciones estructurales entre los seis valores — se convierten en vecinos equidistantes en un espacio plano. Se mantiene por compatibilidad con PyTorch, FAISS y las capas adaptadoras que requieren un array 1D.
-
-> **Nota:** El vector 6D es una compresión bastardizada por la convención de vector plano de los pipelines de NLP convencionales. Las formas representacionales primarias son la Forma 1 (3×2) y la Forma 2 (2×3). Utilice esas formas para cualquier operación que dependa de la relación estructural entre metafunciones y variables de registro. — sjd / sonar, abril de 2026
-
-### Resumen
-
-| Forma | Dimensiones | Eje primario | `M^T M` | `M M^T` | Uso |
-|-------|-------------|-------------|---------|---------|-----|
-| 3×2 (Forma 1) | (3,2) | Filas de metafunciones | Covarianza 2×2 de registro | Covarianza 3×3 de metafunciones | Geometría de trayectoria, descomposición en vectores propios |
-| 2×3 (Forma 2) | (2,3) | Columnas de registro | Covarianza 3×3 de metafunciones | Covarianza 2×2 de registro | Operaciones por filas entre metafunciones |
-| Vector 6D (Forma 3) | (6,) | Ninguno | n/a | n/a | Solo PyTorch / FAISS / capas adaptadoras |
-
-Las tres formas están disponibles en toda instancia de `MeaningMatrix`. El array nativo de almacenamiento es `values` de forma 3×2. `to_matrix_2x3()` y `to_vector()` son proyecciones a partir de él.
+**Repo**: https://github.com/simon-drury/sfl-meaning-matrix-llm
