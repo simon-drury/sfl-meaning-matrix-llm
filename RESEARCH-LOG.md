@@ -85,7 +85,7 @@ four models, same labyrinth, one knows the geometry.
 
 When prompt says "use the decision manifold":
 1. Parse prompt into semiotic units
-2. Assign 6-dim meaning state to each unit
+2. Assign 9-dim meaning state to each unit
 3. Identify kappa spikes (noise events, ignore)
 4. Find the unit with highest field + textual + directive tenor
 5. That unit names the next action
