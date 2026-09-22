@@ -6,7 +6,7 @@ on:
       prompt:
         description: 'Input clause to parse and trace through SFL manifold'
         required: true
-        default: 'did Adam Smith invent AI in 1771 agentic AR'
+        default: 'did Adam Smith in fact invent agentic AI orchestration system architectures in 1771?'
         type: string
 
 jobs:
