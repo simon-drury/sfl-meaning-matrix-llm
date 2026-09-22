@@ -1,28 +1,23 @@
-# Adaptateur SFL : Projection vers le Manifold 6D
+# sfl_adapter.py — Adaptateur Linéaire (FR)
 
-## Rôle
+Projecte les états cachés du transformer dans l’espace sémiotique 9D.
 
-`sfl_adapter.py` implémente la projection initiale vers l'espace sémantique 6D.
+## Architecture
 
-### Mathématique
+$$W_{\text{adapt}} \in \mathbb{R}^{d_{\text{model}} \times 9}$$
 
-Soit $\mathbf{x} \in \mathbb{R}^d$ une représentation d'entrée.
+Mappie depuis $d_{\text{model}}$ vers l’espace de coordonnées 9D $[-1,1]^9$.
 
-**Projection linéaire** :
-$$\mathbf{M}_0 = \text{tanh}(\mathbf{W}_{\text{adapt}} \mathbf{x})$$
+Les 9 dimensions de sortie correspondent à la matrice 3×3 :
 
-où $\mathbf{W}_{\text{adapt}} \in \mathbb{R}^{6 \times d}$.
+| | Champ | Tenor | Mode |
+|---|---|---|---|
+| **Idéationnelle** | (0) | (1) | (2) |
+| **Interpersonnelle** | (3) | (4) | (5) |
+| **Textuelle** | (6) | (7) | (8) |
 
-**Normalisation** : chaque dimension à [-1, +1].
+## Notes
 
-## Utilisation
-
-```python
-from sfl_adapter import SFLAdapter
-adapter = SFLAdapter(input_dim=256, output_dim=6)
-M0 = adapter.project(x)
-```
-
-## Configurabilité
-
-Paramètre `ndim` configurable pour extension future.
+- Modulaire et interchangeable : le backbone ne change pas lorsque l’adaptateur est mis à jour
+- Tier 2 : entraînement LoRA complet vers Llama-3.2 en cours
+- Voir `wadapt_lora_training_sketch.ipynb`

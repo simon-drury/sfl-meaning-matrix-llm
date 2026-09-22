@@ -1,76 +1,23 @@
-# sfl_adapter.py — Capa de Proyección: Significado a Embedding
+# sfl_adapter.py — Adaptador Lineal (ES)
 
-## Propósito
+Proyecta estados ocultos del transformer al espacio semiótico 9D.
 
-Conecta el motor del manifold semiótico con el modelo transformer.
-Toma el vector de significado de \(n_{\text{dim}}\) dimensiones producido por
-`sfl_manifold.py` y lo proyecta en el espacio de embedding de un transformer
-local, de modo que la maquinaria de atención del transformer pueda operar
-sobre estados de significado en lugar de embeddings de tokens.
+## Arquitectura
 
----
+$$W_{\text{adapt}} \in \mathbb{R}^{d_{\text{model}} \times 9}$$
 
-## La proyección
+Mapea desde $d_{\text{model}}$ al espacio de coordenadas 9D $[-1,1]^9$.
 
-\[
-\mathbf{e}_t = W_{\text{adapt}}\,\mathbf{m}_t + \mathbf{b}
-\]
+Las 9 dimensiones de salida corresponden a la matriz 3×3:
 
-| Símbolo | Forma | Descripción |
-|---|---|---|
-| \(\mathbf{m}_t\) | \((n_{\text{dim}},)\) | Vector de significado en el paso \(t\) |
-| \(W_{\text{adapt}}\) | \((d_{\text{model}} \times n_{\text{dim}})\) | Matriz de proyección aprendida |
-| \(\mathbf{b}\) | \((d_{\text{model}},)\) | Sesgo aprendido |
-| \(\mathbf{e}_t\) | \((d_{\text{model}},)\) | Vector de embedding, listo para el transformer |
+| | Campo | Tenor | Modo |
+|---|---|---|---|
+| **Ideacional** | (0) | (1) | (2) |
+| **Interpersonal** | (3) | (4) | (5) |
+| **Textual** | (6) | (7) | (8) |
 
-Solo se entrenan \(W_{\text{adapt}}\) y \(\mathbf{b}\).
-Todos los pesos del transformer permanecen congelados en la Etapa 1.
+## Notas
 
----
-
-## Modelos locales compatibles
-
-| Modelo | \(d_{\text{model}}\) | Parámetros entrenables (\(n_{\text{dim}}=6\)) |
-|---|---|---|
-| DeepSeek-R1-Distill-Qwen-1.5B | 2048 | 14,336 |
-| Llama 3.2 3B Instruct | 3072 | 21,504 |
-
-Ambos modelos están instalados localmente mediante GPT4All v3.10.0.
-
----
-
-## Escalabilidad
-
-\(n_{\text{dim}} = 6\) es la dimensionalidad mínima viable actual.
-Es un **parámetro**, no una constante.
-
-Cada dimensión podría convertirse en un polinomio, una distribución
-con momentos superiores, o un sub-vector. El número de dimensiones
-crecerá según lo demande la teoría. `AdapterConfig` acepta cualquier
-\(n_{\text{dim}}\) sin cambios en el transformer posterior.
-
----
-
-## Salida de validación
-
-```
-AdapterConfig(deepseek-r1-distill-qwen-1.5b | d_model=2048 | n_dim=6 | parámetros entrenables=14,336)
-  Forma entrada : (5, 6)
-  Forma salida  : (5, 2048)  OK
-  Todo finito   : True
-  Estado        : PASS
-
-AdapterConfig(llama-3.2-3b-instruct | d_model=3072 | n_dim=6 | parámetros entrenables=21,504)
-  Forma entrada : (5, 6)
-  Forma salida  : (5, 3072)  OK
-  Todo finito   : True
-  Estado        : PASS
-```
-
----
-
-## Próximo paso
-
-`sfl_realize.py` — desmatrición: mapea el estado de salida del transformer
-\(M_{\text{out}} \in \mathcal{M}\) de vuelta a elementos léxicos en el idioma \(L\)
-mediante recuperación por vecino más cercano en \(\mathcal{V}_L\).
+- Modular e intercambiable: el backbone no cambia cuando se actualiza el adaptador
+- Tier 2: entrenamiento LoRA completo hacia Llama-3.2 en curso
+- Ver `wadapt_lora_training_sketch.ipynb`

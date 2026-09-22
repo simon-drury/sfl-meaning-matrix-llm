@@ -1,23 +1,21 @@
-# Visualisation : Trajectoires dans l'Espace Sémantique
+# sfl_visualise.py — Visualisation des Trajectoires (FR)
 
-Trois formats : static plots, animated MP4, interactive 3D.
+Visualise les trajectoires d’états de signification sémiotique dans le manifold 9D.
 
-## Output 1 : Plot 3D Statique
-
-```python
-python sfl_visualise.py --no-anim --dims 0 1 2
-```
-
-Génère : `output/trajectory_3d.png`
-
-## Output 2 : Barres Drivers par Étape
-
-Pour chaque étape, quelle dimension a le plus changé?
-
-## Output 3 : Animation MP4
+## Exécuter
 
 ```bash
-python sfl_visualise.py --dims 0 1 2
+python sfl_visualise.py --no-anim    # PNG statiques uniquement
+python sfl_visualise.py              # + animation MP4 (nécessite ffmpeg)
 ```
 
-Génère : `output/trajectory.mp4`
+Sorties écrites dans `output/`.
+
+## Fichiers de sortie
+
+| Fichier | Ce qu’il montre |
+|---------|------------------|
+| `output/manifold_3d.png` | Trajectoires EN et ES dans le sous-espace idéationnel×tenor×textuel |
+| `output/manifold_steps.png` | Déplacement et courbure par étape, colorés par dimension motrice |
+| `output/manifold_gaussians.png` | Profils gaussiens sur les 9 dimensions à l’état final |
+| `output/manifold_anim.mp4` | Trajectoire EN animée, une image par unité sémiotique |

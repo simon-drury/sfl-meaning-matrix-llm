@@ -1,24 +1,20 @@
-# Réalisation Lexique : Voisinage Pondéré SFL
+# sfl_realize.py — Réalisation Lexicale (FR)
 
-Donné un état M, comment sélectionner les mots?
+Mappe un état de sortie 9D $M_{\text{out}} \in [-1,1]^9$ vers l’élément lexical le plus proche dans le vocabulaire empirique.
 
-## Algorithme : Nearest-Neighbor SFL
+## Comment ça fonctionne
 
-Chaque mot $w$ a une signature $\mathbf{v}_w \in \mathbb{R}^6$.
+$$w^* = \arg\min_{w \in \mathcal{V}} \|\hat{\mathbf{m}}_{\text{out}} - \mathbf{f}_w\|_2$$
 
-**Score** : $\text{score}(w | \mathbf{M}) = -d_{\text{SFL}}(\mathbf{M}, \mathbf{v}_w)$
+où $\mathbf{f}_w$ est le centroide 9D empirique de l’élément lexical $w$.
 
-**Réalisation** : $w^* = \arg\max_w \text{score}(w | \mathbf{M})$
+- **Entrée** : vecteur 9D $\mathbf{m}_{\text{out}} \in [-1,1]^9$
+- **Vocabulaire** : `data/empirical_vocabulary_9d.json` — 32 580 items avec centroides empiriques
+- **Sortie** : meilleure correspondance + candidats classés avec distances euclidiennes
+- **Multilingue** : même M_out présenté indépendamment aux vocabulaires EN, ES, FR — sans traduction
 
-## Vocabulaire Pilot Français
+## Exécuter
 
-| Mot | Signature 6D |
-|-----|-----|
-| merci | (0.0, 0.95, 0.2, 0.1, 0.5, 0.3) |
-| s'il te plaît | (-0.1, 0.85, 0.0, 0.1, 0.6, 0.2) |
-| bonjour | (0.1, 0.7, 0.3, 0.2, 0.3, 0.1) |
-| oui | (0.3, 0.2, -0.1, 0.2, 0.4, -0.2) |
-| non | (0.2, -0.4, 0.1, 0.2, 0.4, -0.3) |
-| vraiment | (0.5, 0.3, -0.2, 0.3, 0.3, 0.2) |
-| peut-être | (0.4, -0.1, 0.2, 0.4, 0.3, 0.1) |
-| salut | (0.2, 0.5, 0.4, 0.0, 0.2, 0.3) |
+```bash
+python sfl_realize.py
+```

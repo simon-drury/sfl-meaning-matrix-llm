@@ -1,114 +1,53 @@
-# api.py -- SFL Meaning Matrix: Wrapper FastAPI
+# api.py — LASSM: Wrapper FastAPI (ES)
 
 ## El transformer es ciego a la modalidad
 
-La API aplica el principio arquitectonico central:
+La API hace cumplir el principio arquitectónico central:
 el transformer opera sobre estados de significado en M.
 No tiene conocimiento de la modalidad de entrada o salida.
-La modalidad se gestiona en los bordes -- por el parser (entrada)
+La modalidad se gestiona en los bordes — por el analizador (entrada)
 y el realizador (salida).
 
 ```
 prompt (cualquier modalidad)
      |
      v
-[parser]              <- borde de entrada
+[analizador]          <- borde de entrada
      |
      v
-MeaningTrajectory     <- el transformer solo ve esto
+MeaningTrajectory     <- el transformer sólo ve esto (estados 9D)
      |
      v
-[transformer]
+[SFLMeaningTransformer]
      |
      v
-M_out en M
+M_out ∈ [-1,1]^{3×3}
      |
      v
-[realizador]          <- borde de salida, modalidad es un parametro
+[realizador]          <- borde de salida
      |
      v
-realizacion (texto hoy, audio manana, visual la semana siguiente)
+realización
 ```
 
----
-
-## Ejecucion
+## Ejecutar
 
 ```bash
 pip install fastapi uvicorn numpy
 uvicorn api:app --reload
+# http://127.0.0.1:8000/docs
 ```
-
-Documentacion interactiva autogenerada en: `http://127.0.0.1:8000/docs`
-
----
 
 ## Endpoints
 
-| Metodo | Endpoint | Que hace |
-|---|---|---|
-| `GET` | `/health` | Control de actividad |
-| `GET` | `/dims` | Nombres y rangos de las dimensiones del manifold |
-| `POST` | `/analyze` | Prompt -> MeaningTrajectory completa con geometria |
-| `POST` | `/realize` | M_out + modalidad -> realizacion mas cercana |
-| `POST` | `/pipeline` | Prompt + modalidad -> trayectoria + realizacion en una llamada |
+| Método | Endpoint | Qué hace |
+|--------|----------|-----------|
+| `GET`  | `/health` | Comprobación de disponibilidad |
+| `GET`  | `/dims` | Nombres y rangos de dimensiones |
+| `POST` | `/analyze` | Prompt → MeaningTrajectory con geometría |
+| `POST` | `/realize` | M_out + modalidad → realización más próxima |
+| `POST` | `/pipeline` | Prompt + modalidad → trayectoria + realización |
 
----
+## Lo que no es
 
-## Ejemplo: pipeline completo
-
-```bash
-curl -X POST http://127.0.0.1:8000/pipeline \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prompt": "buenos dias hoy es viernes Esto es CNN",
-    "lang_in": "ES",
-    "modality": "text",
-    "lang_out": "ES",
-    "k": 3
-  }'
-```
-
----
-
-## Realizacion multilingue: mismo M_out, dos vocabularios
-
-```bash
-# Realizacion EN
-curl -X POST http://127.0.0.1:8000/realize \
-  -d '{"M_out": [0.1, 0.6, 1.0, 1.0, 0.8, -0.6], "modality": "text", "lang": "EN"}'
-# -> "thank you"
-
-# Realizacion ES -- mismo M_out
-curl -X POST http://127.0.0.1:8000/realize \
-  -d '{"M_out": [0.1, 0.6, 1.0, 1.0, 0.8, -0.6], "modality": "text", "lang": "ES"}'
-# -> "gracias"
-```
-
-Sin traduccion. Dos busquedas independientes en dos espacios de vocabulario.
-El transformer nunca supo que idioma estaba involucrado.
-
----
-
-## Anadir una nueva modalidad
-
-Registrar un nuevo realizador en `api.py`:
-
-```python
-REALIZERS["audio:EN"] = AudioRealizerEN()   # misma interfaz .nearest()
-REALIZERS["visual"]   = VisualRealizer()    # sin lang para algunas modalidades
-```
-
-Los endpoints `/realize` y `/pipeline` funcionan de inmediato.
-El transformer no cambia.
-
----
-
-## Lo que esto no es
-
-- Sin autenticacion
-- Sin almacenamiento persistente
-- Sin procesamiento por lotes ni streaming
-- Solo vocabulario piloto (huellas codificadas manualmente)
-
-Todo eso es Nivel 2.
+Sin autenticación, sin almacenamiento persistente, sin lotes, vocabulario piloto únicamente. Todo eso es Tier 2.
