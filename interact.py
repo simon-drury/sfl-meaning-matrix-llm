@@ -1,8 +1,7 @@
 """
 interact.py - CLI pipeline for SFL Manifold Trajectory Inference & Grammatical Realization.
-Maps input prompt -> SFL Metafunctional Semantic Parsing -> Manifold Transformer Drift -> Empirical Voronoi Realization.
-Strictly loads data/empirical_vocabulary_9d.json with deep recursive schema discovery.
-Fails explicitly if empirical lexicon cannot be parsed (no silent synthetic fallbacks).
+Strictly parses data/empirical_vocabulary_9d.json for genuine vocabulary words and lemmas.
+Fails explicitly if empirical lexicon cannot be parsed.
 """
 
 import os
@@ -58,7 +57,6 @@ def extract_9d_array(val):
                 cand = extract_9d_array(val[k])
                 if cand is not None:
                     return cand
-        # Check explicit SFL keys
         halliday_keys = ["ideational", "field", "transitivity", "interpersonal", "tenor", "mood", "textual", "mode", "theme"]
         if all(k in val for k in halliday_keys):
             return np.array([float(val[k]) for k in halliday_keys], dtype=np.float32)
@@ -72,11 +70,16 @@ def load_empirical_lexicon(path="data/empirical_vocabulary_9d.json"):
         raw = json.load(f)
 
     lexicon = {}
+    generic_keys = {"centroid_9d", "centroid", "vector", "coords", "values", "embedding", "matrix", "m_9d", "point"}
 
     def walk(node, current_word=None):
         if isinstance(node, dict):
-            # Check if this node is an entry record
-            word_label = node.get("word") or node.get("lemma") or node.get("token") or node.get("term") or current_word
+            # 1. Determine candidate word label
+            word_label = node.get("word") or node.get("lemma") or node.get("token") or node.get("term")
+            if not word_label and current_word and str(current_word).lower().strip() not in generic_keys:
+                word_label = current_word
+
+            # 2. Extract 9D vector
             v = extract_9d_array(node)
             if v is not None and word_label:
                 lexicon[str(word_label).lower().strip()] = v
@@ -84,7 +87,7 @@ def load_empirical_lexicon(path="data/empirical_vocabulary_9d.json"):
 
             for k, sub in node.items():
                 cand_vec = extract_9d_array(sub)
-                if cand_vec is not None:
+                if cand_vec is not None and str(k).lower().strip() not in generic_keys:
                     lexicon[str(k).lower().strip()] = cand_vec
                 else:
                     walk(sub, current_word=k)
@@ -103,8 +106,8 @@ def load_empirical_lexicon(path="data/empirical_vocabulary_9d.json"):
 
     if len(lexicon) == 0:
         raise ValueError(
-            f"FATAL: Read '{path}' successfully, but 0 valid 9D centroid vectors could be parsed. "
-            "Please check the JSON schema. Silent fallbacks have been removed."
+            f"FATAL: Read '{path}' successfully, but 0 valid 9D centroid vectors with word labels could be parsed. "
+            "Silent fallbacks are disabled."
         )
 
     print(f"[Lexicon] Ingested {len(lexicon)} empirical 9D centroids from {path}")
@@ -114,7 +117,7 @@ def sfl_parse_clause(text):
     t = text.lower().strip()
     words = re.findall(r"\b\w+\b", t)
     
-    # 1. Interpersonal Metafunction (Mood, Speech Function, Modality)
+    # Mood / Interpersonal
     if words and words[0] in ["did", "was", "is", "were", "can", "could", "will", "would", "do", "does"]:
         mood_type = "polar_interrogative"
         interpersonal_val = 0.85
@@ -132,7 +135,7 @@ def sfl_parse_clause(text):
         interpersonal_val = 0.40
         tenor_val = 0.50
 
-    # 2. Ideational Metafunction (Transitivity / Process Type)
+    # Transitivity / Ideational
     material_verbs = ["invent", "build", "create", "make", "produce", "operate", "trade", "work"]
     mental_verbs = ["think", "believe", "know", "perceive", "consider", "see"]
     relational_verbs = ["is", "are", "have", "represent", "constitute"]
@@ -158,7 +161,7 @@ def sfl_parse_clause(text):
     if any(k in words for k in domain_keywords):
         field_val = min(1.0, field_val + 0.20)
 
-    # 3. Textual Metafunction (Thematic point of departure & Mode)
+    # Textual / Theme
     if words and words[0] in ["in", "on", "at", "by", "under", "with"]:
         textual_val = 0.75
         mode_val = 0.60
