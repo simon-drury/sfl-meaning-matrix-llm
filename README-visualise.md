@@ -1,74 +1,28 @@
-# sfl_visualise.py — Semiotic Manifold Visualisation
+# sfl_visualise.py — Trajectory Visualisation
 
-## Purpose
+Visualises semiotic meaning-state trajectories in the 9D manifold.
 
-Produces visual representations of the meaning trajectories computed by
-`sfl_manifold.py`, using the two iconic prompts as pilot data.
-
----
-
-## Requirements
+## Run
 
 ```bash
-pip install matplotlib numpy
-# For MP4 animation export:
-brew install ffmpeg       # macOS
-sudo apt install ffmpeg   # Linux/WSL
-# Windows: download from https://ffmpeg.org
+python sfl_visualise.py --no-anim    # static PNGs only
+python sfl_visualise.py              # + MP4 animation (requires ffmpeg)
+python sfl_visualise.py --compete    # competitive mode (Tier 2)
 ```
 
----
+Outputs written to `output/`.
 
-## Usage
-
-```bash
-python sfl_visualise.py            # all four outputs
-python sfl_visualise.py --no-anim  # skip MP4/GIF
-```
-
----
-
-## Four outputs
+## Output files
 
 | File | What it shows |
-|---|---|
-| `output/manifold_3d.png` | Both trajectories as paths through ideational / field / textual space |
-| `output/manifold_steps.png` | \(\|\delta_t\|\) per step (bar, coloured by \(\phi_t\)) + \(\kappa_t\) overlay (dotted white) |
-| `output/manifold_gaussians.png` | All 6 Gaussian dimension profiles at final meaning state, EN solid / ES dashed |
-| `output/manifold_anim.mp4` | Animated EN trajectory — one frame per meaning unit, camera rotates |
+|------|---------------|
+| `output/manifold_3d.png` | EN and ES trajectories as paths through the ideational×tenor×textual subspace |
+| `output/manifold_steps.png` | Displacement and curvature per step, coloured by driving dimension |
+| `output/manifold_gaussians.png` | Gaussian profiles across the 9 dimensions at final state |
+| `output/manifold_anim.mp4` | Animated trajectory, one frame per semiotic unit |
 
----
+## Notes
 
-## Reading the charts
-
-**3D trajectory** — each point is a meaning state \(M_t\). The path connecting them
-is the trajectory \(\mathcal{T}\). A straight path = coherent, low-energy meaning development.
-A sharp bend = semantic event (register shift, evaluative move, field change).
-
-**Step geometry** — bar height is displacement magnitude \(\|\delta_t\|\).
-Bar colour is the dominant metafunctional driver \(\phi_t\) — the *why* of the move.
-The dotted white line is curvature \(\kappa_t\): peaks mark semantic events.
-
-**Gaussian profiles** — each of the six SFL dimensions is shown as a probability
-distribution centred on its final meaning state value. The spread (\(\sigma = 0.20\))
-represents uncertainty — a meaning state is a region, not a point.
-
----
-
-## Colour key
-
-| Colour | Dimension |
-|---|---|
-| `#4f98a3` teal | ideational |
-| `#da7101` orange | field |
-| `#a12c7b` purple | interpersonal |
-| `#437a22` green | tenor |
-| `#006494` blue | textual |
-| `#7a39bb` violet | mode |
-
----
-
-## Next step
-
-`sfl_realize.py` — de-matrixising: nearest-neighbour retrieval from
-\(\mathcal{V}_L\) to produce lexical output in language \(L\).
+- 3D projection uses ideational×field, interpersonal×tenor, textual×mode axes by default
+- Curvature spikes (κ) mark semantic events: register shifts, evaluative moves, field changes
+- All visualisation operates on the 9D state vector; no information is discarded in projection
