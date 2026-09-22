@@ -26,6 +26,27 @@ jobs:
           pip install --upgrade pip
           pip install torch numpy
 
+      - name: Print empirical vocabulary ground truth
+        run: |
+          python -c "
+          import json
+          with open('data/empirical_vocabulary_9d.json', 'r', encoding='utf-8') as f:
+              d = json.load(f)
+          print('=== VOCABULARY GROUND TRUTH ===')
+          print('Data type:', type(d))
+          if isinstance(d, dict):
+              keys = list(d.keys())
+              print('Keys total:', len(keys))
+              print('First 10 keys:', keys[:10])
+              for k in keys[:3]:
+                  print(f'Key \"{k}\":', type(d[k]), str(d[k])[:120])
+          elif isinstance(d, list):
+              print('List length:', len(d))
+              if len(d) > 0:
+                  print('First element:', type(d[0]), str(d[0])[:150])
+          print('==============================')
+          "
+
       - name: Run SFL Interactive Realization
         run: |
           python interact.py "${{ inputs.prompt }}"
