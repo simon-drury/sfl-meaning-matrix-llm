@@ -1,15 +1,13 @@
-name: Test LASSM Interactive Inference
+name: test LASSM interactive inference
 
 on:
   workflow_dispatch:
     inputs:
       prompt:
-        description: 'Input text prompt to feed into LASSM'
+        description: 'Input clause to parse and trace through SFL manifold'
         required: true
-        default: 'Could you please explain what happened? Thank you.'
-
-permissions:
-  contents: read
+        default: 'did Adam Smith invent AI in 1771 agentic AR'
+        type: string
 
 jobs:
   infer:
@@ -25,8 +23,9 @@ jobs:
 
       - name: Install dependencies
         run: |
+          pip install --upgrade pip
           pip install torch numpy
 
-      - name: Run Interactive Inference
+      - name: Run SFL Interactive Realization
         run: |
-          python interact.py "${{ github.event.inputs.prompt }}"
+          python interact.py "${{ inputs.prompt }}"
