@@ -1,0 +1,28 @@
+schema_version: 1
+artifact: kpml-runtime-source
+status: unresolved
+
+# This file is deliberately blocking. A hosted runtime must not build from an
+# unpinned or guessed KPML distribution.
+source:
+  url: null
+  revision: null
+  sha256: null
+  license: null
+  retrieved_at_utc: null
+
+verification:
+  required_fields:
+    - source.url
+    - source.revision
+    - source.sha256
+    - source.license
+  sha256_required: true
+  source_must_be_https: true
+
+integration:
+  loader_entrypoint: null
+  grammar_root: null
+  generation_entrypoint: null
+
+provenance_output: /data/results/kpml-source-provenance.json

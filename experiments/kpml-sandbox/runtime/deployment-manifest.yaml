@@ -1,0 +1,56 @@
+schema_version: 1
+project: sfl-meaning-matrix-llm
+experiment: kpml-sandbox
+runtime_name: kpml-sfl-realizer
+remote_host:
+  provider: hugging-face-spaces
+  space_id: simondrury/kpml-sfl-realizer
+  sdk: docker
+  port: 7860
+
+source_of_truth:
+  provider: github
+  repository: simon-drury/sfl-meaning-matrix-llm
+  branch: kpml-sandbox
+  root: experiments/kpml-sandbox
+
+persistence:
+  runtime_mount: /data
+  runtime_results: /data/results
+  canonical_research_record: github
+  rule: >
+    The hosted runtime is disposable. Curated provenance, fixtures, grammar
+    versions, traces, and experiment conclusions belong in GitHub.
+
+api:
+  health: GET /health
+  metadata: GET /metadata
+  generate: POST /generate
+  generate_state_before_kpml_lock: blocked
+
+request_contract:
+  reference: ../../01-kpml-input-contract.md
+  required_boundary: meaning-matrix-json
+
+response_contract:
+  required_fields:
+    - request_id
+    - status
+    - generated_text
+    - selections
+    - realization_trace
+    - warnings
+    - errors
+    - runtime_metadata
+    - source_provenance
+
+initial_cases:
+  - id: relational-declarative
+    intent: Relational declarative realization
+    target: "The meaning matrix is a structured semantic representation."
+  - id: material-declarative
+    intent: Material declarative realization
+    target: "The system generates a realization trace."
+  - id: interpersonal-request
+    intent: Interpersonal request with modality
+    target: "Could the system generate a realization trace?"
