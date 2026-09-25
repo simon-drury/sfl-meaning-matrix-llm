@@ -1,0 +1,43 @@
+name: Train SFL-pi random-init
+
+on:
+  workflow_dispatch:
+    inputs:
+      epochs:
+        description: Number of training epochs
+        required: true
+        default: "25"
+      seed:
+        description: Random seed
+        required: true
+        default: "42"
+
+permissions:
+  contents: write
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Train SFL-pi
+        run: >-
+          python train_sfl_pi.py
+          --epochs "${{ inputs.epochs }}"
+          --seed "${{ inputs.seed }}"
+      - name: Commit model and metrics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add artifacts/sfl_pi/sfl_pi_random_init.pt artifacts/sfl_pi/metrics.json
+          git diff --cached --quiet || git commit -m "train: update SFL-pi random-init checkpoint"
+          git push
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sfl-pi-training-artifacts
+          path: artifacts/sfl_pi/
