@@ -14,15 +14,17 @@ from sfl_pi_model import SFLPi, SFLPiConfig
 
 class TrajectoryDataset(Dataset):
     def __init__(self, path: Path, max_seq_len: int):
-        raw = json.loads(path.read_text())
-        candidates = raw.get("trajectories", raw) if isinstance(raw, dict) else raw
         self.items = []
-        for item in candidates:
-            states = item.get("states", item.get("trajectory", item)) if isinstance(item, dict) else item
-            array = np.asarray(states, dtype=np.float32)
-            if array.ndim != 2 or array.shape[1] != 9 or array.shape[0] < 2:
-                continue
-            self.items.append(array[:max_seq_len])
+        with path.open() as handle:
+            for line in handle:
+                if not line.strip():
+                    continue
+                item = json.loads(line)
+                states = item.get("states", item.get("trajectory", item)) if isinstance(item, dict) else item
+                array = np.asarray(states, dtype=np.float32)
+                if array.ndim != 2 or array.shape[1] != 9 or array.shape[0] < 2:
+                    continue
+                self.items.append(array[:max_seq_len])
         if not self.items:
             raise RuntimeError(f"no 9D trajectories of length >=2 in {path}")
 
@@ -45,7 +47,7 @@ def collate(batch):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data", default="data/empirical_trajectories_9d.json")
+    parser.add_argument("--data", default="data/empirical_trajectories.jsonl")
     parser.add_argument("--output", default="artifacts/sfl_pi")
     parser.add_argument("--epochs", type=int, default=25)
     parser.add_argument("--batch-size", type=int, default=16)
