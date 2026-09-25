@@ -1,0 +1,62 @@
+name: Train SFL-pi
+
+on:
+  workflow_dispatch:
+    inputs:
+      code_ref:
+        description: Git ref containing the SFL-pi training implementation
+        required: true
+        default: feature/olmo-core-sfl-random-init
+        type: string
+      epochs:
+        description: Number of epochs
+        required: true
+        default: "25"
+        type: string
+      seed:
+        description: Random seed
+        required: true
+        default: "42"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  train:
+    name: Train SFL-pi
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out experiment implementation
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.code_ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          else
+            python -m pip install numpy torch
+          fi
+
+      - name: Train
+        run: |
+          python train_sfl_pi.py \
+            --data data/empirical_trajectories.jsonl \
+            --output artifacts/sfl_pi \
+            --epochs "${{ inputs.epochs }}" \
+            --seed "${{ inputs.seed }}"
+
+      - name: Upload training artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sfl-pi-${{ inputs.seed }}
+          path: artifacts/sfl_pi
+          if-no-files-found: error
