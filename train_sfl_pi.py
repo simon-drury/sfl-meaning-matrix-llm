@@ -21,6 +21,8 @@ class TrajectoryDataset(Dataset):
                     continue
                 item = json.loads(line)
                 states = item.get("states", item.get("trajectory", item)) if isinstance(item, dict) else item
+                if isinstance(states, dict):
+                    states = states.get("vector_9d")
                 array = np.asarray(states, dtype=np.float32)
                 if array.ndim != 2 or array.shape[1] != 9 or array.shape[0] < 2:
                     continue
