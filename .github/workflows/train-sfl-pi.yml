@@ -1,43 +1,115 @@
-name: Train SFL-pi random-init
+name: Train SFL-pi
 
 on:
   workflow_dispatch:
     inputs:
+      code_ref:
+        description: Git ref containing the SFL-pi training implementation
+        required: true
+        default: feature/olmo-core-sfl-random-init
+        type: string
       epochs:
-        description: Number of training epochs
+        description: Number of epochs
         required: true
         default: "25"
+        type: string
       seed:
         description: Random seed
         required: true
         default: "42"
+        type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   train:
+    name: Train SFL-pi
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out experiment implementation
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.code_ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Train SFL-pi
-        run: >-
-          python train_sfl_pi.py
-          --epochs "${{ inputs.epochs }}"
-          --seed "${{ inputs.seed }}"
-      - name: Commit model and metrics
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add artifacts/sfl_pi/sfl_pi_random_init.pt artifacts/sfl_pi/metrics.json
-          git diff --cached --quiet || git commit -m "train: update SFL-pi random-init checkpoint"
-          git push
-      - uses: actions/upload-artifact@v4
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          fi
+          python -m pip install numpy torch
+
+      - name: Verify runtime
+        run: |
+          python - <<'PY'
+          import numpy
+          import torch
+          print(f"numpy={numpy.__version__}")
+          print(f"torch={torch.__version__}")
+          print(f"cuda_available={torch.cuda.is_available()}")
+          PY
+
+      - name: Inspect empirical trajectory schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("data/empirical_trajectories.jsonl")
+
+          with path.open() as handle:
+              for line in handle:
+                  if not line.strip():
+                      continue
+                  record = json.loads(line)
+                  break
+              else:
+                  raise RuntimeError(f"No non-empty JSONL records in {path}")
+
+          states = record.get("states", record.get("trajectory", record))
+
+          def describe(value, prefix=""):
+              if isinstance(value, dict):
+                  for key, item in value.items():
+                      describe(item, f"{prefix}.{key}" if prefix else key)
+              elif isinstance(value, list):
+                  print(f"{prefix}: list[length={len(value)}]")
+                  if value:
+                      describe(value[0], f"{prefix}[0]")
+              else:
+                  print(f"{prefix}: {type(value).__name__}")
+
+          print(f"record_keys={sorted(record) if isinstance(record, dict) else type(record).__name__}")
+          print(f"states_type={type(states).__name__}")
+          print(f"states_length={len(states) if hasattr(states, '__len__') else 'n/a'}")
+
+          if isinstance(states, list) and states:
+              print("first_state_schema:")
+              describe(states[0])
+          elif isinstance(states, dict):
+              print("state_schema:")
+              describe(states)
+          else:
+              raise RuntimeError("No inspectable states object found")
+          PY
+
+      - name: Train
+        run: |
+          python train_sfl_pi.py \
+            --data data/empirical_trajectories.jsonl \
+            --output artifacts/sfl_pi \
+            --epochs "${{ inputs.epochs }}" \
+            --seed "${{ inputs.seed }}"
+
+      - name: Upload training artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: sfl-pi-training-artifacts
-          path: artifacts/sfl_pi/
+          name: sfl-pi-${{ inputs.seed }}
+          path: artifacts/sfl_pi
+          if-no-files-found: error
