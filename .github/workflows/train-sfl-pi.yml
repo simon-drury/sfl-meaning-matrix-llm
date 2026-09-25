@@ -102,6 +102,8 @@ jobs:
               describe(states)
           else:
               raise RuntimeError("No inspectable states object found")
+
+          raise SystemExit("Schema inspection complete; training intentionally skipped")
           PY
 
       - name: Train
