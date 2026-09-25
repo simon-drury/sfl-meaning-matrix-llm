@@ -55,6 +55,55 @@ jobs:
           print(f"cuda_available={torch.cuda.is_available()}")
           PY
 
+      - name: Inspect empirical trajectory schema
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("data/empirical_trajectories.jsonl")
+
+          with path.open() as handle:
+              for line in handle:
+                  if line.strip():
+                      record = json.loads(line)
+                      break
+              else:
+                  raise RuntimeError(f"No non-empty JSONL records in {path}")
+
+          states = record.get("states", record.get("trajectory", record))
+
+          def describe(value, prefix=""):
+              if isinstance(value, dict):
+                  for key, item in value.items():
+                      describe(item, f"{prefix}.{key}" if prefix else key)
+              elif isinstance(value, list):
+                  print(f"{prefix}: list[length={len(value)}]")
+                  if value:
+                      describe(value[0], f"{prefix}[0]")
+              else:
+                  print(f"{prefix}: {type(value).__name__}")
+
+          print(
+              "record_keys="
+              f"{sorted(record) if isinstance(record, dict) else type(record).__name__}"
+          )
+          print(f"states_type={type(states).__name__}")
+          print(
+              "states_length="
+              f"{len(states) if hasattr(states, '__len__') else 'n/a'}"
+          )
+
+          if isinstance(states, list) and states:
+              print("first_state_schema:")
+              describe(states[0])
+          elif isinstance(states, dict):
+              print("state_schema:")
+              describe(states)
+          else:
+              raise RuntimeError("No inspectable states object found")
+          PY
+
       - name: Train
         run: |
           python train_sfl_pi.py \
