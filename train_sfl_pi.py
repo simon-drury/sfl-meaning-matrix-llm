@@ -18,19 +18,73 @@ class TrajectoryDataset(Dataset):
     def __init__(self, path: Path, max_seq_len: int):
         self.items = []
         self.source_lines = []
+        trajectory_states = []
+        trajectory_start_line = None
+
+        def save_trajectory():
+            if len(trajectory_states) >= 2:
+                array = np.stack(trajectory_states)[:max_seq_len]
+                if array.shape[0] >= 2:
+                    self.items.append(array)
+                    self.source_lines.append(trajectory_start_line)
+
         with path.open() as handle:
             for line_number, line in enumerate(handle, start=1):
                 if not line.strip():
                     continue
                 item = json.loads(line)
-                states = item.get("states", item.get("trajectory", item)) if isinstance(item, dict) else item
-                if isinstance(states, dict):
-                    states = states.get("vector_9d")
-                array = np.asarray(states, dtype=np.float32)
-                if array.ndim != 2 or array.shape[1] != STATE_DIM or array.shape[0] < 2:
+
+                if isinstance(item, dict):
+                    step = item.get("step")
+                    if isinstance(step, int) and not isinstance(step, bool) and step == 0:
+                        save_trajectory()
+                        trajectory_states = []
+                        trajectory_start_line = line_number
+
+                    explicit_key = next((key for key in ("states", "trajectory") if key in item), None)
+                    if explicit_key is not None:
+                        explicit_states = item[explicit_key]
+                        try:
+                            array = np.asarray(explicit_states, dtype=np.float32)
+                        except (TypeError, ValueError):
+                            continue
+                        if array.ndim == 2 and array.shape[1] == STATE_DIM and array.shape[0] >= 2:
+                            array = array[:max_seq_len]
+                            if array.shape[0] >= 2:
+                                self.items.append(array)
+                                self.source_lines.append(line_number)
+                        continue
+
+                    if trajectory_start_line is None:
+                        continue
+                    vector = item.get("vector_9d")
+                    if (
+                        not isinstance(step, int)
+                        or isinstance(step, bool)
+                        or not isinstance(vector, list)
+                        or len(vector) != STATE_DIM
+                        or any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in vector)
+                    ):
+                        continue
+                    try:
+                        state = np.asarray(vector, dtype=np.float32)
+                    except (OverflowError, TypeError, ValueError):
+                        continue
+                    if np.isfinite(state).all():
+                        trajectory_states.append(state)
                     continue
-                self.items.append(array[:max_seq_len])
-                self.source_lines.append(line_number)
+
+                array = np.asarray(item, dtype=np.float32)
+                if array.ndim == 2 and array.shape[1] == STATE_DIM and array.shape[0] >= 2:
+                    array = array[:max_seq_len]
+                    if array.shape[0] >= 2:
+                        self.items.append(array)
+                        self.source_lines.append(line_number)
+
+        save_trajectory()
+        ordered = sorted(zip(self.source_lines, self.items), key=lambda entry: entry[0])
+        self.source_lines = [line_number for line_number, _ in ordered]
+        self.items = [array for _, array in ordered]
         if not self.items:
             raise RuntimeError(f"no 9D trajectories of length >=2 in {path}")
 
