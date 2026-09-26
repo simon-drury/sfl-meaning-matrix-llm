@@ -21,28 +21,30 @@ class TrajectoryDataset(Dataset):
         trajectory_states = []
         trajectory_start_line = None
 
-        def save_trajectory():
+        def finish_trajectory():
+            nonlocal trajectory_states, trajectory_start_line
             if len(trajectory_states) >= 2:
                 array = np.stack(trajectory_states)[:max_seq_len]
                 if array.shape[0] >= 2:
                     self.items.append(array)
                     self.source_lines.append(trajectory_start_line)
+            trajectory_states = []
+            trajectory_start_line = None
 
         with path.open() as handle:
             for line_number, line in enumerate(handle, start=1):
                 if not line.strip():
                     continue
-                item = json.loads(line)
+                try:
+                    item = json.loads(line)
+                except json.JSONDecodeError:
+                    finish_trajectory()
+                    continue
 
                 if isinstance(item, dict):
-                    step = item.get("step")
-                    if isinstance(step, int) and not isinstance(step, bool) and step == 0:
-                        save_trajectory()
-                        trajectory_states = []
-                        trajectory_start_line = line_number
-
                     explicit_key = next((key for key in ("states", "trajectory") if key in item), None)
                     if explicit_key is not None:
+                        finish_trajectory()
                         explicit_states = item[explicit_key]
                         try:
                             array = np.asarray(explicit_states, dtype=np.float32)
@@ -55,25 +57,28 @@ class TrajectoryDataset(Dataset):
                                 self.source_lines.append(line_number)
                         continue
 
-                    if trajectory_start_line is None:
-                        continue
                     vector = item.get("vector_9d")
                     if (
-                        not isinstance(step, int)
-                        or isinstance(step, bool)
-                        or not isinstance(vector, list)
+                        not isinstance(vector, list)
                         or len(vector) != STATE_DIM
                         or any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in vector)
                     ):
+                        finish_trajectory()
                         continue
                     try:
                         state = np.asarray(vector, dtype=np.float32)
                     except (OverflowError, TypeError, ValueError):
+                        finish_trajectory()
                         continue
-                    if np.isfinite(state).all():
-                        trajectory_states.append(state)
+                    if not np.isfinite(state).all():
+                        finish_trajectory()
+                        continue
+                    if trajectory_start_line is None:
+                        trajectory_start_line = line_number
+                    trajectory_states.append(state)
                     continue
 
+                finish_trajectory()
                 array = np.asarray(item, dtype=np.float32)
                 if array.ndim == 2 and array.shape[1] == STATE_DIM and array.shape[0] >= 2:
                     array = array[:max_seq_len]
@@ -81,7 +86,7 @@ class TrajectoryDataset(Dataset):
                         self.items.append(array)
                         self.source_lines.append(line_number)
 
-        save_trajectory()
+        finish_trajectory()
         ordered = sorted(zip(self.source_lines, self.items), key=lambda entry: entry[0])
         self.source_lines = [line_number for line_number, _ in ordered]
         self.items = [array for _, array in ordered]
