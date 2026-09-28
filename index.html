@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A research reader for the SFL Meaning Matrix LLM project.">
+  <title>SFL Meaning Matrix LLM — Research Reader</title>
+  <style>
+    :root { --ink:#10212b; --muted:#53646d; --paper:#f7f4ee; --panel:#fffdf9; --line:#d9d2c5; --accent:#a83f1f; --accent-dark:#72280f; --blue:#1d596f; --shade:#e9e4da; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:Georgia, 'Times New Roman', serif; line-height:1.6; }
+    a { color:var(--accent-dark); text-underline-offset:3px; }
+    a:hover { color:var(--accent); }
+    .masthead { border-top:8px solid var(--accent); border-bottom:1px solid var(--line); background:var(--panel); }
+    .masthead-inner, main, footer { max-width:1100px; margin:0 auto; padding-left:24px; padding-right:24px; }
+    .masthead-inner { padding-top:42px; padding-bottom:34px; }
+    .eyebrow { margin:0 0 9px; font:700 .76rem/1.3 Arial, sans-serif; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); }
+    h1,h2,h3 { line-height:1.14; margin:0; font-weight:700; }
+    h1 { max-width:900px; font-size:clamp(2.25rem,6vw,4.8rem); letter-spacing:-.045em; }
+    h2 { font-size:clamp(1.65rem,3vw,2.45rem); letter-spacing:-.025em; margin-bottom:.55rem; }
+    h3 { font-size:1.12rem; margin-bottom:.25rem; }
+    .dek { max-width:790px; margin:22px 0 0; font-size:1.2rem; color:var(--muted); }
+    .meta { margin:22px 0 0; font:600 .84rem/1.45 Arial,sans-serif; color:var(--muted); }
+    nav { border-bottom:1px solid var(--line); background:#f0ece4; font:700 .78rem/1 Arial,sans-serif; }
+    nav .nav-inner { max-width:1100px; margin:auto; padding:13px 24px; display:flex; flex-wrap:wrap; gap:16px; }
+    nav a { color:var(--ink); text-decoration:none; }
+    main { padding-top:34px; padding-bottom:52px; }
+    section { padding:30px 0; border-bottom:1px solid var(--line); }
+    p { max-width:780px; margin:0 0 1rem; }
+    .lead { font-size:1.22rem; }
+    .callout { max-width:870px; background:#f2dfd6; border-left:5px solid var(--accent); padding:20px 22px; margin:22px 0; }
+    .callout p:last-child { margin-bottom:0; }
+    .matrix { width:100%; max-width:870px; border-collapse:collapse; margin:24px 0 10px; background:var(--panel); font-family:Arial,sans-serif; font-size:.93rem; }
+    .matrix th,.matrix td { padding:16px; border:1px solid var(--line); text-align:left; vertical-align:top; }
+    .matrix thead th { background:var(--ink); color:#fff; font-size:.77rem; letter-spacing:.08em; text-transform:uppercase; }
+    .matrix tbody th { width:22%; background:#e5edf0; color:var(--blue); }
+    .note { color:var(--muted); font-size:.91rem; }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; max-width:1050px; margin:22px 0; }
+    .card { background:var(--panel); border:1px solid var(--line); padding:19px; }
+    .card p { font-size:.94rem; margin:0; }
+    .step { display:grid; grid-template-columns:50px 1fr; max-width:830px; border-top:1px solid var(--line); padding:18px 0; }
+    .step:first-of-type { margin-top:18px; }
+    .number { font:700 1.65rem/1 Arial,sans-serif; color:var(--accent); }
+    code { background:#e7e2d8; padding:.13em .32em; border-radius:2px; font-family:'SFMono-Regular',Consolas,monospace; font-size:.88em; }
+    pre { overflow:auto; max-width:870px; background:#17242b; color:#e9f1ef; padding:19px; font: .87rem/1.6 'SFMono-Regular',Consolas,monospace; }
+    .modules { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; max-width:1000px; background:var(--line); border:1px solid var(--line); margin-top:22px; }
+    .module { background:var(--panel); padding:18px; }
+    .module strong { display:block; font:700 .94rem/1.35 'SFMono-Regular',Consolas,monospace; margin-bottom:5px; }
+    .module span { color:var(--muted); font-size:.92rem; }
+    .links { columns:2; max-width:800px; padding-left:20px; }
+    .links li { margin-bottom:.5rem; }
+    footer { padding-top:28px; padding-bottom:42px; color:var(--muted); font: .82rem/1.5 Arial,sans-serif; }
+    @media (max-width:720px) { .masthead-inner,main,footer { padding-left:18px; padding-right:18px; } nav .nav-inner { padding-left:18px; padding-right:18px; gap:12px; } .grid,.modules { grid-template-columns:1fr; } .links { columns:1; } .matrix { font-size:.82rem; } .matrix th,.matrix td { padding:10px; } }
+  </style>
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <p class="eyebrow">Research reader · experimental architecture</p>
+      <h1>SFL Meaning Matrix LLM</h1>
+      <p class="dek">A Systemic Functional Linguistics–first language-model experiment: represent a clause as an explicit semiotic meaning state before mapping it into neural computation.</p>
+      <p class="meta">Repository: <a href="https://github.com/simon-drury/sfl-meaning-matrix-llm">simon-drury/sfl-meaning-matrix-llm</a> · Reader build: <code>nemotron3-proposal-reader</code></p>
+    </div>
+  </header>
+  <nav aria-label="Sections"><div class="nav-inner"><a href="#proposition">Proposition</a><a href="#matrix">Meaning matrix</a><a href="#pipeline">Pipeline</a><a href="#implementation">Implementation</a><a href="#reproduce">Reproduce</a><a href="#limits">Limits</a></div></nav>
+  <main>
+    <section id="proposition">
+      <p class="eyebrow">01 · Proposition</p>
+      <h2>Meaning is a declared state, not only an emergent vector.</h2>
+      <p class="lead">The project investigates whether linguistic descriptions from Systemic Functional Linguistics (SFL) can form an explicit front end for language-model processing. Instead of taking subword tokens as the only initial representation, it constructs a compact matrix over metafunction and register.</p>
+      <div class="callout"><p><strong>The research claim is experimental.</strong> The repository provides a working prototype and training/inference components; it does not establish that a matrix representation outperforms token-based models. Evaluation against explicit baselines remains the decisive test.</p></div>
+      <p>The implementation is deliberately modular. A matrix engine derives structured features, attention and manifold modules operate over those states, an adapter connects them to model-space representations, and a realization component supports the return path to language.</p>
+    </section>
+    <section id="matrix">
+      <p class="eyebrow">02 · Meaning matrix</p>
+      <h2>Three metafunctions × three register variables.</h2>
+      <p>In SFL terms, the rows concern what language is doing as meaning; the columns concern the contextual configuration in which it is doing it. The matrix is a research representation, not a replacement for the full SFL theory of stratification and instantiation.</p>
+      <table class="matrix">
+        <thead><tr><th scope="col">Metafunction \ Register</th><th scope="col">Field</th><th scope="col">Tenor</th><th scope="col">Mode</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Ideational</th><td>Experiential domain and activity</td><td>Knowledge/experience positioned between participants</td><td>How experiential content is organized for the channel</td></tr>
+          <tr><th scope="row">Interpersonal</th><td>Stance toward the activity and its demands</td><td>Roles, power, solidarity, evaluation</td><td>Exchange configuration in the communicative channel</td></tr>
+          <tr><th scope="row">Textual</th><td>Information organization for the field</td><td>Audience-sensitive thematic and cohesive choices</td><td>Medium, rhetorical organization, flow</td></tr>
+        </tbody>
+      </table>
+      <p class="note">The matrix is flattened or otherwise transformed for downstream numerical operations. It should not be read as claiming fixed one-to-one pairings among SFL categories.</p>
+    </section>
+    <section id="pipeline">
+      <p class="eyebrow">03 · Processing route</p>
+      <h2>From language to a structured state and back.</h2>
+      <div class="step"><div class="number">01</div><div><h3>Encode</h3><p>A clause or prompt is analysed into matrix-relevant features by the matrix engine.</p></div></div>
+      <div class="step"><div class="number">02</div><div><h3>Attend</h3><p>The attention component weights dimensions of the structured representation rather than treating the state solely as an undifferentiated embedding.</p></div></div>
+      <div class="step"><div class="number">03</div><div><h3>Traverse</h3><p>The manifold component supplies geometric operations over meaning trajectories and state movement.</p></div></div>
+      <div class="step"><div class="number">04</div><div><h3>Adapt</h3><p>An adapter projects the structured representation toward a neural model space, preserving a separable SFL-facing interface.</p></div></div>
+      <div class="step"><div class="number">05</div><div><h3>Realize and inspect</h3><p>Realization and visualization modules support language output and inspection of the intermediate representation.</p></div></div>
+    </section>
+    <section id="implementation">
+      <p class="eyebrow">04 · Verified implementation</p>
+      <h2>The reader points to code that exists.</h2>
+      <p>These source modules are present on the repository’s base revision for this branch. Their exact behavior is defined by the source, not by this high-level reader.</p>
+      <div class="modules">
+        <div class="module"><strong><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/sfl_matrix_engine_v3.py">sfl_matrix_engine_v3.py</a></strong><span>Structured meaning-state/matrix processing.</span></div>
+        <div class="module"><strong><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/sfl_attention.py">sfl_attention.py</a></strong><span>Attention operations for SFL-oriented states.</span></div>
+        <div class="module"><strong><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/sfl_manifold.py">sfl_manifold.py</a></strong><span>Geometric/manifold representation utilities.</span></div>
+        <div class="module"><strong><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/sfl_adapter.py">sfl_adapter.py</a></strong><span>Adapter layer toward model-space representations.</span></div>
+        <div class="module"><strong><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/sfl_realize.py">sfl_realize.py</a></strong><span>Language realization component.</span></div>
+        <div class="module"><strong><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/sfl_visualise.py">sfl_visualise.py</a></strong><span>Visualization for meaning states or trajectories.</span></div>
+        <div class="module"><strong><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/app.py">app.py</a></strong><span>Application-facing entry point.</span></div>
+        <div class="module"><strong><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/api.py">api.py</a></strong><span>API-facing entry point.</span></div>
+      </div>
+    </section>
+    <section id="reproduce">
+      <p class="eyebrow">05 · Reproducibility route</p>
+      <h2>Pages documents the work; Python runs it.</h2>
+      <p>GitHub Pages is static hosting, so this reader does not claim to run PyTorch or the project’s server-side components in the browser. Clone the repository and use the project requirements and documentation for the executable research environment.</p>
+      <pre>git clone https://github.com/simon-drury/sfl-meaning-matrix-llm.git
+cd sfl-meaning-matrix-llm
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python app.py</pre>
+      <p>The exact command sequence, model/data prerequisites, and operating modes should be checked against <a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/README.md">README.md</a>, the component READMEs, and workflow definitions in <a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/tree/nemotron3-proposal-reader/.github/workflows">.github/workflows</a>.</p>
+      <ul class="links">
+        <li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/ABSTRACT.md">Abstract</a></li>
+        <li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/MANIFOLD.md">Manifold notes</a></li>
+        <li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/RESEARCH-LOG.md">Research log</a></li>
+        <li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/docs/RESEARCH_POSITION.md">Research position</a></li>
+        <li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/CITATION.cff">Citation metadata</a></li>
+      </ul>
+    </section>
+    <section id="limits">
+      <p class="eyebrow">06 · Research discipline</p>
+      <h2>What needs to be demonstrated.</h2>
+      <div class="grid">
+        <article class="card"><h3>Representation validity</h3><p>Show that annotations or derived matrix states are reliable, interpretable, and appropriate across genres and languages.</p></article>
+        <article class="card"><h3>Predictive value</h3><p>Compare against token-only and other structured baselines on predefined tasks, data splits, and metrics.</p></article>
+        <article class="card"><h3>Engineering value</h3><p>Measure cost, latency, robustness, controllability, and failure modes rather than inferring advantage from interpretability alone.</p></article>
+      </div>
+      <p>The appropriate conclusion at this stage is therefore not that the architecture has displaced tokenization, but that it makes a falsifiable alternative front end available for implementation and evaluation.</p>
+    </section>
+  </main>
+  <footer>Static reader for the SFL Meaning Matrix LLM repository. This page is documentation for an experimental research codebase; consult the linked source and project materials for authoritative implementation details.</footer>
+</body>
+</html>
