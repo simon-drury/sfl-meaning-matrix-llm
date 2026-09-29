@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Computation over the Meaning Trajectory | SFL Meaning Matrix</title>
+<style>
+:root { --ink: #1d2330; --line: #c9d0db; --accent: #4b63a9; --paper: #ffffff; --soft: #f4f6fa; --fill: #dfe5f3; }
+body { margin: 0; font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: var(--soft); line-height: 1.6; }
+main { max-width: 1150px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+nav a { color: var(--accent); text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; margin-right: 1.25rem; }
+h1 { font-size: 2rem; margin: 1rem 0 .5rem; }
+.kicker { font-family: system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; color: var(--accent); }
+figure { margin: 2rem 0; background: var(--paper); border: 1px solid var(--line); padding: 1rem; }
+svg { width: 100%; height: auto; display: block; }
+.cell { fill: var(--fill); stroke: var(--ink); stroke-width: 1.2; }
+.pred { fill: var(--paper); stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.title { font-size: 24px; font-weight: 700; text-anchor: middle; fill: var(--ink); }
+.small { font-family: system-ui, sans-serif; font-size: 13px; fill: #4a5363; text-anchor: middle; }
+.block { fill: var(--soft); stroke: var(--accent); stroke-width: 1.5; }
+.head { font-family: system-ui, sans-serif; font-size: 15px; font-weight: 700; fill: var(--accent); text-anchor: middle; }
+.body { font-size: 14px; fill: var(--ink); text-anchor: middle; }
+.vec { stroke: var(--accent); stroke-width: 2; fill: none; stroke-dasharray: 400; stroke-dashoffset: 400; animation: draw .8s ease forwards; }
+.mask { stroke: #7a8394; stroke-width: 1.5; fill: none; stroke-dasharray: 400; stroke-dashoffset: 400; animation: draw .8s ease forwards; }
+.s1 { animation-delay: .2s; } .s2 { animation-delay: .6s; } .s3 { animation-delay: 1.0s; } .s4 { animation-delay: 1.6s; } .s5 { animation-delay: 2.0s; } .s6 { animation-delay: 2.4s; } .s7 { animation-delay: 3.0s; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+marker path { fill: var(--accent); }
+figcaption { margin-top: 1rem; font-size: 1rem; }
+.evidence { background: var(--paper); border-left: 4px solid var(--accent); padding: 1rem 1.25rem; }
+.evidence a { color: var(--accent); }
+button { font-family: system-ui, sans-serif; margin-top: .75rem; padding: .4rem .9rem; border: 1px solid var(--accent); background: var(--paper); color: var(--accent); cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+<nav><a href="index.html">Research proposal reader</a><a href="figures.html">Architecture figures</a><a href="trajectory.html">Previous figure: meaning trajectory M0 to M3</a><a href="realisation.html">Next figure: boundary realisation</a></nav>
+<div class="kicker">Architecture: computation over meaning representation</div>
+<h1>Computation over the Meaning Trajectory</h1>
+<p>Computation operates over the meaning trajectory itself. Each 3x3 meaning state is flattened to a 9D state that preserves every cell, with no fixed pairing between metafunctions and contextual variables. A causal model reads the states in order and predicts the next meaning state from the states that precede it. Training compares each predicted state with the observed next state in empirical trajectories.</p>
+<figure>
+<svg id="computation" viewBox="0 0 1150 470" role="img" aria-labelledby="ct cd">
+<title id="ct">Causal computation over a meaning trajectory</title>
+<desc id="cd">Three observed meaning-state matrices M0, M1, M2 flatten to 9D states and enter a causal computation block, which outputs a predicted next state M3 drawn with a dashed outline. Grey arcs show that each state attends only to earlier states.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z"/></marker></defs>
+<g id="states"></g>
+<rect class="block" x="200" y="255" width="560" height="90" rx="6"/>
+<text class="head" x="480" y="290">Causal computation over 9D meaning states</text>
+<text class="body" x="480" y="318">each position attends only to itself and earlier positions</text>
+<g id="vectors"></g>
+<text class="small" x="960" y="420">predicted next state</text>
+</svg>
+<button type="button" onclick="replay()">Replay computation</button>
+<figcaption><strong>Figure 4. Computation over the meaning trajectory.</strong> Evidence class: candidate formulation. A causal next-state model over 9D meaning states exists as code in <code>sfl_pi_model.py</code> and <code>train_sfl_pi.py</code> on the branch <code>fix/sfl-pi-jsonl-ingestion</code> (pull request 5), which is not yet merged. No training result is reported here. The research programme tests whether such computation learns structured regularities in meaning trajectories, and which architectural choices preserve metafunctional organisation and contextual configuration.</figcaption>
+</figure>
+<section class="evidence">
+<p><strong>Repository implementation evidence</strong></p>
+<ul>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/pull/5">Pull request 5</a>: SFL-pi causal model and empirical trajectory ingestion, candidate code.</li>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_manifold.py">sfl_manifold.py</a>: trajectory geometry over successive states.</li>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/traincore.py">traincore.py</a>: training on empirical 9D trajectories.</li>
+</ul>
+</section>
+</main>
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var states = document.getElementById('states');
+  var vecs = document.getElementById('vectors');
+  var subs = ['\u2080', '\u2081', '\u2082', '\u2083'];
+  var xs = [200, 400, 600, 900];
+  var cell = 28, top = 80;
+  function el(name, attrs, text) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text) e.textContent = text;
+    return e;
+  }
+  for (var m = 0; m < 4; m++) {
+    var x = xs[m], cls = m === 3 ? 'pred' : 'cell';
+    var ty = m === 3 ? 300 : top;
+    states.appendChild(el('text', { 'class': 'title', x: x + 1.5 * cell, y: ty - 16 }, 'M' + subs[m]));
+    for (var r = 0; r < 3; r++) for (var c = 0; c < 3; c++) states.appendChild(el('rect', { 'class': cls, x: x + c * cell, y: ty + r * cell, width: cell, height: cell }));
+    if (m < 3) states.appendChild(el('text', { 'class': 'small', x: x + 1.5 * cell, y: ty + 3 * cell + 22 }, '9D state'));
+  }
+  var k = 1;
+  for (var i = 0; i < 3; i++) {
+    var cx = xs[i] + 1.5 * cell;
+    vecs.appendChild(el('path', { 'class': 'vec s' + (k++), d: 'M' + cx + ' ' + (top + 3 * cell + 30) + ' L ' + cx + ' 248', 'marker-end': 'url(#arrow)' }));
+  }
+  vecs.appendChild(el('path', { 'class': 'mask s4', d: 'M' + (xs[1] + 42) + ' 75 Q ' + (xs[0] + 142) + ' 30, ' + (xs[0] + 42) + ' 75' }));
+  vecs.appendChild(el('path', { 'class': 'mask s5', d: 'M' + (xs[2] + 42) + ' 75 Q ' + (xs[1] + 142) + ' 30, ' + (xs[1] + 42) + ' 75' }));
+  vecs.appendChild(el('path', { 'class': 'mask s6', d: 'M' + (xs[2] + 42) + ' 75 Q ' + (xs[0] + 242) + ' 5, ' + (xs[0] + 42) + ' 75' }));
+  vecs.appendChild(el('path', { 'class': 'vec s7', d: 'M765 300 L 890 330', 'marker-end': 'url(#arrow)' }));
+})();
+function replay() {
+  document.querySelectorAll('#vectors path').forEach(function (p) {
+    p.style.animation = 'none';
+    void p.getBoundingClientRect();
+    p.style.animation = '';
+  });
+}
+</script>
+</body>
+</html>
