@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meaning Trajectory: M0 to M3 | SFL Meaning Matrix</title>
+<style>
+:root { --ink: #1d2330; --line: #c9d0db; --accent: #4b63a9; --paper: #ffffff; --soft: #f4f6fa; }
+body { margin: 0; font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: var(--soft); line-height: 1.6; }
+main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+nav a { color: var(--accent); text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; margin-right: 1.25rem; }
+h1 { font-size: 2rem; margin: 1rem 0 .5rem; }
+.kicker { font-family: system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; color: var(--accent); }
+figure { margin: 2rem 0; background: var(--paper); border: 1px solid var(--line); padding: 1rem; }
+svg { width: 100%; height: auto; display: block; }
+.cell { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.title { font-size: 28px; font-weight: 700; text-anchor: middle; fill: var(--ink); }
+.axis { font-family: system-ui, sans-serif; font-size: 12px; fill: #4a5363; }
+.axis.col { text-anchor: middle; }
+.axis.row { text-anchor: end; }
+.vec { stroke: var(--accent); stroke-width: 2; fill: none; stroke-dasharray: 300; stroke-dashoffset: 300; animation: draw .9s ease forwards; }
+.d1 { animation-delay: .2s; } .d2 { animation-delay: 1.4s; } .d3 { animation-delay: 2.6s; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.delta { font-size: 18px; fill: var(--accent); text-anchor: middle; }
+marker path { fill: var(--accent); }
+.evidence { background: var(--paper); border-left: 4px solid var(--accent); padding: 1rem 1.25rem; }
+.evidence a { color: var(--accent); }
+button { font-family: system-ui, sans-serif; margin-top: .75rem; padding: .4rem .9rem; border: 1px solid var(--accent); background: var(--paper); color: var(--accent); cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+<nav><a href="index.html">Research proposal reader</a><a href="meaning-state.html">Meaning-state transition</a></nav>
+<div class="kicker">Architecture: meaning trajectory</div>
+<h1>Meaning Trajectory: M<sub>0</sub>, M<sub>1</sub>, M<sub>2</sub>, M<sub>3</sub></h1>
+<p>A meaning trajectory is the ordered sequence of meaning-state configurations produced as incoming language is mapped into the SFL-native representation. Each successive state differs from its predecessor by a delta. The trajectory, rather than any single state, is the unit over which the research programme examines computation and boundary realisation.</p>
+<figure>
+<svg id="trajectory" viewBox="0 0 1200 420" role="img" aria-labelledby="tt td">
+<title id="tt">Meaning trajectory from M0 to M3</title>
+<desc id="td">Four three by three meaning-state matrices in sequence, separated by clear space, with directed deltas drawn cell to cell between each successive pair.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z"/></marker></defs>
+<g id="matrices"></g>
+<g id="vectors"></g>
+</svg>
+<button type="button" onclick="replay()">Replay trajectory</button>
+<figcaption><strong>Figure 2. Meaning trajectory.</strong> Evidence class: proposed research object, rendered as a prototype visualisation. Rows carry ideational, interpersonal, and textual metafunctional organisation. Columns carry field, tenor, and mode as contextual configuration. Each band of vectors traces the delta between successive states. The programme investigates which operations generate, constrain, and evaluate these deltas, and how boundary realisation produces readable language from the resulting configuration.</figcaption>
+</figure>
+<section class="evidence">
+<p><strong>Repository implementation evidence</strong></p>
+<ul>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_matrix_engine.py">sfl_matrix_engine.py</a>: maps prompts to M<sub>0</sub> and successive deltas.</li>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_manifold.py">sfl_manifold.py</a>: computes trajectory geometry over successive states.</li>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_animate.py">sfl_animate.py</a>: existing trajectory animation prototype.</li>
+</ul>
+</section>
+</main>
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg';
+  var mats = document.getElementById('matrices');
+  var vecs = document.getElementById('vectors');
+  var cell = 56, gap = 118, top = 110, left = 110;
+  var cols = ['field', 'tenor', 'mode'];
+  var rows = ['ideational', 'interpersonal', 'textual'];
+  var subs = ['\u2080', '\u2081', '\u2082', '\u2083'];
+  function el(name, attrs, text) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text) e.textContent = text;
+    return e;
+  }
+  var x0 = [];
+  for (var m = 0; m < 4; m++) {
+    var x = left + m * (3 * cell + gap);
+    x0.push(x);
+    mats.appendChild(el('text', { 'class': 'title', x: x + 1.5 * cell, y: 60 }, 'M' + subs[m]));
+    for (var c = 0; c < 3; c++) mats.appendChild(el('text', { 'class': 'axis col', x: x + c * cell + cell / 2, y: top - 10 }, cols[c]));
+    if (m === 0) for (var r0 = 0; r0 < 3; r0++) mats.appendChild(el('text', { 'class': 'axis row', x: x - 8, y: top + r0 * cell + cell / 2 + 4 }, rows[r0]));
+    for (var r = 0; r < 3; r++) for (var c2 = 0; c2 < 3; c2++) mats.appendChild(el('rect', { 'class': 'cell', x: x + c2 * cell, y: top + r * cell, width: cell, height: cell }));
+  }
+  for (var d = 0; d < 3; d++) {
+    var sx = x0[d] + 3 * cell, tx = x0[d + 1];
+    for (var rr = 0; rr < 3; rr++) {
+      var y = top + rr * cell + cell / 2;
+      var bend = (rr - 1) * 22;
+      var mx = (sx + tx) / 2;
+      vecs.appendChild(el('path', { 'class': 'vec d' + (d + 1), d: 'M' + (sx - cell / 2) + ' ' + y + ' Q ' + mx + ' ' + (y + bend) + ', ' + (tx + cell / 2) + ' ' + y, 'marker-end': 'url(#arrow)' }));
+    }
+    vecs.appendChild(el('text', { 'class': 'delta', x: (sx + tx) / 2, y: top + 3 * cell + 50 }, '\u0394' + subs[d + 1]));
+  }
+})();
+function replay() {
+  document.querySelectorAll('#vectors .vec').forEach(function (p) {
+    p.style.animation = 'none';
+    void p.getBoundingClientRect();
+    p.style.animation = '';
+  });
+}
+</script>
+</body>
+</html>
