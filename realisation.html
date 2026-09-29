@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boundary Realisation | SFL Meaning Matrix</title>
+<style>
+:root { --ink: #1d2330; --line: #c9d0db; --accent: #4b63a9; --paper: #ffffff; --soft: #f4f6fa; }
+body { margin: 0; font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: var(--soft); line-height: 1.6; }
+main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+nav a { color: var(--accent); text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; margin-right: 1.25rem; }
+h1 { font-size: 2rem; margin: 1rem 0 .5rem; }
+.kicker { font-family: system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; color: var(--accent); }
+figure { margin: 2rem 0; background: var(--paper); border: 1px solid var(--line); padding: 1rem; }
+svg { width: 100%; height: auto; display: block; }
+.cell { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.title { font-size: 32px; font-weight: 700; text-anchor: middle; fill: var(--ink); }
+.axis { font-family: system-ui, sans-serif; font-size: 13px; fill: #4a5363; }
+.axis.col { text-anchor: middle; }
+.axis.row { text-anchor: end; }
+.panel { fill: var(--soft); stroke: var(--accent); stroke-width: 1.5; }
+.lang { font-family: system-ui, sans-serif; font-size: 15px; font-weight: 700; fill: var(--accent); }
+.out { font-size: 17px; fill: var(--ink); }
+.vec { stroke: var(--accent); stroke-width: 2.5; fill: none; stroke-dasharray: 500; stroke-dashoffset: 500; animation: draw 1.2s ease forwards; }
+.r1 { animation-delay: .3s; } .r2 { animation-delay: 1.1s; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+marker path { fill: var(--accent); }
+figcaption { margin-top: 1rem; font-size: 1rem; }
+.evidence { background: var(--paper); border-left: 4px solid var(--accent); padding: 1rem 1.25rem; }
+.evidence a { color: var(--accent); }
+button { font-family: system-ui, sans-serif; margin-top: .75rem; padding: .4rem .9rem; border: 1px solid var(--accent); background: var(--paper); color: var(--accent); cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+<nav><a href="index.html">Research proposal reader</a><a href="figures.html">Architecture figures</a><a href="trajectory.html">Previous figure: meaning trajectory M0 to M3</a></nav>
+<div class="kicker">Architecture: boundary realisation</div>
+<h1>Boundary Realisation: M<sub>n</sub> to Working-Language Text</h1>
+<p>Boundary realisation produces readable language from the final meaning configuration of a trajectory. The same meaning state is realised directly in whichever language is the working language. Each realisation is primary: the English and Spanish outputs are co-equal realisations of one meaning configuration, and neither is derived from the other.</p>
+<figure>
+<svg id="realisation" viewBox="0 0 1100 440" role="img" aria-labelledby="rt rd">
+<title id="rt">Boundary realisation from Mn into English and Spanish</title>
+<desc id="rd">A final three by three meaning-state matrix with two directed vectors leading to two separate realisation panels, one English and one Spanish.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z"/></marker></defs>
+<text class="title" x="250" y="70">Mₙ</text>
+<g transform="translate(160 120)">
+<text class="axis col" x="30" y="-10">field</text><text class="axis col" x="90" y="-10">tenor</text><text class="axis col" x="150" y="-10">mode</text>
+<text class="axis row" x="-8" y="34">ideational</text><text class="axis row" x="-8" y="94">interpersonal</text><text class="axis row" x="-8" y="154">textual</text>
+<rect class="cell" x="0" y="0" width="60" height="60"/><rect class="cell" x="60" y="0" width="60" height="60"/><rect class="cell" x="120" y="0" width="60" height="60"/>
+<rect class="cell" x="0" y="60" width="60" height="60"/><rect class="cell" x="60" y="60" width="60" height="60"/><rect class="cell" x="120" y="60" width="60" height="60"/>
+<rect class="cell" x="0" y="120" width="60" height="60"/><rect class="cell" x="60" y="120" width="60" height="60"/><rect class="cell" x="120" y="120" width="60" height="60"/>
+</g>
+<g id="vectors">
+<path class="vec r1" d="M345 180 C 480 120, 560 110, 640 110" marker-end="url(#arrow)"/>
+<path class="vec r2" d="M345 240 C 480 300, 560 310, 640 310" marker-end="url(#arrow)"/>
+</g>
+<rect class="panel" x="650" y="60" width="400" height="100" rx="6"/>
+<text class="lang" x="670" y="92">EN realisation</text>
+<text class="out" x="670" y="128">Hello, World!</text>
+<rect class="panel" x="650" y="250" width="400" height="130" rx="6"/>
+<text class="lang" x="670" y="282">ES realisation</text>
+<text class="out" x="670" y="316">Buenos dias. Hoy es un dia importante</text>
+<text class="out" x="670" y="344">para todos. Seguimos en CNN.</text>
+</svg>
+<button type="button" onclick="replay()">Replay realisation</button>
+<figcaption><strong>Figure 3. Boundary realisation.</strong> Evidence class: repository evidence for the recorded outputs; research proposal for the realisation mechanism. The two outputs are the recorded results of the iconic English and Spanish prompts in the matrix-engine prototype, produced by a minimal rule mapping the final state to the working language. The research programme investigates the realisation mechanism beyond that rule: how a final meaning configuration selects and organises readable language in each working language.</figcaption>
+</figure>
+<section class="evidence">
+<p><strong>Repository implementation evidence</strong></p>
+<ul>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_matrix_engine.py">sfl_matrix_engine.py</a>: encodes the iconic EN and ES prompts and applies the minimal realisation rule.</li>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_realize.py">sfl_realize.py</a>: realisation prototype.</li>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/interact.py">interact.py</a>: realisation pipeline with empirical vocabulary anchors.</li>
+</ul>
+</section>
+</main>
+<script>
+function replay() {
+  document.querySelectorAll('#vectors .vec').forEach(function (p) {
+    p.style.animation = 'none';
+    void p.getBoundingClientRect();
+    p.style.animation = '';
+  });
+}
+</script>
+</body>
+</html>
