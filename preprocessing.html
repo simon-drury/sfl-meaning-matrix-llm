@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SFL-Native Preprocessing: Composition of M0 | SFL Meaning Matrix</title>
+<style>
+:root { --ink: #1d2330; --line: #c9d0db; --accent: #4b63a9; --paper: #ffffff; --soft: #f4f6fa; --fill: #dfe5f3; }
+body { margin: 0; font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: var(--soft); line-height: 1.6; }
+main { max-width: 1150px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+nav a { color: var(--accent); text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; margin-right: 1.25rem; }
+h1 { font-size: 2rem; margin: 1rem 0 .5rem; }
+.kicker { font-family: system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; color: var(--accent); }
+figure { margin: 2rem 0; background: var(--paper); border: 1px solid var(--line); padding: 1rem; }
+svg { width: 100%; height: auto; display: block; }
+.stage { fill: var(--soft); stroke: var(--accent); stroke-width: 1.5; }
+.parked { fill: var(--paper); stroke: #7a8394; stroke-width: 1.5; stroke-dasharray: 6 4; }
+.head { font-family: system-ui, sans-serif; font-size: 15px; font-weight: 700; fill: var(--accent); }
+.body { font-size: 15px; fill: var(--ink); }
+.small { font-family: system-ui, sans-serif; font-size: 13px; fill: #4a5363; }
+.title { font-size: 32px; font-weight: 700; text-anchor: middle; fill: var(--ink); }
+.axis { font-family: system-ui, sans-serif; font-size: 13px; fill: #4a5363; }
+.axis.col { text-anchor: middle; }
+.axis.row { text-anchor: end; }
+.cell { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; animation: fill .6s ease forwards; }
+.row1 { animation-delay: 1.4s; } .row2 { animation-delay: 2.0s; } .row3 { animation-delay: 2.6s; }
+@keyframes fill { to { fill: var(--fill); } }
+.vec { stroke: var(--accent); stroke-width: 2.5; fill: none; stroke-dasharray: 300; stroke-dashoffset: 300; animation: draw .8s ease forwards; }
+.dash { stroke: #7a8394; stroke-width: 2; fill: none; stroke-dasharray: 6 4; }
+.a1 { animation-delay: .2s; } .a2 { animation-delay: .9s; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+marker path { fill: var(--accent); }
+#grey path { fill: #7a8394; }
+figcaption { margin-top: 1rem; font-size: 1rem; }
+.evidence { background: var(--paper); border-left: 4px solid var(--accent); padding: 1rem 1.25rem; }
+.evidence a { color: var(--accent); }
+button { font-family: system-ui, sans-serif; margin-top: .75rem; padding: .4rem .9rem; border: 1px solid var(--accent); background: var(--paper); color: var(--accent); cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+<nav><a href="index.html">Research proposal reader</a><a href="figures.html">Architecture figures</a><a href="meaning-state.html">Next figure: meaning-state transition M0 to M1</a></nav>
+<div class="kicker">Architecture: SFL-native preprocessing</div>
+<h1>SFL-Native Preprocessing: Composition of M<sub>0</sub></h1>
+<p>Incoming language enters the SFL-native preprocessing environment, which analyses it along ideational, interpersonal, and textual metafunctions and relative to field, tenor, and mode as contextual configuration. The resulting values compose the initial meaning-state matrix M<sub>0</sub>. Lexical items are parked outside the matrix and remain available to boundary realisation. The matrix carries meaning-making values; it carries no lexical units.</p>
+<figure>
+<svg id="preprocessing" viewBox="0 0 1150 520" role="img" aria-labelledby="pt pd">
+<title id="pt">SFL-native preprocessing composing M0</title>
+<desc id="pd">Incoming language flows into a preprocessing stage, which populates the cells of M0 row by row. Lexical items move by a dashed vector into a separate parked lexis panel.</desc>
+<defs>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z"/></marker>
+<marker id="grey" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z"/></marker>
+</defs>
+<rect class="stage" x="30" y="110" width="220" height="150" rx="6"/>
+<text class="head" x="50" y="142">Incoming language</text>
+<text class="body" x="50" y="178">A clause in the</text>
+<text class="body" x="50" y="202">working language</text>
+<text class="small" x="50" y="236">EN, ES, or another language</text>
+<rect class="stage" x="350" y="70" width="300" height="230" rx="6"/>
+<text class="head" x="370" y="102">SFL-native preprocessing</text>
+<text class="small" x="370" y="132">Metafunctional analysis</text>
+<text class="body" x="385" y="156">ideational</text>
+<text class="body" x="385" y="178">interpersonal</text>
+<text class="body" x="385" y="200">textual</text>
+<text class="small" x="370" y="232">Contextual configuration</text>
+<text class="body" x="385" y="256">field, tenor, mode</text>
+<text class="title" x="900" y="60">M₀</text>
+<g transform="translate(810 110)">
+<text class="axis col" x="30" y="-10">field</text><text class="axis col" x="90" y="-10">tenor</text><text class="axis col" x="150" y="-10">mode</text>
+<text class="axis row" x="-8" y="34">ideational</text><text class="axis row" x="-8" y="94">interpersonal</text><text class="axis row" x="-8" y="154">textual</text>
+<rect class="cell row1" x="0" y="0" width="60" height="60"/><rect class="cell row1" x="60" y="0" width="60" height="60"/><rect class="cell row1" x="120" y="0" width="60" height="60"/>
+<rect class="cell row2" x="0" y="60" width="60" height="60"/><rect class="cell row2" x="60" y="60" width="60" height="60"/><rect class="cell row2" x="120" y="60" width="60" height="60"/>
+<rect class="cell row3" x="0" y="120" width="60" height="60"/><rect class="cell row3" x="60" y="120" width="60" height="60"/><rect class="cell row3" x="120" y="120" width="60" height="60"/>
+</g>
+<g id="vectors">
+<path class="vec a1" d="M255 185 L 342 185" marker-end="url(#arrow)"/>
+<path class="vec a2" d="M655 185 L 700 185" marker-end="url(#arrow)"/>
+<path class="dash" d="M500 305 L 500 380" marker-end="url(#grey)"/>
+</g>
+<rect class="parked" x="350" y="390" width="300" height="100" rx="6"/>
+<text class="head" x="370" y="422" style="fill:#4a5363">Parked lexis</text>
+<text class="body" x="370" y="452">Lexical items held outside M₀,</text>
+<text class="body" x="370" y="474">available to boundary realisation</text>
+</svg>
+<button type="button" onclick="replay()">Replay composition</button>
+<figcaption><strong>Figure 0. SFL-native preprocessing.</strong> Evidence class: proposed research object, rendered as a prototype visualisation. Composition of M<sub>0</sub> from incoming language, with lexis parked, is implemented in the matrix-engine prototype for the iconic English and Spanish prompts. The research programme investigates how preprocessing assigns metafunctional and contextual values reliably across texts, registers, and working languages.</figcaption>
+</figure>
+<section class="evidence">
+<p><strong>Repository implementation evidence</strong></p>
+<ul>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_matrix_engine.py">sfl_matrix_engine.py</a>: composes M<sub>0</sub> for the iconic prompts and holds lexis outside the trajectory.</li>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_matrix_engine_v3.py">sfl_matrix_engine_v3.py</a>: later matrix-engine revision.</li>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/ingest_corpus.py">ingest_corpus.py</a>: corpus ingestion into meaning-state trajectories.</li>
+</ul>
+</section>
+</main>
+<script>
+function replay() {
+  document.querySelectorAll('#vectors .vec, .cell').forEach(function (p) {
+    p.style.animation = 'none';
+    void p.getBoundingClientRect();
+    p.style.animation = '';
+  });
+}
+</script>
+</body>
+</html>
