@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meaning-State Transition: M0 to M1 | SFL Meaning Matrix</title>
+<style>
+:root { --ink: #1d2330; --line: #c9d0db; --accent: #4b63a9; --paper: #ffffff; --soft: #f4f6fa; }
+body { margin: 0; font-family: Georgia, 'Times New Roman', serif; color: var(--ink); background: var(--soft); line-height: 1.6; }
+main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+nav a { color: var(--accent); text-decoration: none; font-family: system-ui, sans-serif; font-size: .95rem; }
+h1 { font-size: 2rem; margin: 1rem 0 .5rem; }
+.kicker { font-family: system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; color: var(--accent); }
+figure { margin: 2rem 0; background: var(--paper); border: 1px solid var(--line); padding: 1rem; }
+svg { width: 100%; height: auto; display: block; }
+.grid rect.cell { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; }
+.grid text { font-family: system-ui, sans-serif; font-size: 15px; text-anchor: middle; fill: var(--ink); }
+.title { font-family: Georgia, serif; font-size: 34px; font-weight: 700; text-anchor: middle; fill: var(--ink); }
+.axis { font-family: system-ui, sans-serif; font-size: 14px; fill: #4a5363; }
+.axis.col { text-anchor: middle; }
+.axis.row { text-anchor: end; }
+.vec { stroke: var(--accent); stroke-width: 2.5; fill: none; stroke-dasharray: 700; stroke-dashoffset: 700; animation: draw 1.2s ease forwards; }
+.v1 { animation-delay: .2s; } .v2 { animation-delay: .5s; } .v3 { animation-delay: .8s; }
+.v4 { animation-delay: 1.4s; } .v5 { animation-delay: 1.7s; } .v6 { animation-delay: 2.0s; }
+.v7 { animation-delay: 2.6s; } .v8 { animation-delay: 2.9s; } .v9 { animation-delay: 3.2s; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.delta { font-family: Georgia, serif; font-size: 20px; fill: var(--accent); text-anchor: middle; }
+marker path { fill: var(--accent); }
+figcaption { margin-top: 1rem; font-size: 1rem; }
+.evidence { background: var(--paper); border-left: 4px solid var(--accent); padding: 1rem 1.25rem; }
+.evidence a { color: var(--accent); }
+button { font-family: system-ui, sans-serif; margin-top: .75rem; padding: .4rem .9rem; border: 1px solid var(--accent); background: var(--paper); color: var(--accent); cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+<nav><a href="index.html">Return to the research proposal reader</a></nav>
+<div class="kicker">Architecture: meaning-state representation</div>
+<h1>Meaning-State Transition: M<sub>0</sub> to M<sub>1</sub></h1>
+<p>The SFL-native preprocessing environment maps incoming language into successive meaning-state matrices. Each matrix organises ideational, interpersonal, and textual metafunctions across field, tenor, and mode as contextual configuration. The figure presents M<sub>0</sub> and M<sub>1</sub> as distinct configurations separated in semiotic space. Directed vectors run from each element of M<sub>0</sub> to the corresponding element of M<sub>1</sub>, making the delta between states available for inspection.</p>
+<figure>
+<svg id="transition" viewBox="0 0 1100 520" role="img" aria-labelledby="ft fd">
+<title id="ft">Meaning-state transition from M0 to M1</title>
+<desc id="fd">Two three by three meaning-state matrices separated by clear space, with nine directed vectors running cell to cell from M0 to M1.</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z"/></marker></defs>
+<text class="title" x="270" y="60">M₀</text>
+<text class="title" x="830" y="60">M₁</text>
+<g class="grid" transform="translate(150 110)">
+<text class="axis col" x="40" y="-12">field</text><text class="axis col" x="120" y="-12">tenor</text><text class="axis col" x="200" y="-12">mode</text>
+<text class="axis row" x="-10" y="45">ideational</text><text class="axis row" x="-10" y="125">interpersonal</text><text class="axis row" x="-10" y="205">textual</text>
+<rect class="cell" x="0" y="0" width="80" height="80"/><rect class="cell" x="80" y="0" width="80" height="80"/><rect class="cell" x="160" y="0" width="80" height="80"/>
+<rect class="cell" x="0" y="80" width="80" height="80"/><rect class="cell" x="80" y="80" width="80" height="80"/><rect class="cell" x="160" y="80" width="80" height="80"/>
+<rect class="cell" x="0" y="160" width="80" height="80"/><rect class="cell" x="80" y="160" width="80" height="80"/><rect class="cell" x="160" y="160" width="80" height="80"/>
+<text x="40" y="45">m₁₁</text><text x="120" y="45">m₁₂</text><text x="200" y="45">m₁₃</text>
+<text x="40" y="125">m₂₁</text><text x="120" y="125">m₂₂</text><text x="200" y="125">m₂₃</text>
+<text x="40" y="205">m₃₁</text><text x="120" y="205">m₃₂</text><text x="200" y="205">m₃₃</text>
+</g>
+<g class="grid" transform="translate(710 110)">
+<text class="axis col" x="40" y="-12">field</text><text class="axis col" x="120" y="-12">tenor</text><text class="axis col" x="200" y="-12">mode</text>
+<rect class="cell" x="0" y="0" width="80" height="80"/><rect class="cell" x="80" y="0" width="80" height="80"/><rect class="cell" x="160" y="0" width="80" height="80"/>
+<rect class="cell" x="0" y="80" width="80" height="80"/><rect class="cell" x="80" y="80" width="80" height="80"/><rect class="cell" x="160" y="80" width="80" height="80"/>
+<rect class="cell" x="0" y="160" width="80" height="80"/><rect class="cell" x="80" y="160" width="80" height="80"/><rect class="cell" x="160" y="160" width="80" height="80"/>
+<text x="40" y="45">m′₁₁</text><text x="120" y="45">m′₁₂</text><text x="200" y="45">m′₁₃</text>
+<text x="40" y="125">m′₂₁</text><text x="120" y="125">m′₂₂</text><text x="200" y="125">m′₂₃</text>
+<text x="40" y="205">m′₃₁</text><text x="120" y="205">m′₃₂</text><text x="200" y="205">m′₃₃</text>
+</g>
+<g id="vectors" marker-end="url(#arrow)">
+<path class="vec v1" d="M190 150 C 450 60, 650 60, 750 150" marker-end="url(#arrow)"/>
+<path class="vec v2" d="M270 150 C 480 90, 680 90, 830 150" marker-end="url(#arrow)"/>
+<path class="vec v3" d="M350 150 C 520 120, 720 120, 910 150" marker-end="url(#arrow)"/>
+<path class="vec v4" d="M190 230 C 450 200, 650 200, 750 230" marker-end="url(#arrow)"/>
+<path class="vec v5" d="M270 230 C 480 230, 680 230, 830 230" marker-end="url(#arrow)"/>
+<path class="vec v6" d="M350 230 C 520 260, 720 260, 910 230" marker-end="url(#arrow)"/>
+<path class="vec v7" d="M190 310 C 450 340, 650 340, 750 310" marker-end="url(#arrow)"/>
+<path class="vec v8" d="M270 310 C 480 370, 680 370, 830 310" marker-end="url(#arrow)"/>
+<path class="vec v9" d="M350 310 C 520 400, 720 400, 910 310" marker-end="url(#arrow)"/>
+</g>
+<text class="delta" x="550" y="470">Δ = M₁ − M₀ : meaning-state delta</text>
+</svg>
+<button type="button" onclick="replay()">Replay transition</button>
+<figcaption><strong>Figure 1. Meaning-state transition.</strong> Evidence class: proposed research object, rendered as a prototype visualisation. Rows carry metafunctional organisation; columns carry contextual configuration. Each vector traces one element of M<sub>0</sub> to its successor element in M<sub>1</sub>. The research programme investigates which computational operations produce, constrain, and evaluate these deltas across a meaning trajectory M<sub>0</sub>, M<sub>1</sub>, ..., M<sub>n</sub>.</figcaption>
+</figure>
+<section class="evidence">
+<p><strong>Repository implementation evidence</strong></p>
+<ul>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_matrix_engine.py">sfl_matrix_engine.py</a>: maps prompts to M<sub>0</sub> and successive deltas as a meaning trajectory.</li>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_animate.py">sfl_animate.py</a>: existing trajectory animation prototype.</li>
+<li><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/main/sfl_visualise.py">sfl_visualise.py</a>: existing static visualisation prototype.</li>
+</ul>
+</section>
+</main>
+<script>
+function replay() {
+  document.querySelectorAll('#vectors .vec').forEach(function (p) {
+    p.style.animation = 'none';
+    void p.getBoundingClientRect();
+    p.style.animation = '';
+  });
+}
+</script>
+</body>
+</html>
