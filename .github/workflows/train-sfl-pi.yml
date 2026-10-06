@@ -65,10 +65,9 @@ jobs:
 
           with path.open() as handle:
               for line in handle:
-                  if not line.strip():
-                      continue
-                  record = json.loads(line)
-                  break
+                  if line.strip():
+                      record = json.loads(line)
+                      break
               else:
                   raise RuntimeError(f"No non-empty JSONL records in {path}")
 
@@ -85,9 +84,15 @@ jobs:
               else:
                   print(f"{prefix}: {type(value).__name__}")
 
-          print(f"record_keys={sorted(record) if isinstance(record, dict) else type(record).__name__}")
+          print(
+              "record_keys="
+              f"{sorted(record) if isinstance(record, dict) else type(record).__name__}"
+          )
           print(f"states_type={type(states).__name__}")
-          print(f"states_length={len(states) if hasattr(states, '__len__') else 'n/a'}")
+          print(
+              "states_length="
+              f"{len(states) if hasattr(states, '__len__') else 'n/a'}"
+          )
 
           if isinstance(states, list) and states:
               print("first_state_schema:")
