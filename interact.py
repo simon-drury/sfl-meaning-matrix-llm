@@ -1,42 +1,24 @@
 """
 interact.py - CLI pipeline for SFL Manifold Trajectory Inference & Grammatical Realization.
 Directly integrates repository realization anchors and empirical vocabulary.
-Guarantees robust realization execution without schema crashes.
 """
 
-import os
-import sys
-import json
 import argparse
-import re
+import json
+import sys
+from pathlib import Path
+from typing import List, Tuple, Optional
+
 import numpy as np
 import torch
 import torch.nn as nn
 
-try:
-    from traincore import SFLManifoldTransformer
-except Exception:
-    class SFLManifoldTransformer(nn.Module):
-        def __init__(self, input_dim=9, d_model=128, nhead=4, num_layers=4, dim_feedforward=256, dropout=0.1):
-            super().__init__()
-            self.input_dim = input_dim
-            self.in_proj = nn.Linear(input_dim, d_model)
-            self.pos_encoder = nn.Parameter(torch.zeros(1, 64, d_model))
-            encoder_layer = nn.TransformerEncoderLayer(
-                d_model=d_model, nhead=nhead, dim_feedforward=dim_feedforward,
-                dropout=dropout, batch_first=True
-            )
-            self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
-            self.out_proj = nn.Linear(d_model, input_dim)
+# Repository modules
+from sfl_matrix_engine import MeaningMatrix, MeaningTrajectory, encode_en, encode_es
+from sfl_manifold import SemanticManifold
+from sfl_realize import Realizer
+from sfl_adapter import SFLAdapter
 
-        def forward(self, x):
-            if x.dim() == 2:
-                x = x.unsqueeze(1)
-            b, s, _ = x.shape
-            h = self.in_proj(x) + self.pos_encoder[:, :s, :]
-            out = self.transformer(h)
-            delta = self.out_proj(out)
-            return delta.squeeze(1) if s == 1 else delta
 
 def parse_vector_any(val):
     if val is None:
@@ -50,215 +32,206 @@ def parse_vector_any(val):
                 flat.append(float(x))
         if len(flat) == 9:
             return np.array(flat, dtype=np.float32)
-        elif len(flat) == 6:
-            return np.array(flat + [0.5, 0.5, 0.5], dtype=np.float32)
     elif isinstance(val, dict):
-        for k in ["centroid", "vector", "coords", "matrix", "matrix_3x3", "m_9d", "values", "embedding", "point", "values_6d"]:
+        for k in ["centroid", "vector", "coords", "matrix", "matrix_3x3", "m_9d", "values", "embedding", "point"]:
             if k in val:
                 cand = parse_vector_any(val[k])
                 if cand is not None:
                     return cand
-        halliday_keys = ["ideational", "field", "transitivity", "interpersonal", "tenor", "mood", "textual", "mode", "theme"]
-        if all(k in val for k in halliday_keys):
-            return np.array([float(val[k]) for k in halliday_keys], dtype=np.float32)
     return None
 
-def load_empirical_lexicon(path="data/empirical_vocabulary_9d.json"):
-    lexicon = {}
-    
-    # 1. Attempt to load from JSON file
-    if os.path.exists(path):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                raw = json.load(f)
 
-            if isinstance(raw, dict):
-                if len(raw) == 1 and isinstance(list(raw.values())[0], (dict, list)):
-                    raw = list(raw.values())[0]
+class SFLPiModel(nn.Module):
+    """Minimal next-step predictor over 9D meaning states (matches train_sfl_pi.py)."""
 
-                if isinstance(raw, dict):
-                    for k, item in raw.items():
-                        v = parse_vector_any(item)
-                        if v is not None:
-                            lexicon[str(k).lower().strip()] = v
-                elif isinstance(raw, list):
-                    for entry in raw:
-                        if isinstance(entry, dict):
-                            w = entry.get("word") or entry.get("lemma") or entry.get("token") or entry.get("term")
-                            v = parse_vector_any(entry)
-                            if w and v is not None:
-                                lexicon[str(w).lower().strip()] = v
-        except Exception as e:
-            print(f"[Lexicon] Note during file ingestion: {e}")
+    def __init__(self, state_dim: int = 9, d_model: int = 128, nhead: int = 4, nlayers: int = 3, max_seq_len: int = 64):
+        super().__init__()
+        self.state_dim = state_dim
+        self.d_model = d_model
+        self.max_seq_len = max_seq_len
+        self.in_proj = nn.Linear(state_dim, d_model)
+        self.pos_encoder = nn.Parameter(torch.zeros(1, max_seq_len, d_model))
+        encoder_layer = nn.TransformerEncoderLayer(d_model, nhead, dim_feedforward=d_model * 4, batch_first=True)
+        self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=nlayers)
+        self.out_proj = nn.Linear(d_model, state_dim)
 
-    # 2. Integrate authoritative institutional political economy & systems anchors
-    canonical_corpus_anchors = {
-        "division of labour": np.array([0.85, 0.90, 0.75, 0.40, 0.45, 0.65, 0.60, 0.50, 0.55], dtype=np.float32),
-        "systemic mechanization": np.array([0.90, 0.85, 0.70, 0.50, 0.60, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
-        "invisible hand": np.array([0.65, 0.80, 0.70, 0.60, 0.70, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
-        "agentic coordination": np.array([0.80, 0.75, 0.70, 0.75, 0.80, 0.65, 0.65, 0.55, 0.55], dtype=np.float32),
-        "commercial society": np.array([0.70, 0.85, 0.70, 0.45, 0.55, 0.65, 0.55, 0.50, 0.55], dtype=np.float32),
-        "market exchange": np.array([0.75, 0.80, 0.70, 0.40, 0.50, 0.65, 0.50, 0.45, 0.55], dtype=np.float32),
-        "orchestration architecture": np.array([0.88, 0.82, 0.72, 0.70, 0.65, 0.60, 0.70, 0.60, 0.55], dtype=np.float32),
-        "institutional register": np.array([0.60, 0.90, 0.70, 0.35, 0.45, 0.65, 0.70, 0.60, 0.55], dtype=np.float32),
-        "wealth of nations": np.array([0.75, 0.95, 0.70, 0.40, 0.50, 0.65, 0.55, 0.50, 0.55], dtype=np.float32),
-        "adam smith": np.array([0.80, 0.90, 0.70, 0.40, 0.50, 0.65, 0.50, 0.45, 0.55], dtype=np.float32)
-    }
-    for k, v in canonical_corpus_anchors.items():
-        if k not in lexicon:
-            lexicon[k] = v
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """x: (batch, seq_len, state_dim) -> predicted next state (batch, state_dim)"""
+        if x.dim() == 2:
+            x = x.unsqueeze(1)
+        b, s, _ = x.shape
+        h = self.in_proj(x) + self.pos_encoder[:, :s, :]
+        h = self.encoder(h)
+        out = h[:, -1, :]  # last step
+        delta = self.out_proj(out)
+        return delta.squeeze(1) if s == 1 else delta
 
-    print(f"[Lexicon] Ingested {len(lexicon)} empirical 9D centroids.")
-    return lexicon
 
-def sfl_parse_clause(text):
-    t = text.lower().strip()
-    words = re.findall(r"\b\w+\b", t)
-    
-    # 1. Interpersonal Metafunction (Mood, Modality, Tenor)
-    if words and words[0] in ["did", "was", "is", "were", "can", "could", "will", "would", "do", "does"]:
-        mood_type = "polar_interrogative"
-        interpersonal_val = 0.85
-        tenor_val = 0.75
-    elif words and words[0] in ["what", "why", "how", "when", "where", "who"]:
-        mood_type = "wh_interrogative"
-        interpersonal_val = 0.80
-        tenor_val = 0.70
-    elif words and words[0] in ["please", "print", "generate", "write", "tell"]:
-        mood_type = "imperative"
-        interpersonal_val = 0.90
-        tenor_val = 0.85
+def load_trajectories_from_jsonl(jsonl_path: Path, max_seq_len: int = 32) -> List[np.ndarray]:
+    """Load trajectories from JSONL file (one trajectory per line)."""
+    trajectories = []
+    with open(jsonl_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                item = json.loads(line)
+                # Expecting {"trajectory": [[9], [9], ...]} or {"vector_9d": [9], ...}
+                vecs = item.get("trajectory") or item.get("vectors")
+                if vecs is None:
+                    # Single vector per line format
+                    vec = item.get("vector_9d")
+                    if vec is not None:
+                        vecs = [vec]
+                if vecs is None:
+                    continue
+                array = np.asarray(vecs, dtype=np.float32)
+                if array.ndim == 2 and array.shape[1] == 9 and array.shape[0] >= 2:
+                    array = array[:max_seq_len]
+                    if array.shape[0] >= 2:
+                        trajectories.append(array)
+            except (json.JSONDecodeError, KeyError, ValueError):
+                continue
+    return trajectories
+
+
+def train_pi_model(
+    data_dir: Path,
+    epochs: int = 25,
+    batch_size: int = 32,
+    lr: float = 1e-3,
+    device: str = "cpu",
+    model_path: Path = Path("sfl_pi_model.pt"),
+):
+    """Train the pi model on trajectory data."""
+    trajectories = []
+    for jsonl_file in data_dir.glob("*.jsonl"):
+        trajectories.extend(load_trajectories_from_jsonl(jsonl_file))
+
+    if not trajectories:
+        print("No trajectories found.")
+        return
+
+    print(f"Loaded {len(trajectories)} trajectories")
+
+    # Create training pairs (state_t -> state_{t+1})
+    X_list = []
+    y_list = []
+    for traj in trajectories:
+        for i in range(len(traj) - 1):
+            X_list.append(traj[i])
+            y_list.append(traj[i + 1])
+
+    X = torch.tensor(np.stack(X_list), dtype=torch.float32)
+    y = torch.tensor(np.stack(y_list), dtype=torch.float32)
+
+    model = SFLPiModel().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    loss_fn = nn.MSELoss()
+
+    model.train()
+    for epoch in range(epochs):
+        perm = torch.randperm(len(X))
+        epoch_loss = 0.0
+        for i in range(0, len(X), batch_size):
+            idx = perm[i:i + batch_size]
+            xb = X[idx].to(device)
+            yb = y[idx].to(device)
+            optimizer.zero_grad()
+            pred = model(xb.unsqueeze(1))  # (batch, 1, 9) -> (batch, 9)
+            loss = loss_fn(pred, yb)
+            loss.backward()
+            optimizer.step()
+            epoch_loss += loss.item() * xb.size(0)
+        epoch_loss /= len(X)
+        if (epoch + 1) % 5 == 0 or epoch == 0:
+            print(f"Epoch {epoch + 1}/{epochs} - Loss: {epoch_loss:.6f}")
+
+    torch.save(model.state_dict(), model_path)
+    print(f"Model saved to {model_path}")
+
+
+def run_inference(prompt: str, lang: str = "en", use_pi: bool = False) -> str:
+    """Run the full pipeline: encode -> trajectory -> realize."""
+    if lang == "en":
+        traj = encode_en(prompt)
+    elif lang == "es":
+        traj = encode_es(prompt)
     else:
-        mood_type = "declarative"
-        interpersonal_val = 0.40
-        tenor_val = 0.50
+        raise ValueError(f"Unsupported language: {lang}")
 
-    # 2. Ideational Metafunction (Transitivity Process)
-    material_verbs = ["invent", "build", "create", "make", "produce", "operate", "trade", "work", "orchestrate"]
-    mental_verbs = ["think", "believe", "know", "perceive", "consider", "see"]
-    relational_verbs = ["is", "are", "have", "represent", "constitute"]
-    
-    if any(w in material_verbs for w in words):
-        process_type = "material"
-        ideational_val = 0.80
-        field_val = 0.75
-    elif any(w in mental_verbs for w in words):
-        process_type = "mental"
-        ideational_val = 0.50
-        field_val = 0.40
-    elif any(w in relational_verbs for w in words):
-        process_type = "relational"
-        ideational_val = 0.60
-        field_val = 0.60
-    else:
-        process_type = "general"
-        ideational_val = 0.55
-        field_val = 0.50
+    manifold = SemanticManifold()
+    realizer = Realizer()
 
-    domain_keywords = ["smith", "adam", "labour", "division", "wealth", "nations", "market", "economy", "agentic", "architecture", "orchestration"]
-    if any(k in words for k in domain_keywords):
-        field_val = min(1.0, field_val + 0.20)
+    print(f"Prompt: {prompt}")
+    print(f"Trajectory steps: {len(traj.states)}")
+    for i, state in enumerate(traj.states):
+        vec = state.to_vector()
+        print(f"  t={i}: {state.label:<20} {np.round(vec, 3)}")
 
-    # 3. Textual Metafunction (Thematic point of departure & Mode)
-    if words and words[0] in ["in", "on", "at", "by", "under", "with"]:
-        textual_val = 0.75
-        mode_val = 0.60
-    else:
-        textual_val = 0.50
-        mode_val = 0.45
+    # Geometric analysis
+    if len(traj.states) >= 2:
+        total_energy = 0.0
+        for i in range(1, len(traj.states)):
+            energy = manifold.step_displacement(traj.states[i - 1], traj.states[i])
+            total_energy += energy
+            print(f"  Step {i} geodesic energy: {energy:.4f}")
+        print(f"Total path energy: {total_energy:.4f}")
 
-    m3x3 = np.array([
-        [ideational_val, field_val, 0.70],
-        [interpersonal_val, tenor_val, 0.65],
-        [textual_val, mode_val, 0.55]
-    ], dtype=np.float32)
-
-    meta = {
-        "mood": mood_type,
-        "process": process_type,
-        "tokens": words
-    }
-    return m3x3.flatten(), meta
-
-def realize_voronoi(vec, lexicon, top_k=5):
-    dists = {w: float(np.linalg.norm(vec - c)) for w, c in lexicon.items()}
-    sorted_items = sorted(dists.items(), key=lambda x: x[1])
-    return [w for w, _ in sorted_items[:top_k]]
-
-def run_sfl_pipeline(prompt, model_path="sfl_model_3x3.pt", vocab_path="data/empirical_vocabulary_9d.json", steps=5):
-    print("=" * 65)
-    print(f"[Input Prompt] : \"{prompt}\"")
-    print("=" * 65)
-
-    lexicon = load_empirical_lexicon(vocab_path)
-    m0_vec, meta = sfl_parse_clause(prompt)
-    print(f"\n[SFL Parse]")
-    print(f" - Mood Analysis     : {meta['mood'].upper()}")
-    print(f" - Transitivity Type : {meta['process'].upper()} process")
-    print(f" - M_0 Coordinate    : {np.round(m0_vec, 3).tolist()}")
-
-    device = torch.device("cpu")
-    model = SFLManifoldTransformer(input_dim=9)
-    if os.path.exists(model_path):
-        state_dict = torch.load(model_path, map_location=device)
-        model.load_state_dict(state_dict, strict=False)
-        model.eval()
-        print(f"[Model] Loaded weights from {model_path}")
-    else:
-        print(f"[Model] Operating via manifold drift operator.")
-
-    current_m = m0_vec.copy()
-    trajectory_phrases = []
-
-    print(f"\n[Manifold Trajectory Evolution (T={steps})]")
-    for s in range(steps):
-        with torch.no_grad():
-            x_in = torch.tensor(current_m, dtype=torch.float32).unsqueeze(0)
-            delta = model(x_in).squeeze(0).numpy()
-
-        current_m = np.clip(current_m + delta, 0.0, 1.0)
-        closest_candidates = realize_voronoi(current_m, lexicon, top_k=5)
-        
-        chosen = closest_candidates[0]
-        if trajectory_phrases and chosen == trajectory_phrases[-1] and len(closest_candidates) > 1:
-            chosen = closest_candidates[1]
-            
-        trajectory_phrases.append(chosen)
-        print(f" Step {s+1:02d} | |M_{s+1}|: {np.linalg.norm(current_m):.4f} | Lexical Basin: {chosen}")
-
-    if meta['mood'] == "polar_interrogative":
-        header = "Regarding the historical inquiry into political economy and automation:"
-    elif meta['mood'] == "imperative":
-        header = "Directive realized across institutional register:"
-    else:
-        header = "Expository statement realized across semiotic strata:"
-
-    realized_body = " -> ".join([p.title() for p in trajectory_phrases])
-    print("\n" + "=" * 65)
-    print(f"[Realized Lexicogrammatical Discourse]:")
-    print(f"{header}")
-    print(f"  {realized_body}")
-    print("=" * 65 + "\n")
+    # Realization
+    m_out = traj.states[-1].to_vector()
+    realized = realizer.realize(m_out, top_k=3)
+    print(f"\nRealization ({lang}):")
+    for word, score in realized:
+        print(f"  {word:<20} {score:.4f}")
+    realized_body = realized[0][0]
+    print(f"\nOutput: {realized_body}")
     return realized_body
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Execute SFL semantic parsing and manifold trajectory realization.")
-    parser.add_argument("prompt_pos", nargs="*", default=None, help="Positional prompt")
-    parser.add_argument("--prompt", type=str, default=None, help="Keyword prompt")
-    parser.add_argument("--model_path", type=str, default="sfl_model_3x3.pt", help="Path to trained model")
-    parser.add_argument("--vocab_path", type=str, default="data/empirical_vocabulary_9d.json", help="Path to 9D empirical centroids")
-    parser.add_argument("--steps", type=int, default=5, help="Trajectory step count")
-    
+
+def main():
+    parser = argparse.ArgumentParser(description="SFL Meaning Matrix CLI")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # Inference
+    inf = subparsers.add_parser("infer", help="Run inference on a prompt")
+    inf.add_argument("prompt", type=str, help="Input prompt")
+    inf.add_argument("--lang", type=str, default="en", choices=["en", "es"], help="Language")
+    inf.add_argument("--use-pi", action="store_true", help="Use trained pi model for next-step prediction")
+
+    # Training
+    tr = subparsers.add_parser("train-pi", help="Train pi model on trajectory data")
+    tr.add_argument("--data-dir", type=Path, default=Path("data"), help="Directory with JSONL trajectories")
+    tr.add_argument("--epochs", type=int, default=25)
+    tr.add_argument("--batch-size", type=int, default=32)
+    tr.add_argument("--lr", type=float, default=1e-3)
+    tr.add_argument("--device", type=str, default="cpu")
+    tr.add_argument("--model-path", type=Path, default=Path("sfl_pi_model.pt"))
+
+    # Interactive
+    subparsers.add_parser("interactive", help="Interactive REPL")
+
     args = parser.parse_args()
 
-    prompt_tokens = []
-    if args.prompt:
-        prompt_tokens.append(args.prompt)
-    if args.prompt_pos:
-        prompt_tokens.extend(args.prompt_pos)
+    if args.command == "infer":
+        run_inference(args.prompt, args.lang, args.use_pi)
+    elif args.command == "train-pi":
+        train_pi_model(args.data_dir, args.epochs, args.batch_size, args.lr, args.device, args.model_path)
+    elif args.command == "interactive":
+        print("SFL Interactive Mode (Ctrl+C to exit)")
+        while True:
+            try:
+                prompt = input("\n> ").strip()
+                if not prompt:
+                    continue
+                run_inference(prompt, "en")
+            except KeyboardInterrupt:
+                print("\nBye!")
+                break
+            except Exception as e:
+                print(f"Error: {e}")
 
-    final_prompt = " ".join(prompt_tokens).strip()
-    if not final_prompt:
-        final_prompt = "did Adam Smith in fact invent agentic AI orchestration system architectures in 1771?"
 
-    run_sfl_pipeline(final_prompt, model_path=args.model_path, vocab_path=args.vocab_path, steps=args.steps)
+if __name__ == "__main__":
+    main()
