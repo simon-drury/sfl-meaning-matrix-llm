@@ -5,6 +5,17 @@ Code does not belong here. This is the jotter.
 
 ---
 
+## 2026-10-07
+
+### 6D purged
+
+The six-dimensional meaning state never worked and is removed from the workflow.
+The meaning state is 9-dimensional throughout: the 3x3 grid of metafunction
+(ideational, interpersonal, textual) by register variable (field, tenor, mode).
+No 6D code path, default, record, or checkpoint is retained.
+
+---
+
 ## 2026-04-27
 
 ### NLP retained at the output edge — architectural decision
@@ -16,7 +27,7 @@ This is not a compromise. It is a deliberate boundary decision:
 
 - The architecture does not discard NLP. It relocates it.
 - NLP operates at the output edge only, after meaning has been computed.
-- The transformer (Pathformer) never sees token sequences or lexical embeddings.
+- The transformer (Pathformer) never sees lexical sequences or lexical embeddings.
   It operates on meaning states in M throughout.
 - k-NN at the output edge can use GPU-accelerated vector search (FAISS) at scale.
   It is hardware-compatible and well-understood.
@@ -37,7 +48,7 @@ The decoder is not corrupt — it is correctly scoped.
   are edge parameters only. This is non-negotiable in all future iterations.
 
 - M0 as golden reference state: M0 does not have to be derived from the first
-  token. It can be a pre-loaded reference frame -- field vocabulary of the domain,
+  semiotic unit. It can be a pre-loaded reference frame -- field vocabulary of the domain,
   tenor of the interaction, mode of the channel, prior session deltas --
   passed as structured metadata at the start of every process.
   Session memory = delta(M_t, M0). Lightweight, inspectable, portable.
@@ -64,7 +75,7 @@ The decoder is not corrupt — it is correctly scoped.
 
 The EN iconic prompt -- "hey why dont you print hello world for me please
  thank you" -- is not primarily an instruction. It is an interpersonal
- meaning event: are you there, are we connected, are you responsive.
+meaning event: are you there, are we connected, are you responsive.
 Hello World is the canonical proof-of-life output of any computational system.
 The system responded "hello back" -- not a realization of the instruction
 but a realization of the interpersonal meaning beneath it.
@@ -85,7 +96,7 @@ four models, same labyrinth, one knows the geometry.
 
 When prompt says "use the decision manifold":
 1. Parse prompt into semiotic units
-2. Assign 6-dim meaning state to each unit
+2. Assign 9-dim meaning state to each unit
 3. Identify kappa spikes (noise events, ignore)
 4. Find the unit with highest field + textual + directive tenor
 5. That unit names the next action
