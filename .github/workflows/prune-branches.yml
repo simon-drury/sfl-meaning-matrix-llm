@@ -1,0 +1,93 @@
+name: Prune branches
+
+on:
+  workflow_dispatch:
+    inputs:
+      execute:
+        description: Actually delete branches (false = dry run)
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tag and prune branches
+        env:
+          EXECUTE: ${{ inputs.execute }}
+        run: |
+          set -u
+          BRANCHES="
+          chore/add-sfl-pi-actions-launcher
+          ci/resume-sfl-pi-training
+          copilot/complete-repo-audit
+          copilot/repo-audit
+          copilot/research-train-sfl-pi-workflow-issues
+          docs/non-ceremonial-experimentation-directive
+          feature/add-meaning-state-animation-reader
+          feature/implementation-evidence-reader
+          feature/olmo-core-sfl-random-init
+          feature/sfl-pi-full-run-inspection
+          fix/install-pytorch-for-sfl-pi
+          fix/sfl-pi-jsonl-ingestion
+          kpml-investigation
+          nemotron3-proposal-reader
+          kpml-sandbox
+          purge/6d
+          "
+          KEEP="kpml-sandbox purge/6d"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          [ "$EXECUTE" = "true" ] && echo "MODE: EXECUTE" || echo "MODE: DRY RUN"
+
+          SUMMARY=""
+          for b in $BRANCHES; do
+            [ "$b" = "main" ] && continue
+            tag="archive/${b//\//-}"
+            if ! git ls-remote --exit-code --heads origin "refs/heads/$b" >/dev/null 2>&1; then
+              SUMMARY+="$b|$tag|branch missing (skipped)|n/a"$'\n'
+              continue
+            fi
+            sha=$(git ls-remote --heads origin "refs/heads/$b" | cut -f1)
+            tag_status=""
+            tag_ok=false
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+              tag_status="exists"
+              tag_ok=true
+            elif [ "$EXECUTE" != "true" ]; then
+              tag_status="would create"
+            else
+              git fetch -q origin "$sha"
+              if git tag -a "$tag" -m "Archive of branch $b at $sha" "$sha" && git push -q origin "refs/tags/$tag"; then
+                tag_status="created+pushed"
+                tag_ok=true
+              else
+                tag_status="FAILED"
+              fi
+            fi
+
+            if [[ " $KEEP " == *" $b "* ]]; then
+              del_status="kept (protected)"
+            elif [ "$EXECUTE" != "true" ]; then
+              del_status="would delete"
+            elif [ "$tag_ok" = true ]; then
+              if git push -q origin --delete "$b"; then del_status="deleted"; else del_status="DELETE FAILED"; fi
+            else
+              del_status="not deleted (tag not pushed)"
+            fi
+            SUMMARY+="$b|$tag|$tag_status|$del_status"$'\n'
+          done
+
+          {
+            echo "| Branch | Tag | Tag result | Delete result |"
+            echo "|---|---|---|---|"
+            printf '%s' "$SUMMARY" | awk -F'|' '{print "| "$1" | "$2" | "$3" | "$4" |"}'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
