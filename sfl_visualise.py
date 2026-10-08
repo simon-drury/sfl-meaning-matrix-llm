@@ -10,7 +10,7 @@ Outputs
 -------
   output/manifold_3d.png        -- 3D path through ideational/field/textual
   output/manifold_steps.png     -- displacement ||delta|| and curvature kappa per step
-  output/manifold_gaussians.png -- Gaussian profiles for all 6 dimensions, final state
+  output/manifold_gaussians.png -- Gaussian profiles for all 9 dimensions, final state
   output/manifold_anim.mp4      -- animated EN trajectory (requires ffmpeg)
 
 Requirements
@@ -35,7 +35,7 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from sfl_matrix_engine import encode_en, encode_es
 
 OUTDIR = "output"
-DIMENSIONS = ["ideational", "field", "interpersonal", "tenor", "textual", "mode"]
+DIMENSIONS = [f"{m} / {r}" for m in ("ideational", "interpersonal", "textual") for r in ("field", "tenor", "mode")]
 
 
 def ensure_outdir():
@@ -43,7 +43,7 @@ def ensure_outdir():
 
 
 def trajectory_vectors(traj):
-    """Return (N, 6) array of flat vectors [ideational, field, interpersonal, tenor, textual, mode]
+    """Return (N, 9) array of flat vectors (3x3 matrix unrolled row-wise)
     for every state M0..MT in the trajectory, and the list of state labels.
     """
     vecs = np.array([s.to_vector() for s in traj.states])
@@ -59,12 +59,12 @@ def plot_3d(traj_en, traj_es):
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection='3d')
 
-    ax.plot(vecs_en[:, 0], vecs_en[:, 1], vecs_en[:, 4], marker='o', color='tab:blue', label='EN')
-    ax.plot(vecs_es[:, 0], vecs_es[:, 1], vecs_es[:, 4], marker='o', color='tab:red', label='ES')
+    ax.plot(vecs_en[:, 0], vecs_en[:, 1], vecs_en[:, 6], marker='o', color='tab:blue', label='EN')
+    ax.plot(vecs_es[:, 0], vecs_es[:, 1], vecs_es[:, 6], marker='o', color='tab:red', label='ES')
 
-    ax.set_xlabel('ideational')
-    ax.set_ylabel('field')
-    ax.set_zlabel('textual')
+    ax.set_xlabel('ideational / field')
+    ax.set_ylabel('ideational / tenor')
+    ax.set_zlabel('textual / field')
     ax.set_title('Semiotic manifold path (ideational / field / textual)')
     ax.legend()
 
@@ -131,7 +131,7 @@ def plot_gaussians(traj_en, traj_es):
 
     x = np.linspace(-2, 2, 400)
 
-    fig, axes = plt.subplots(2, 3, figsize=(12, 6))
+    fig, axes = plt.subplots(3, 3, figsize=(12, 9))
     axes = axes.flatten()
 
     for i, dim in enumerate(DIMENSIONS):
@@ -157,9 +157,9 @@ def animate_en(traj_en):
     ax.set_xlim(vecs[:, 0].min() - 0.2, vecs[:, 0].max() + 0.2)
     ax.set_ylim(vecs[:, 1].min() - 0.2, vecs[:, 1].max() + 0.2)
     ax.set_zlim(vecs[:, 4].min() - 0.2, vecs[:, 4].max() + 0.2)
-    ax.set_xlabel('ideational')
-    ax.set_ylabel('field')
-    ax.set_zlabel('textual')
+    ax.set_xlabel('ideational / field')
+    ax.set_ylabel('ideational / tenor')
+    ax.set_zlabel('textual / field')
     ax.set_title('EN semiotic trajectory')
 
     line, = ax.plot([], [], [], marker='o', color='tab:blue')

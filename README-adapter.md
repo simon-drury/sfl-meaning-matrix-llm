@@ -30,7 +30,7 @@ All transformer weights remain frozen in Stage 1.
 
 ## Supported local models
 
-| Model | \(d_{\text{model}}\) | Trainable params (\(n_{\text{dim}}=6\)) |
+| Model | \(d_{\text{model}}\) | Trainable params (\(n_{\text{dim}} = 9\)) |
 |---|---|---|
 | DeepSeek-R1-Distill-Qwen-1.5B | 2048 | 14,336 |
 | Llama 3.2 3B Instruct | 3072 | 21,504 |
@@ -41,7 +41,7 @@ Both models are installed locally via GPT4All v3.10.0.
 
 ## Scalability
 
-\(n_{\text{dim}} = 6\) is the current minimum viable dimensionality,
+\(n_{\text{dim}} = 9\) is the current minimum viable dimensionality,
 derived from the SFL metafunctional architecture at its most reduced form.
 It is a **parameter**, not a constant.
 
@@ -55,14 +55,14 @@ downstream transformer.
 ## Validation output
 
 ```
-AdapterConfig(deepseek-r1-distill-qwen-1.5b | d_model=2048 | n_dim=6 | trainable params=14,336)
-  Input  shape : (5, 6)
+AdapterConfig(deepseek-r1-distill-qwen-1.5b | d_model=2048 | n_dim=9 | trainable params=14,336)
+  Input  shape : (5, 9)
   Output shape : (5, 2048)  OK
   All finite   : True
   Status       : PASS
 
-AdapterConfig(llama-3.2-3b-instruct | d_model=3072 | n_dim=6 | trainable params=21,504)
-  Input  shape : (5, 6)
+AdapterConfig(llama-3.2-3b-instruct | d_model=3072 | n_dim=9 | trainable params=21,504)
+  Input  shape : (5, 9)
   Output shape : (5, 3072)  OK
   All finite   : True
   Status       : PASS

@@ -17,4 +17,4 @@ End-to-end : prompt → trajectory → realization.
 Retourne statut ok.
 
 ### GET /dims
-Retourne noms et plages des 6 dimensions.
+Retourne noms et plages des 9 dimensions.

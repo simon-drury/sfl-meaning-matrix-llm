@@ -1,8 +1,8 @@
-# Adaptateur SFL : Projection vers le Manifold 6D
+# Adaptateur SFL : Projection vers le Manifold 9D
 
 ## Rôle
 
-`sfl_adapter.py` implémente la projection initiale vers l'espace sémantique 6D.
+`sfl_adapter.py` implémente la projection initiale vers l'espace sémantique 9D.
 
 ### Mathématique
 

@@ -29,7 +29,7 @@ de cada idioma.
 ## Huellas semioticas
 
 Cada elemento lexico \(w \in \mathcal{V}_L\) lleva una huella
-\(\mathbf{f}_w \in [-1, 1]^6\) que codifica su posicion metafuncional
+\(\mathbf{f}_w \in [-1, 1]^9\) que codifica su posicion metafuncional
 en el manifold semiotico. En produccion, las huellas se aprenden de
 corpora anotados con SFL. Los vocabularios piloto estan codificados
 manualmente a partir del analisis de los dos prompts iconicos.
@@ -46,7 +46,7 @@ sfl_matrix_engine.py   parsear prompt -> MeaningTrajectory
        |
 sfl_manifold.py        geometria del camino -> kappa, delta, phi, L_sp
        |
-sfl_adapter.py         W_adapt: R^6 -> R^d_model
+sfl_adapter.py         W_adapt: R^9 -> R^d_model
        |
 [transformer]          paso hacia adelante sobre embeddings de significado
        |

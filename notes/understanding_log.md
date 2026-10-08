@@ -26,7 +26,7 @@ The input x_i is one of the six meaning values: ideational, field, interpersonal
 
 W_ij is the weight connecting meaning dimension i to output position j.
 
-The layer takes the 6D meaning coordinate, multiplies it through the weight matrix, adds bias, and produces the transformed semantic state.
+The layer takes the 9D meaning coordinate, multiplies it through the weight matrix, adds bias, and produces the transformed semantic state.
 
 The only thing that differs from the standard MIT lab is what the loss measures. The lab measures distance from an arbitrary placeholder target. The SFL architecture measures distance from the permanent context — the target register state. The mechanics of finding W are identical.
 

@@ -9,10 +9,10 @@ transformer backbone running locally via GPT4All.
 Architecture
 ------------
 
-  M_t in R^6          (meaning state from sfl_matrix_engine)
+  M_t in R^9          (meaning state from sfl_matrix_engine)
        |
        v
-  W_adapt              (linear projection R^6 -> R^d_model)
+  W_adapt              (linear projection R^9 -> R^d_model)
        |
        v
   h_0 in R^d_model     (injected as context prefix to GPT4All)
@@ -24,10 +24,10 @@ Architecture
   h_out in R^d_model   (final hidden state or embedding)
        |
        v
-  W_inv                (linear projection R^d_model -> R^6)
+  W_inv                (linear projection R^d_model -> R^9)
        |
        v
-  M_out in R^6         (output meaning state, clipped to [-1,1]^6)
+  M_out in R^9         (output meaning state, clipped to [-1,1]^9)
 
 The transformer is modality-blind throughout.
 It receives h_0 derived from M_t. It returns h_out.
@@ -60,7 +60,7 @@ from sfl_matrix_engine import encode_en, encode_es, MeaningTrajectory
 from sfl_realize import build_pilot_en, build_pilot_es
 
 DIM_NAMES = ["ideational", "field", "interpersonal", "tenor", "textual", "mode"]
-N_DIM = 6
+N_DIM = 9
 
 # GPT4All embedding dimension for nomic-embed-text-v1.5 is 768
 # For LLM models (Llama, Mistral) use 4096
@@ -73,8 +73,8 @@ D_MODEL = 768
 # ---------------------------------------------------------------------------
 
 np.random.seed(42)
-W_adapt = np.random.randn(D_MODEL, N_DIM) * 0.1   # R^6  -> R^d_model
-W_inv   = np.random.randn(N_DIM, D_MODEL) * 0.1   # R^d_model -> R^6
+W_adapt = np.random.randn(D_MODEL, N_DIM) * 0.1   # R^9  -> R^d_model
+W_inv   = np.random.randn(N_DIM, D_MODEL) * 0.1   # R^d_model -> R^9
 
 
 def project_to_model(M_t: np.ndarray) -> np.ndarray:
@@ -84,7 +84,7 @@ def project_to_model(M_t: np.ndarray) -> np.ndarray:
 
 
 def project_from_model(h_out: np.ndarray) -> np.ndarray:
-    """Project model output back to meaning state M_out in [-1,1]^6."""
+    """Project model output back to meaning state M_out in [-1,1]^9."""
     M_out = W_inv @ h_out
     return np.clip(M_out, -1.0, 1.0)
 

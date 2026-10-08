@@ -95,13 +95,13 @@ function buildFrames(traj) {{
     for (let i = 0; i < k; i++) {{
       xs.push(traj.states[i][0]);
       ys.push(traj.states[i][1]);
-      zs.push(traj.states[i][4]);
+      zs.push(traj.states[i][6]);
       ts.push(traj.labels[i]);
     }}
     // current point highlight
     const cx = [traj.states[k-1][0]];
     const cy = [traj.states[k-1][1]];
-    const cz = [traj.states[k-1][4]];
+    const cz = [traj.states[k-1][6]];
     const cl = [traj.labels[k-1]];
     frames.push({{
       name: String(k),
@@ -184,7 +184,7 @@ function switchLang(lang) {{
   render(lang);
 }}
 
-// Free-text encoder: naive projection onto 6D manifold
+// Free-text encoder: naive projection onto 9D manifold
 // Each word contributes a small delta proportional to its character hash.
 // This is intentionally lightweight — it shows trajectory shape, not semantics.
 function hashWord(w) {{
@@ -199,12 +199,12 @@ function encodeText() {{
   const words = raw.split(/\\s+/);
   // Start from origin
   let state = [0,0,0,0,0,0];
-  const xs=[state[0]], ys=[state[1]], zs=[state[4]], ts=['[start]'];
+  const xs=[state[0]], ys=[state[1]], zs=[state[6]], ts=['[start]'];
   for (const w of words) {{
     const h = hashWord(w);
     const delta = DIM.map((_, i) => ((h >> (i*4)) & 0xff) / 255 * 0.4 - 0.2);
     state = state.map((v,i) => Math.max(-1, Math.min(1, v + delta[i])));
-    xs.push(state[0]); ys.push(state[1]); zs.push(state[4]); ts.push(w);
+    xs.push(state[0]); ys.push(state[1]); zs.push(state[6]); ts.push(w);
   }}
   const freeTrace = {{
     x: xs, y: ys, z: zs, text: ts,

@@ -28,7 +28,7 @@ architecture maps meaning to form independently within each language.
 ## Semiotic fingerprints
 
 Each lexical item \(w \in \mathcal{V}_L\) carries a fingerprint
-\(\mathbf{f}_w \in [-1, 1]^6\) encoding its metafunctional position
+\(\mathbf{f}_w \in [-1, 1]^9\) encoding its metafunctional position
 in the semiotic manifold. In production, fingerprints are learned from
 SFL-annotated corpora. The pilot vocabularies are hand-encoded from
 the two iconic prompt analyses.
@@ -45,7 +45,7 @@ sfl_matrix_engine.py   parse prompt -> MeaningTrajectory
        |
 sfl_manifold.py        path geometry -> kappa, delta, phi, L_sp
        |
-sfl_adapter.py         W_adapt: R^6 -> R^d_model
+sfl_adapter.py         W_adapt: R^9 -> R^d_model
        |
 [transformer]          forward pass over meaning embeddings
        |

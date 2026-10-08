@@ -1,6 +1,6 @@
 # Matrice de Sens SFL pour LLM
 
-**Une architecture basée sur la linguistique systémique fonctionnelle** : au lieu de tokeniser lexicalement, on compile directement en trajectoires sémantiques dans un manifold 6D.
+**Une architecture basée sur la linguistique systémique fonctionnelle** : au lieu de tokeniser lexicalement, on compile directement en trajectoires sémantiques dans un manifold 9D.
 
 ## Principes Fondamentaux
 
@@ -76,12 +76,12 @@ Réponse :
 |---------|------|
 | MANIFOLD.md | Théorie formelle en LaTeX : manifold continu, distances SFL, deltas |
 | sfl_manifold.py | Moteur géométrique : Δt, κ, φ, L_sp |
-| sfl_adapter.py | Projection W_adapt : ℝᵈ → ℝ⁶ configurable |
+| sfl_adapter.py | Projection W_adapt : ℝᵈ → ℝ⁹ configurable |
 | sfl_realize.py | Réalisation lexique : voisinage pondéré |
 | sfl_visualise.py | Plots 3D, barres, animations MP4 |
 | app.py | Wrapper FastAPI : stateless, endpoints /analyze /pipeline /realize |
 
-## Dimensions du Manifold (6D)
+## Dimensions du Manifold (9D)
 
 | Dimension | Plage | Signification LSF |
 |-----------|-------|-------------------|
@@ -97,7 +97,7 @@ Réponse :
 Une **trajectoire sémantique** est une séquence d'états :
 $$\mathbf{T} = (\mathbf{M}_0, \mathbf{M}_1, \ldots, \mathbf{M}_T)$$
 
-où chaque $\mathbf{M}_t \in \mathbb{R}^6$.
+où chaque $\mathbf{M}_t \in \mathbb{R}^9$.
 
 Un **delta** $\Delta_t = \mathbf{M}_t - \mathbf{M}_{t-1}$ encode la **transformation de sens** d'un instant au suivant.
 
@@ -128,7 +128,7 @@ où les poids $w_i$ reflètent l'importance de chaque métafonction/variable con
 
 - Chaque langue (EN, ES, FR) a sa propre analyse et réalisation
 - Pas de traductions automatiques entre répertoires linguistiques
-- Chaque manifold 6D est interprété dans les catégories LSF de la langue cible
+- Chaque manifold 9D est interprété dans les catégories LSF de la langue cible
 - Les concepts théoriques (métafonctions, deltas, distances) sont **langage-agnostiques**
 
 ## Prochaines Étapes

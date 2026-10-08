@@ -11,7 +11,20 @@ Author: Simon Drury (sjd) / LASSM Framework
 
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Dict, Any
+import re
 import numpy as np
+
+__all__ = [
+    "METAFUNCTIONS",
+    "REGISTERS",
+    "MeaningMatrix",
+    "SFLMatrixEngine",
+    "MeaningTrajectory",
+    "encode_en",
+    "encode_es",
+    "EN_PROMPT",
+    "ES_PROMPT",
+]
 
 
 METAFUNCTIONS = ["ideational", "interpersonal", "textual"]
@@ -30,6 +43,7 @@ class MeaningMatrix:
      [m_txt_field, m_txt_tenor, m_txt_mode]]
     """
     matrix: np.ndarray  # Shape (3, 3)
+    label: str = ""
 
     def __post_init__(self):
         self.matrix = np.asarray(self.matrix, dtype=np.float32)
@@ -74,7 +88,7 @@ class MeaningMatrix:
         if delta.shape != (3, 3):
             raise ValueError(f"Delta shape must be (3, 3), got {delta.shape}")
         updated = np.clip(self.matrix + delta, -1.0, 1.0)
-        return MeaningMatrix(updated)
+        return MeaningMatrix(updated, self.label)
 
 
 class SFLMatrixEngine:
@@ -126,3 +140,89 @@ class SFLMatrixEngine:
             m[2, 2] = 0.50
 
         return MeaningMatrix(m)
+
+
+@dataclass
+class MeaningTrajectory:
+    """
+    Ordered sequence of 3x3 meaning states M_0..M_T for one discourse.
+    """
+    lang: str
+    states: List[MeaningMatrix]
+
+    @property
+    def final_state(self) -> MeaningMatrix:
+        return self.states[-1]
+
+    @property
+    def labels(self) -> List[str]:
+        return [s.label for s in self.states]
+
+    def vectors(self) -> np.ndarray:
+        """Stack of unrolled 9D vectors, shape (T+1, 9)."""
+        return np.array([s.to_vector() for s in self.states])
+
+
+EN_PROMPT = "hey why dont you print hello world for me please thank you"
+ES_PROMPT = "buenos días, hoy es viernes. Esto es CNN. Hoy es un día importante para mí y para muchos."
+
+_EN_UNITS = ["hey", "why dont you", "print hello world", "for me", "please thank you"]
+_ES_UNITS = ["buenos días", "hoy es viernes", "Esto es CNN",
+             "Hoy es un día importante para mí", "y para muchos"]
+
+_ES_CUES = {
+    "ideational": ["es", "hoy", "día", "viernes", "importante", "cnn"],
+    "polite": ["por favor", "gracias", "buenos"],
+    "imperative": ["debe", "inmediatamente"],
+    "marked_theme": ["hoy", "buenos", "esto", "y para"],
+}
+
+
+def _encode_units(lang: str, units: List[str], engine: SFLMatrixEngine, encode_unit) -> MeaningTrajectory:
+    """M_0 from the first unit; each later unit contributes a delta Delta_t."""
+    states = [MeaningMatrix(encode_unit(units[0]).matrix, "M0")]
+    for t, unit in enumerate(units[1:], start=1):
+        target = encode_unit(unit).matrix
+        delta = 0.5 * (target - states[-1].matrix)
+        nxt = states[-1].apply_delta(delta)
+        nxt.label = f"M{t}"
+        states.append(nxt)
+    return MeaningTrajectory(lang=lang, states=states)
+
+
+def encode_en(prompt: Optional[str] = None) -> MeaningTrajectory:
+    """Encode an English prompt (default: the iconic pilot prompt) into a MeaningTrajectory."""
+    text = EN_PROMPT if prompt is None else prompt
+    engine = SFLMatrixEngine()
+    units = list(_EN_UNITS) if text.strip() == EN_PROMPT else [
+        p.strip() for p in re.split(r"[,.;:!?]+", text) if p.strip()] or [text.strip()]
+    return _encode_units("EN", units, engine, engine.encode_text)
+
+
+def _encode_es_unit(engine: SFLMatrixEngine, unit: str) -> MeaningMatrix:
+    lower = unit.lower()
+    m = np.zeros((3, 3), dtype=np.float32)
+    if any(w in lower.split() for w in _ES_CUES["ideational"]):
+        m[0] = [0.50, 0.30, 0.40]
+    else:
+        m[0] = [0.20, 0.10, 0.20]
+    if any(w in lower for w in _ES_CUES["polite"]):
+        m[1] = [0.30, 0.60, 0.40]
+    elif any(w in lower for w in _ES_CUES["imperative"]):
+        m[1] = [0.80, 0.90, 0.70]
+    else:
+        m[1] = [0.10, 0.20, -0.20]
+    if any(lower.startswith(w) for w in _ES_CUES["marked_theme"]):
+        m[2] = [0.60, 0.40, 0.85]
+    else:
+        m[2] = [0.40, 0.30, 0.50]
+    return MeaningMatrix(m)
+
+
+def encode_es(prompt: Optional[str] = None) -> MeaningTrajectory:
+    """Encode a Spanish prompt (default: the iconic pilot prompt) into a MeaningTrajectory."""
+    text = ES_PROMPT if prompt is None else prompt
+    engine = SFLMatrixEngine()
+    units = list(_ES_UNITS) if text.strip() == ES_PROMPT else [
+        p.strip() for p in re.split(r"[,.;:!?]+", text) if p.strip()] or [text.strip()]
+    return _encode_units("ES", units, engine, lambda u: _encode_es_unit(engine, u))

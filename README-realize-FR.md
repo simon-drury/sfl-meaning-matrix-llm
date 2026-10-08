@@ -4,7 +4,7 @@ Donné un état M, comment sélectionner les mots?
 
 ## Algorithme : Nearest-Neighbor SFL
 
-Chaque mot $w$ a une signature $\mathbf{v}_w \in \mathbb{R}^6$.
+Chaque mot $w$ a une signature $\mathbf{v}_w \in \mathbb{R}^9$.
 
 **Score** : $\text{score}(w | \mathbf{M}) = -d_{\text{SFL}}(\mathbf{M}, \mathbf{v}_w)$
 
@@ -12,7 +12,7 @@ Chaque mot $w$ a une signature $\mathbf{v}_w \in \mathbb{R}^6$.
 
 ## Vocabulaire Pilot Français
 
-| Mot | Signature 6D |
+| Mot | Signature 9D |
 |-----|-----|
 | merci | (0.0, 0.95, 0.2, 0.1, 0.5, 0.3) |
 | s'il te plaît | (-0.1, 0.85, 0.0, 0.1, 0.6, 0.2) |

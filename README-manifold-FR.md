@@ -1,19 +1,22 @@
-# Manifold Sémantique 6D : Géométrie SFL
+# Manifold Sémantique 9D : Géométrie SFL
 
 Théorie formelle de l'espace et des dynamiques.
 
 ## Espace d'État
 
-**Manifold** : $\mathcal{M} = \mathbb{R}^6$ où chaque point encode un instant de sens.
+**Manifold** : $\mathcal{M} = \mathbb{R}^9$ où chaque point encode un instant de sens.
 
 | Dim | Interprétation LSF |
 |-----|-------------------|
-| 1 | idéationnelle : construction de l'expérience |
-| 2 | interpersonnelle : énaction des relations |
-| 3 | textuelle : organisation du discours |
-| 4 | champ : domaine, technicité |
-| 5 | tenor : hiérarchie, distance |
-| 6 | mode : canal, oralité |
+| 1 | idéationnelle × champ |
+| 2 | idéationnelle × tenor |
+| 3 | idéationnelle × mode |
+| 4 | interpersonnelle × champ |
+| 5 | interpersonnelle × tenor |
+| 6 | interpersonnelle × mode |
+| 7 | textuelle × champ |
+| 8 | textuelle × tenor |
+| 9 | textuelle × mode |
 
 ## Trajectoires et Deltas
 
@@ -33,6 +36,6 @@ Un delta : $\Delta_t = \mathbf{M}_t - \mathbf{M}_{t-1}$
 
 ## Distance SFL Pondérée
 
-$$d_{\text{SFL}}(\mathbf{M}, \mathbf{M}') = \sqrt{\sum_{i=1}^6 w_i (M_i - M'_i)^2}$$
+$$d_{\text{SFL}}(\mathbf{M}, \mathbf{M}') = \sqrt{\sum_{i=1}^9 w_i (M_i - M'_i)^2}$$
 
 Poids : idéat=1.0, interp=1.2, text=1.1, champ=0.8, tenor=1.0, mode=0.9.

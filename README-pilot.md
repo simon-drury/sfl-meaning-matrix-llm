@@ -8,7 +8,7 @@
 Each prompt is processed step by step through the same instantiation route:
 
 1. Lexical input received once.
-2. Projected immediately into a 3×2 meaning matrix (M0).
+2. Projected immediately into a 3x3 meaning matrix (M0).
 3. Each subsequent clause or meaningful unit produces a delta matrix (Δt).
 4. Lexical items are discarded after projection.
 5. Realization rule maps the final meaning state back to a lexical selection.

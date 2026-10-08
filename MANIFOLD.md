@@ -13,7 +13,7 @@ All module implementations are derived from the definitions here.
 Let M be a smooth Riemannian manifold of dimension n = 6,
 parameterised by the six SFL metafunctions and register variables:
 
-    M = [-1, 1]^6
+    M = [-1, 1]^9
 
 with coordinates:
 
@@ -52,7 +52,7 @@ In production, instantiation will be learned from SFL-annotated corpora.
 
 At each step t, the displacement vector is:
 
-    delta_t = M_t - M_{t-1}       in R^6
+    delta_t = M_t - M_{t-1}       in R^9
 
 The displacement magnitude is:
 
@@ -74,7 +74,7 @@ This is the discrete analogue of the continuous energy functional:
     E(gamma) = integral_0^T g(gamma'(t), gamma'(t)) dt
 
 where g is the Riemannian metric on M. In the pilot, g is the
-standard Euclidean metric on [-1,1]^6. In production, g may be
+standard Euclidean metric on [-1,1]^9. In production, g may be
 replaced by the Fisher-Rao metric (Rao 1945; Amari 1985) derived
 from the statistical manifold of meaning distributions.
 
@@ -129,13 +129,13 @@ alpha in [0, 1] controls the decay rate (pilot: alpha = 0.7).
 The adapter layer W_adapt projects from the manifold M into the
 transformer's model dimension d_model:
 
-    W_adapt: R^6 -> R^{d_model}
+    W_adapt: R^9 -> R^{d_model}
 
 specifically:
 
     h_0 = W_adapt * vec(M_t) + b_adapt
 
-where vec(M_t) in R^6 is the flattened meaning state.
+where vec(M_t) in R^9 is the flattened meaning state.
 This h_0 replaces the standard token embedding as the first
 hidden state passed to the transformer.
 
@@ -148,7 +148,7 @@ for language L, the **realization** w* is:
 
     w* = argmin_{w in V_L} || f_w - M_out ||_2
 
-where f_w in R^6 is the semiotic fingerprint of lexical item w.
+where f_w in R^9 is the semiotic fingerprint of lexical item w.
 
 In production, distances may be computed under the Fisher-Rao metric
 rather than the Euclidean metric, giving:

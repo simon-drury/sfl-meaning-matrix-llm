@@ -50,7 +50,7 @@ Curva brusca = evento semántico (cambio de registro, movimiento evaluativo, cam
 El color de la barra es el driver metafuncional dominante \(\phi_t\) — el *por qué* del movimiento.
 La línea blanca punteada es la curvatura \(\kappa_t\): los picos marcan eventos semánticos.
 
-**Perfiles Gaussianos** — cada una de las seis dimensiones SFL se muestra como una
+**Perfiles Gaussianos** — cada una de las nueve dimensiones SFL se muestra como una
 distribución de probabilidad centrada en su valor de estado final.
 La dispersión (\(\sigma = 0.20\)) representa incertidumbre — un estado de significado
 es una región, no un punto.

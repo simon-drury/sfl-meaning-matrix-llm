@@ -111,7 +111,7 @@ class AnalyzeResponse(BaseModel):
 
 
 class RealizeRequest(BaseModel):
-    M_out:    List[float]   = Field(..., description="Meaning state vector, length 6")
+    M_out:    List[float]   = Field(..., description="Meaning state vector, length 9")
     modality: str           = Field("text", description="Output modality")
     lang:     Optional[str] = Field("EN",   description="Output language: EN, ES, PT, IT, ZH")
     k:        int           = Field(5,      description="Number of candidates")
