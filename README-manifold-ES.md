@@ -97,6 +97,6 @@ Nivel 1 (local), Nivel 2 (API), Nivel 3 (distribuido).
 
 ## Próximo paso
 
-`sfl_adapter.py` — proyecta el vector de significado de 6 dimensiones en la
+`sfl_adapter.py` — proyecta el vector de significado de 9 dimensiones en la
 dimensión de embedding de un transformador local (Llama 3.2 3B / DeepSeek 1.5B)
-mediante una capa lineal aprendida \(W_{\text{adapt}} \in \mathbb{R}^{d_{\text{model}} \times 6}\).
+mediante una capa lineal aprendida \(W_{\text{adapt}} \in \mathbb{R}^{d_{\text{model}} \times 9}\).

@@ -6,10 +6,10 @@ Connects the SFL semiotic manifold to a locally running GPT4All model.
 This is the step from simulated transformer to real transformer.
 
 ```
-M_t in R^6
+M_t in R^9
      |
      v
-W_adapt (R^6 -> R^768)       <- adapter layer, trained in Step 2
+W_adapt (R^9 -> R^768)       <- adapter layer, trained in Step 2
      |
      v
 [GPT4All model]               <- backbone, frozen
@@ -18,10 +18,10 @@ W_adapt (R^6 -> R^768)       <- adapter layer, trained in Step 2
 h_out in R^768
      |
      v
-W_inv (R^768 -> R^6)         <- inverse adapter, trained in Step 2
+W_inv (R^768 -> R^9)         <- inverse adapter, trained in Step 2
      |
      v
-M_out in [-1,1]^6             <- output meaning state
+M_out in [-1,1]^9             <- output meaning state
      |
      v
 V_L nearest semiotic unit     <- realization in any of EN,ES,PT,IT,ZH

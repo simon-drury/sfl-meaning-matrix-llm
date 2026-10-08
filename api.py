@@ -46,12 +46,15 @@ from sfl_realize import (
 # ---------------------------------------------------------------------------
 
 DIMS = [
-    {"name": "ideational",    "range": [-1.0, 1.0]},
-    {"name": "field",         "range": [-1.0, 1.0]},
-    {"name": "interpersonal", "range": [-1.0, 1.0]},
-    {"name": "tenor",         "range": [-1.0, 1.0]},
-    {"name": "textual",       "range": [-1.0, 1.0]},
-    {"name": "mode",          "range": [-1.0, 1.0]},
+    {"name": "ideational_field", "range": [-1.0, 1.0]},
+    {"name": "ideational_tenor", "range": [-1.0, 1.0]},
+    {"name": "ideational_mode", "range": [-1.0, 1.0]},
+    {"name": "interpersonal_field", "range": [-1.0, 1.0]},
+    {"name": "interpersonal_tenor", "range": [-1.0, 1.0]},
+    {"name": "interpersonal_mode", "range": [-1.0, 1.0]},
+    {"name": "textual_field", "range": [-1.0, 1.0]},
+    {"name": "textual_tenor", "range": [-1.0, 1.0]},
+    {"name": "textual_mode", "range": [-1.0, 1.0]},
 ]
 
 N_DIM = len(DIMS)
@@ -111,7 +114,7 @@ class AnalyzeResponse(BaseModel):
 
 
 class RealizeRequest(BaseModel):
-    M_out:    List[float]   = Field(..., description="Meaning state vector, length 6")
+    M_out:    List[float]   = Field(..., description="Meaning state vector, length 9")
     modality: str           = Field("text", description="Output modality")
     lang:     Optional[str] = Field("EN",   description="Output language: EN, ES, PT, IT, ZH")
     k:        int           = Field(5,      description="Number of candidates")

@@ -8,9 +8,9 @@ from the two iconic prompt trajectories (EN and ES).
 
 Outputs
 -------
-  output/manifold_3d.png        -- 3D path through ideational/field/textual
+  output/manifold_3d.png        -- 3D path through ideational field / interpersonal tenor / textual mode
   output/manifold_steps.png     -- displacement ||delta|| and curvature kappa per step
-  output/manifold_gaussians.png -- Gaussian profiles for all 6 dimensions, final state
+  output/manifold_gaussians.png -- Gaussian profiles for all 9 dimensions, final state
   output/manifold_anim.mp4      -- animated EN trajectory (requires ffmpeg)
 
 Requirements
@@ -35,7 +35,7 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from sfl_matrix_engine import encode_en, encode_es
 
 OUTDIR = "output"
-DIMENSIONS = ["ideational", "field", "interpersonal", "tenor", "textual", "mode"]
+DIMENSIONS = ["ideational_field", "ideational_tenor", "ideational_mode", "interpersonal_field", "interpersonal_tenor", "interpersonal_mode", "textual_field", "textual_tenor", "textual_mode"]
 
 
 def ensure_outdir():
@@ -43,7 +43,7 @@ def ensure_outdir():
 
 
 def trajectory_vectors(traj):
-    """Return (N, 6) array of flat vectors [ideational, field, interpersonal, tenor, textual, mode]
+    """Return (N, 9) array of flat row-major vectors (3x3 matrix, rows metafunctions, columns field/tenor/mode)
     for every state M0..MT in the trajectory, and the list of state labels.
     """
     vecs = np.array([s.to_vector() for s in traj.states])
@@ -52,20 +52,20 @@ def trajectory_vectors(traj):
 
 
 def plot_3d(traj_en, traj_es):
-    """3D path through ideational/field/textual axes for EN and ES trajectories."""
+    """3D path through ideational field / interpersonal tenor / textual mode axes for EN and ES trajectories."""
     vecs_en, _ = trajectory_vectors(traj_en)
     vecs_es, _ = trajectory_vectors(traj_es)
 
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection='3d')
 
-    ax.plot(vecs_en[:, 0], vecs_en[:, 1], vecs_en[:, 4], marker='o', color='tab:blue', label='EN')
-    ax.plot(vecs_es[:, 0], vecs_es[:, 1], vecs_es[:, 4], marker='o', color='tab:red', label='ES')
+    ax.plot(vecs_en[:, 0], vecs_en[:, 4], vecs_en[:, 8], marker='o', color='tab:blue', label='EN')
+    ax.plot(vecs_es[:, 0], vecs_es[:, 4], vecs_es[:, 8], marker='o', color='tab:red', label='ES')
 
-    ax.set_xlabel('ideational')
-    ax.set_ylabel('field')
-    ax.set_zlabel('textual')
-    ax.set_title('Semiotic manifold path (ideational / field / textual)')
+    ax.set_xlabel('ideational field')
+    ax.set_ylabel('interpersonal tenor')
+    ax.set_zlabel('textual mode')
+    ax.set_title('Semiotic manifold path (ideational field / interpersonal tenor / textual mode)')
     ax.legend()
 
     fig.tight_layout()
@@ -131,7 +131,7 @@ def plot_gaussians(traj_en, traj_es):
 
     x = np.linspace(-2, 2, 400)
 
-    fig, axes = plt.subplots(2, 3, figsize=(12, 6))
+    fig, axes = plt.subplots(3, 3, figsize=(12, 9))
     axes = axes.flatten()
 
     for i, dim in enumerate(DIMENSIONS):
@@ -149,24 +149,24 @@ def plot_gaussians(traj_en, traj_es):
 
 
 def animate_en(traj_en):
-    """Animated EN trajectory through ideational/field/textual space."""
+    """Animated EN trajectory through ideational field / interpersonal tenor / textual mode space."""
     vecs, labels = trajectory_vectors(traj_en)
 
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection='3d')
     ax.set_xlim(vecs[:, 0].min() - 0.2, vecs[:, 0].max() + 0.2)
-    ax.set_ylim(vecs[:, 1].min() - 0.2, vecs[:, 1].max() + 0.2)
-    ax.set_zlim(vecs[:, 4].min() - 0.2, vecs[:, 4].max() + 0.2)
-    ax.set_xlabel('ideational')
-    ax.set_ylabel('field')
-    ax.set_zlabel('textual')
+    ax.set_ylim(vecs[:, 4].min() - 0.2, vecs[:, 4].max() + 0.2)
+    ax.set_zlim(vecs[:, 8].min() - 0.2, vecs[:, 8].max() + 0.2)
+    ax.set_xlabel('ideational field')
+    ax.set_ylabel('interpersonal tenor')
+    ax.set_zlabel('textual mode')
     ax.set_title('EN semiotic trajectory')
 
     line, = ax.plot([], [], [], marker='o', color='tab:blue')
 
     def update(frame):
-        line.set_data(vecs[:frame + 1, 0], vecs[:frame + 1, 1])
-        line.set_3d_properties(vecs[:frame + 1, 4])
+        line.set_data(vecs[:frame + 1, 0], vecs[:frame + 1, 4])
+        line.set_3d_properties(vecs[:frame + 1, 8])
         ax.set_title('EN semiotic trajectory: ' + labels[frame])
         return line,
 

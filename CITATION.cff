@@ -15,8 +15,9 @@ version: "0.1.0"
 abstract: >
   A research architecture grounding transformer-based language models in
   Systemic Functional Linguistics (SFL). The transformer operates on a
-  six-dimensional semiotic manifold encoding the SFL metafunctions
-  (ideational, field, interpersonal, tenor, textual, mode). Input and
+  nine-dimensional (3x3) semiotic manifold: rows are the SFL
+  metafunctions (ideational, interpersonal, textual), columns are the
+  register variables (field, tenor, mode). Input and
   output modality are handled at the edges; the transformer is
   modality-blind. English and Spanish are co-equal first languages;
   there is no translation step. The architecture supports persistent

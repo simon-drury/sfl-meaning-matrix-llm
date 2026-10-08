@@ -95,6 +95,6 @@ Horizontally scalable at all three deployment tiers.
 
 ## Next step
 
-`sfl_adapter.py` — projects the 6-dimensional meaning vector into the
+`sfl_adapter.py` — projects the 9-dimensional meaning vector into the
 embedding dimension of a local transformer (Llama 3.2 3B / DeepSeek 1.5B)
-via a learned linear layer \(W_{\text{adapt}} \in \mathbb{R}^{d_{\text{model}} \times 6}\).
+via a learned linear layer \(W_{\text{adapt}} \in \mathbb{R}^{d_{\text{model}} \times 9}\).

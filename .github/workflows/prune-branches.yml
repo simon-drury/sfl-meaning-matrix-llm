@@ -41,9 +41,8 @@ jobs:
           kpml-investigation
           nemotron3-proposal-reader
           kpml-sandbox
-          purge/6d
           "
-          KEEP="kpml-sandbox purge/6d"
+          KEEP="kpml-sandbox"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           [ "$EXECUTE" = "true" ] && echo "MODE: EXECUTE" || echo "MODE: DRY RUN"
