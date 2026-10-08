@@ -75,8 +75,8 @@ curl -X POST http://127.0.0.1:8000/pipeline \
   "modality": "text",
   "lang_out": "EN",
   "trajectory": [
-    {"t": 0, "state": [-0.7, -0.5, 0.8, 0.9, 0.6, -0.6], "label": "hey"},
-    {"t": 1, "state": [-0.6, -0.3, 0.9, 0.9, 0.8, -0.6], "delta": 0.26, "kappa": null, "phi": "interpersonal"}
+    {"t": 0, "state": [-0.7, -0.5, 0.8, 0.9, 0.6, -0.6, -0.4, 0.2, 0.1], "label": "hey"},
+    {"t": 1, "state": [-0.6, -0.3, 0.9, 0.9, 0.8, -0.6, -0.3, 0.3, 0.2], "delta": 0.26, "kappa": null, "phi": "interpersonal"}
   ],
   "path_length": 1.43,
   "realization": {
@@ -99,12 +99,12 @@ curl -X POST http://127.0.0.1:8000/pipeline \
 ```bash
 # EN realization
 curl -X POST http://127.0.0.1:8000/realize \
-  -d '{"M_out": [0.1, 0.6, 1.0, 1.0, 0.8, -0.6], "modality": "text", "lang": "EN"}'
+  -d '{"M_out": [0.1, 0.6, 1.0, 1.0, 0.8, -0.6, 0.3, 0.2, 0.5], "modality": "text", "lang": "EN"}'
 # -> "thank you"
 
 # ES realization -- same M_out
 curl -X POST http://127.0.0.1:8000/realize \
-  -d '{"M_out": [0.1, 0.6, 1.0, 1.0, 0.8, -0.6], "modality": "text", "lang": "ES"}'
+  -d '{"M_out": [0.1, 0.6, 1.0, 1.0, 0.8, -0.6, 0.3, 0.2, 0.5], "modality": "text", "lang": "ES"}'
 # -> "gracias"
 ```
 

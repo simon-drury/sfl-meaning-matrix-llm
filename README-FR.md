@@ -1,6 +1,6 @@
 # Matrice de Sens SFL pour LLM
 
-**Une architecture basée sur la linguistique systémique fonctionnelle** : au lieu de tokeniser lexicalement, on compile directement en trajectoires sémantiques dans un manifold 6D.
+**Une architecture basée sur la linguistique systémique fonctionnelle** : au lieu de tokeniser lexicalement, on compile directement en trajectoires sémantiques dans un manifold 9D (matrice 3x3).
 
 ## Principes Fondamentaux
 
@@ -30,23 +30,23 @@ Le réseau de neurones est un **calculateur**, pas la théorie. La théorie est 
 
 **Entrée** : "Salut, peux-tu m'imprimer bonjour monde s'il te plaît merci"
 
-**État initial M₀** (idéationnelle, interpersonnelle, textuelle, champ, tenor, mode) :
-- idéat : +0.1 (action simple : demande)
-- interp : +0.8 (politesse forte : s'il te plaît, merci)
-- text : +0.2 (thème marqué : tu)
-- champ : +0.3 (technique/informatique)
-- tenor : +0.6 (asymétrique : demandeur → exécuteur)
-- mode : +0.4 (semi-formel, écrit planifié)
+**État initial M₀** (lignes : idéationnelle, interpersonnelle, textuelle ; colonnes : champ, tenor, mode) :
+
+| | champ | tenor | mode |
+|---|---|---|---|
+| idéationnelle | +0.3 | +0.1 | +0.2 |
+| interpersonnelle | +0.3 | +0.8 | +0.4 |
+| textuelle | +0.2 | +0.3 | +0.4 |
 
 **État final Mₜ₌₁** (après traitement) :
-- idéat : +0.2 (action confirmer)
-- interp : +0.9 (pic politesse)
-- text : +0.3 (thème confirmé)
-- champ : +0.3 (stable)
-- tenor : +0.6 (stable)
-- mode : +0.4 (stable)
 
-**Réalisation** : le vecteur (0.2, 0.9, 0.3, 0.3, 0.6, 0.4) sélectionne **merci** (distance SFL minimale au vocabulaire).
+| | champ | tenor | mode |
+|---|---|---|---|
+| idéationnelle | +0.3 | +0.2 | +0.2 |
+| interpersonnelle | +0.3 | +0.9 | +0.4 |
+| textuelle | +0.2 | +0.3 | +0.4 |
+
+**Réalisation** : le vecteur (0.3, 0.2, 0.2, 0.3, 0.9, 0.4, 0.2, 0.3, 0.4) sélectionne **merci** (distance SFL minimale au vocabulaire).
 
 ## Démarrage Rapide
 
@@ -63,8 +63,8 @@ Réponse :
 {
   "lang": "FR",
   "trajectory": [
-    {"t": 0, "state": [0.1, 0.8, 0.2, 0.3, 0.6, 0.4], "label": "Salut"},
-    {"t": 1, "state": [0.2, 0.9, 0.3, 0.3, 0.6, 0.4], "delta": 0.18, "phi": "interpersonal"}
+    {"t": 0, "state": [0.3, 0.1, 0.2, 0.3, 0.8, 0.4, 0.2, 0.3, 0.4], "label": "Salut"},
+    {"t": 1, "state": [0.3, 0.2, 0.2, 0.3, 0.9, 0.4, 0.2, 0.3, 0.4], "delta": 0.18, "phi": "interpersonal"}
   ],
   "realization": {"best": "merci", "candidates": [["merci", 0.18], ["s'il te plaît", 0.42]]}
 }
@@ -76,28 +76,33 @@ Réponse :
 |---------|------|
 | MANIFOLD.md | Théorie formelle en LaTeX : manifold continu, distances SFL, deltas |
 | sfl_manifold.py | Moteur géométrique : Δt, κ, φ, L_sp |
-| sfl_adapter.py | Projection W_adapt : ℝᵈ → ℝ⁶ configurable |
+| sfl_adapter.py | Projection W_adapt : ℝ⁹ → ℝᵈ |
 | sfl_realize.py | Réalisation lexique : voisinage pondéré |
 | sfl_visualise.py | Plots 3D, barres, animations MP4 |
 | app.py | Wrapper FastAPI : stateless, endpoints /analyze /pipeline /realize |
 
-## Dimensions du Manifold (6D)
+## Dimensions du Manifold (9D, matrice 3x3)
 
-| Dimension | Plage | Signification LSF |
-|-----------|-------|-------------------|
-| idéationnelle | [-1, +1] | type de processus (matériel/mental/relationnel) et richesse participante |
-| interpersonnelle | [-1, +1] | modalité, appréciation, solidarité |
-| textuelle | [-1, +1] | structure thème-rhème, information donnée/nouvelle, cohésion |
-| champ | [-1, +1] | domaine technicité (abstrait ↔ concret, spécialisé ↔ commun) |
-| tenor | [-1, +1] | distance sociale (égalitaire ↔ hiérarchique) et solidarité |
-| mode | [-1, +1] | oralité (spontané ↔ planifié), monologue ↔ dialogue |
+Chaque coordonnée est dans [-1, +1]. Les lignes sont les métafonctions, les colonnes les variables contextuelles.
+
+| Métafonction (ligne) | Signification LSF |
+|---|---|
+| idéationnelle | type de processus (matériel/mental/relationnel) et richesse participante |
+| interpersonnelle | modalité, appréciation, solidarité |
+| textuelle | structure thème-rhème, information donnée/nouvelle, cohésion |
+
+| Variable contextuelle (colonne) | Signification LSF |
+|---|---|
+| champ | domaine technicité (abstrait ↔ concret, spécialisé ↔ commun) |
+| tenor | distance sociale (égalitaire ↔ hiérarchique) et solidarité |
+| mode | oralité (spontané ↔ planifié), monologue ↔ dialogue |
 
 ## Formalisme : Trajectoires et Deltas
 
 Une **trajectoire sémantique** est une séquence d'états :
 $$\mathbf{T} = (\mathbf{M}_0, \mathbf{M}_1, \ldots, \mathbf{M}_T)$$
 
-où chaque $\mathbf{M}_t \in \mathbb{R}^6$.
+où chaque $\mathbf{M}_t \in \mathbb{R}^{3 \times 3}$.
 
 Un **delta** $\Delta_t = \mathbf{M}_t - \mathbf{M}_{t-1}$ encode la **transformation de sens** d'un instant au suivant.
 
@@ -111,7 +116,7 @@ où les poids $w_i$ reflètent l'importance de chaque métafonction/variable con
 | Composant | Statut | Notes |
 |-----------|--------|-------|
 | Théorie SFL | ✓ formalisée | Halliday, Martin, grounded |
-| Adapter | ✓ codé | configurable ndim |
+| Adapter | ✓ codé | W_adapt : 9 → d_model |
 | Manifold | ✓ géométrie | Δt, κ, φ, L_sp |
 | Visualisation | ✓ plots 3D + MP4 | matplotlib, Plotly |
 | Réalisation | ✓ lexique pilot | 15 mots EN/ES, 8 FR |
@@ -128,7 +133,7 @@ où les poids $w_i$ reflètent l'importance de chaque métafonction/variable con
 
 - Chaque langue (EN, ES, FR) a sa propre analyse et réalisation
 - Pas de traductions automatiques entre répertoires linguistiques
-- Chaque manifold 6D est interprété dans les catégories LSF de la langue cible
+- Chaque matrice 3x3 (9D) est interprété dans les catégories LSF de la langue cible
 - Les concepts théoriques (métafonctions, deltas, distances) sont **langage-agnostiques**
 
 ## Prochaines Étapes

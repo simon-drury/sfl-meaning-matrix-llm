@@ -76,12 +76,12 @@ curl -X POST http://127.0.0.1:8000/pipeline \
 ```bash
 # Realizacion EN
 curl -X POST http://127.0.0.1:8000/realize \
-  -d '{"M_out": [0.1, 0.6, 1.0, 1.0, 0.8, -0.6], "modality": "text", "lang": "EN"}'
+  -d '{"M_out": [0.1, 0.6, 1.0, 1.0, 0.8, -0.6, 0.3, 0.2, 0.5], "modality": "text", "lang": "EN"}'
 # -> "thank you"
 
 # Realizacion ES -- mismo M_out
 curl -X POST http://127.0.0.1:8000/realize \
-  -d '{"M_out": [0.1, 0.6, 1.0, 1.0, 0.8, -0.6], "modality": "text", "lang": "ES"}'
+  -d '{"M_out": [0.1, 0.6, 1.0, 1.0, 0.8, -0.6, 0.3, 0.2, 0.5], "modality": "text", "lang": "ES"}'
 # -> "gracias"
 ```
 

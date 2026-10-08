@@ -73,7 +73,7 @@ def run_pipeline(lang: str) -> str:
         lines.append(row)
 
     lines.append("\n## Activated semiotic region (attention-weighted centroid)\n")
-    dim_names = ["ideational", "field", "interpersonal", "tenor", "textual", "mode"]
+    dim_names = ["ideational_field", "ideational_tenor", "ideational_mode", "interpersonal_field", "interpersonal_tenor", "interpersonal_mode", "textual_field", "textual_tenor", "textual_mode"]
     for name, val in zip(dim_names, region):
         bar = "+" * int(abs(val) * 20) if val >= 0 else "-" * int(abs(val) * 20)
         lines.append(f"  {name:<15} {val:>7.3f}  {bar}")
@@ -136,7 +136,7 @@ with gr.Blocks(title="SFL Meaning Matrix") as demo:
             "Generate the three static manifold charts from the two pilot trajectories."
         )
         viz_btn = gr.Button("Generate charts")
-        img_3d    = gr.Image(label="3D trajectories (ideational / field / textual)")
+        img_3d    = gr.Image(label="3D trajectories (ideational field / interpersonal tenor / textual mode)")
         img_steps = gr.Image(label="Displacement and curvature per step")
         img_gauss = gr.Image(label="Gaussian profiles — final meaning state")
         viz_btn.click(

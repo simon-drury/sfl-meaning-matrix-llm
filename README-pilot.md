@@ -8,7 +8,7 @@
 Each prompt is processed step by step through the same instantiation route:
 
 1. Lexical input received once.
-2. Projected immediately into a 3×2 meaning matrix (M0).
+2. Projected immediately into a 3×3 meaning matrix (M0).
 3. Each subsequent clause or meaningful unit produces a delta matrix (Δt).
 4. Lexical items are discarded after projection.
 5. Realization rule maps the final meaning state back to a lexical selection.
@@ -22,10 +22,13 @@ Negative values indicate low activation or counter-pole.
 ## Matrix layout (all steps)
 
 ```text
-[ Ideational     Field  ]
-[ Interpersonal  Tenor  ]
-[ Textual        Mode   ]
+               Field   Tenor   Mode
+Ideational     m_id,f  m_id,t  m_id,m
+Interpersonal  m_int,f m_int,t m_int,m
+Textual        m_txt,f m_txt,t m_txt,m
 ```
+
+Rows are metafunctions; columns are register variables. The Ideational, Interpersonal and Textual, and the Field, Tenor and Mode, readings in the SFL notes below are row and column readings; each matrix cell is the mean of its row reading and its column reading.
 
 ---
 
@@ -55,9 +58,10 @@ SFL reading:
 
 ```text
 M0 =
-[ Ideational: -0.7    Field: -0.5 ]
-[ Interpersonal: +0.8  Tenor: +0.9 ]
-[ Textual: +0.6       Mode: -0.6  ]
+               Field   Tenor   Mode
+Ideational     -0.60   +0.10   -0.65
+Interpersonal  +0.15   +0.85   +0.10
+Textual        +0.05   +0.75    0.00
 ```
 
 ---
@@ -74,17 +78,19 @@ SFL reading:
 
 ```text
 Δ1 =
-[ Ideational: +0.1    Field: +0.2 ]
-[ Interpersonal: +0.1  Tenor:  0.0 ]
-[ Textual: +0.2       Mode:  0.0  ]
+               Field   Tenor   Mode
+Ideational     +0.15   +0.05   +0.05
+Interpersonal  +0.15   +0.05   +0.05
+Textual        +0.20   +0.10   +0.10
 ```
 
 Cumulative state after Δ1:
 ```text
 M1 =
-[ Ideational: -0.6    Field: -0.3 ]
-[ Interpersonal: +0.9  Tenor: +0.9 ]
-[ Textual: +0.8       Mode: -0.6  ]
+               Field   Tenor   Mode
+Ideational     -0.45   +0.15   -0.60
+Interpersonal  +0.30   +0.90   +0.15
+Textual        +0.25   +0.85   +0.10
 ```
 
 ---
@@ -101,17 +107,19 @@ SFL reading:
 
 ```text
 Δ2 =
-[ Ideational: +0.9    Field: +0.9 ]
-[ Interpersonal: +0.1  Tenor: -0.1 ]
-[ Textual: +0.3       Mode:  0.0  ]
+               Field   Tenor   Mode
+Ideational     +0.90   +0.40   +0.45
+Interpersonal  +0.50    0.00   +0.05
+Textual        +0.60   +0.10   +0.15
 ```
 
 Cumulative state after Δ2:
 ```text
 M2 =
-[ Ideational: +0.3    Field: +0.6 ]
-[ Interpersonal: +1.0  Tenor: +0.8 ]
-[ Textual: +1.0       Mode: -0.6  ]
+               Field   Tenor   Mode
+Ideational     +0.45   +0.55   -0.15
+Interpersonal  +0.80   +0.90   +0.20
+Textual        +0.80   +0.90   +0.20
 ```
 
 ---
@@ -128,9 +136,10 @@ SFL reading:
 
 ```text
 Δ3 =
-[ Ideational: +0.1    Field:  0.0 ]
-[ Interpersonal: -0.1  Tenor: +0.1 ]
-[ Textual: +0.1       Mode:  0.0  ]
+               Field   Tenor   Mode
+Ideational     +0.05   +0.10   +0.05
+Interpersonal  -0.05    0.00   -0.05
+Textual        +0.05   +0.10   +0.05
 ```
 
 ---
@@ -147,17 +156,19 @@ SFL reading:
 
 ```text
 Δ4 =
-[ Ideational: -0.3    Field:  0.0 ]
-[ Interpersonal: +0.1  Tenor: +0.2 ]
-[ Textual: -0.2       Mode:  0.0  ]
+               Field   Tenor   Mode
+Ideational     -0.15   -0.05   -0.15
+Interpersonal  +0.05   +0.15   +0.05
+Textual        -0.10    0.00   -0.10
 ```
 
 Final cumulative state:
 ```text
 M_final_EN =
-[ Ideational:  0.0    Field: +0.6 ]
-[ Interpersonal: +1.0  Tenor: +1.0 ]
-[ Textual: +0.8       Mode: -0.6  ]
+               Field   Tenor   Mode
+Ideational     +0.30   +0.50   -0.30
+Interpersonal  +0.80   +1.00   +0.20
+Textual        +0.70   +0.90   +0.10
 ```
 
 ---
@@ -165,10 +176,10 @@ M_final_EN =
 ### Realization rule (EN)
 
 Given M_final_EN:
-- Field +0.6 → computational/technical domain: select vocabulary from programming register.
-- Interpersonal +1.0, Tenor +1.0 → informal, warm, polite, responsive register.
-- Ideational 0.0 → balanced; process is output/display type.
-- Mode -0.6 → spontaneous written; select informal syntax, short sentences.
+- Ideational/Field +0.30 → computational/technical domain: select vocabulary from programming register.
+- Interpersonal/Tenor +1.00 → informal, warm, polite, responsive register.
+- Ideational row (-0.30 to +0.50) → balanced; process is output/display type.
+- Textual/Mode +0.10 and Ideational/Mode -0.30 → spontaneous written; select informal syntax, short sentences.
 
 **Realized output:**
 
@@ -211,9 +222,10 @@ Lectura desde la GSF:
 
 ```text
 M0 =
-[ Ideational: -0.6    Field: -0.3 ]
-[ Interpersonal: +0.8  Tenor: +0.7 ]
-[ Textual: +0.7       Mode: +0.4  ]
+               Field   Tenor   Mode
+Ideational     -0.45   +0.05   -0.10
+Interpersonal  +0.25   +0.75   +0.60
+Textual        +0.20   +0.70   +0.55
 ```
 
 Nota: el valor de modo es positivo aquí (+0.4) porque este prompt simula habla radiodifundida, planificada, pública e institucional, a diferencia del prompt en inglés, que simula interacción escrita espontánea.
@@ -232,17 +244,19 @@ Lectura desde la GSF:
 
 ```text
 Δ1 =
-[ Ideational: +0.4    Field: +0.2 ]
-[ Interpersonal:  0.0  Tenor:  0.0 ]
-[ Textual: +0.2       Mode:  0.0  ]
+               Field   Tenor   Mode
+Ideational     +0.30   +0.20   +0.20
+Interpersonal  +0.10    0.00    0.00
+Textual        +0.20   +0.10   +0.10
 ```
 
 Estado acumulado tras Δ1:
 ```text
 M1 =
-[ Ideational: -0.2    Field: -0.1 ]
-[ Interpersonal: +0.8  Tenor: +0.7 ]
-[ Textual: +0.9       Mode: +0.4  ]
+               Field   Tenor   Mode
+Ideational     -0.15   +0.25   +0.10
+Interpersonal  +0.35   +0.75   +0.60
+Textual        +0.40   +0.80   +0.65
 ```
 
 ---
@@ -259,9 +273,10 @@ Lectura desde la GSF:
 
 ```text
 Δ2 =
-[ Ideational: +0.5    Field: +0.8 ]
-[ Interpersonal: +0.2  Tenor: -0.3 ]
-[ Textual: +0.1       Mode: +0.3  ]
+               Field   Tenor   Mode
+Ideational     +0.65   +0.10   +0.40
+Interpersonal  +0.50   -0.05   +0.25
+Textual        +0.45   -0.10   +0.20
 ```
 
 Nota: el tenor desciende hacia el polo formal/asimétrico (dirección negativa en el eje de solidaridad) cuando se declara la identidad institucional.
@@ -269,9 +284,10 @@ Nota: el tenor desciende hacia el polo formal/asimétrico (dirección negativa e
 Estado acumulado tras Δ2:
 ```text
 M2 =
-[ Ideational: +0.3    Field: +0.7 ]
-[ Interpersonal: +1.0  Tenor: +0.4 ]
-[ Textual: +1.0       Mode: +0.7  ]
+               Field   Tenor   Mode
+Ideational     +0.50   +0.35   +0.50
+Interpersonal  +0.85   +0.70   +0.85
+Textual        +0.85   +0.70   +0.85
 ```
 
 ---
@@ -288,9 +304,10 @@ Lectura desde la GSF:
 
 ```text
 Δ3 =
-[ Ideational: +0.2    Field: -0.1 ]
-[ Interpersonal: -0.1  Tenor: +0.3 ]
-[ Textual: +0.1       Mode: -0.1  ]
+               Field   Tenor   Mode
+Ideational     +0.05   +0.25   +0.05
+Interpersonal  -0.10   +0.10   -0.10
+Textual         0.00   +0.20    0.00
 ```
 
 ---
@@ -307,17 +324,19 @@ Lectura desde la GSF:
 
 ```text
 Δ4 =
-[ Ideational: +0.2    Field: +0.1 ]
-[ Interpersonal: +0.1  Tenor: +0.2 ]
-[ Textual: +0.0       Mode:  0.0  ]
+               Field   Tenor   Mode
+Ideational     +0.15   +0.20   +0.10
+Interpersonal  +0.10   +0.15   +0.05
+Textual        +0.05   +0.10    0.00
 ```
 
 Estado final acumulado:
 ```text
 M_final_ES =
-[ Ideational: +0.7    Field: +0.8 ]
-[ Interpersonal: +1.0  Tenor: +0.9 ]
-[ Textual: +1.0       Mode: +0.6  ]
+               Field   Tenor   Mode
+Ideational     +0.75   +0.80   +0.65
+Interpersonal  +0.90   +0.95   +0.80
+Textual        +0.90   +0.95   +0.80
 ```
 
 ---
@@ -325,10 +344,10 @@ M_final_ES =
 ### Regla de realización (ES)
 
 Dado M_final_ES:
-- Field +0.8 → periodismo radiodifundido; institucional, público y en español.
-- Interpersonal +1.0, Tenor +0.9 → solidaridad colectiva cálida dentro de un marco institucional formal.
-- Ideational +0.7 → proceso relacional evaluativo; contenido centrado en la significación.
-- Mode +0.6 → habla radiodifundida planificada y semiformal; cláusulas completas, ritmo medido.
+- Ideational/Field +0.75 → periodismo radiodifundido; institucional, público y en español.
+- Interpersonal/Tenor +0.95 → solidaridad colectiva cálida dentro de un marco institucional formal.
+- Ideational row (+0.65 a +0.80) → proceso relacional evaluativo; contenido centrado en la significación.
+- Textual/Mode +0.80 → habla radiodifundida planificada y semiformal; cláusulas completas, ritmo medido.
 
 **Salida realizada (ES):**
 
@@ -355,14 +374,17 @@ Good morning. Today is an important day for everyone. We continue on CNN.
 
 ## Summary: meaning trajectories compared
 
-| Dimension | M_final_EN | M_final_ES |
+| Cell | M_final_EN | M_final_ES |
 |---|---|---|
-| Ideational | 0.0 | +0.7 |
-| Field | +0.6 | +0.8 |
-| Interpersonal | +1.0 | +1.0 |
-| Tenor | +1.0 | +0.9 |
-| Textual | +0.8 | +1.0 |
-| Mode | -0.6 | +0.6 |
+| Ideational / Field | +0.30 | +0.75 |
+| Ideational / Tenor | +0.50 | +0.80 |
+| Ideational / Mode | -0.30 | +0.65 |
+| Interpersonal / Field | +0.80 | +0.90 |
+| Interpersonal / Tenor | +1.00 | +0.95 |
+| Interpersonal / Mode | +0.20 | +0.80 |
+| Textual / Field | +0.70 | +0.90 |
+| Textual / Tenor | +0.90 | +0.95 |
+| Textual / Mode | +0.10 | +0.80 |
 
 Key contrast:
 - Both prompts end at maximum interpersonal activation, but via different trajectories.

@@ -34,7 +34,7 @@ python sfl_visualise.py --no-anim  # skip MP4/GIF
 |---|---|
 | `output/manifold_3d.png` | Both trajectories as paths through ideational / field / textual space |
 | `output/manifold_steps.png` | \(\|\delta_t\|\) per step (bar, coloured by \(\phi_t\)) + \(\kappa_t\) overlay (dotted white) |
-| `output/manifold_gaussians.png` | All 6 Gaussian dimension profiles at final meaning state, EN solid / ES dashed |
+| `output/manifold_gaussians.png` | All 9 Gaussian dimension profiles at final meaning state, EN solid / ES dashed |
 | `output/manifold_anim.mp4` | Animated EN trajectory — one frame per meaning unit, camera rotates |
 
 ---
@@ -49,7 +49,7 @@ A sharp bend = semantic event (register shift, evaluative move, field change).
 Bar colour is the dominant metafunctional driver \(\phi_t\) — the *why* of the move.
 The dotted white line is curvature \(\kappa_t\): peaks mark semantic events.
 
-**Gaussian profiles** — each of the six SFL dimensions is shown as a probability
+**Gaussian profiles** — each of the nine SFL dimensions is shown as a probability
 distribution centred on its final meaning state value. The spread (\(\sigma = 0.20\))
 represents uncertainty — a meaning state is a region, not a point.
 

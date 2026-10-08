@@ -5,7 +5,7 @@
 Una arquitectura de investigación que fundamenta los modelos de lenguaje basados en transformers
 en la Lingüística Sistémico-Funcional (LSF). En lugar de predecir el siguiente token
 directamente, el sistema calcula una trayectoria a través de un *manifold semiótico*
-de seis dimensiones — y luego realiza esa trayectoria como salida léxica
+de nueve dimensiones (una matriz 3x3) — y luego realiza esa trayectoria como salida léxica
 de forma independiente en cada lengua de destino.
 
 El español y el inglés son lenguas primeras co-iguales. No existe ningún paso de traducción.
@@ -21,10 +21,10 @@ Esta arquitectura mapea forma → significado → forma:
 prompt (cualquier modalidad)
      |
      v
-MeaningTrajectory en M   <-- manifold semiótico, 6 dimensiones
+MeaningTrajectory en M   <-- manifold semiótico, 9 dimensiones (matriz 3x3)
      |
      v
-W_adapt: R^6 -> R^d_model   <-- capa adaptadora
+W_adapt: R^9 -> R^d_model   <-- capa adaptadora
      |
      v
 [paso forward del transformer]  <-- ciego a la modalidad
@@ -36,8 +36,9 @@ M_out en M               <-- estado de significado de salida
 w* en V_L                <-- elemento más próximo en el espacio de realización para la modalidad L
 ```
 
-El manifold codifica las seis metafunciones de la LSF:
-**ideacional, campo, interpersonal, tenor, textual, modo.**
+El manifold es una matriz 3x3: las filas son las metafunciones de la LSF
+(**ideacional, interpersonal, textual**) y las columnas son las variables de registro
+(**campo, tenor, modo**).
 Cada estado de significado es un punto en este espacio. Cada enunciado es una trayectoria.
 
 ---
@@ -76,7 +77,7 @@ Los gráficos se escriben en `output/`.
 | `sfl_matrix_engine.py` | Análisis | Prompt -> `MeaningTrajectory` |
 | `sfl_manifold.py` | Geometría | delta_t, kappa_t, phi_t, L_sp |
 | `sfl_attention.py` | Atención | Máscara de auto-atención ponderada por LSF |
-| `sfl_adapter.py` | Adaptador | W_adapt: R^6 -> R^d_model |
+| `sfl_adapter.py` | Adaptador | W_adapt: R^9 -> R^d_model |
 | `sfl_realize.py` | Realización | M_out -> w* en V_L (EN y ES) |
 | `sfl_visualise.py` | Visualización | Trayectoria 3D, geometría por pasos, gaussianas, animación |
 | `api.py` | API | Wrapper FastAPI, modalidad primero, endpoint pipeline completo |
@@ -107,18 +108,23 @@ el registro institucional radiodifundido (campo alto, textual alto).
 
 ---
 
-## Las seis dimensiones
+## Las nueve dimensiones
 
-| Dimensión | Lo que codifica | Rango |
-|---|---|---|
-| ideacional | contenido proposicional / experiencial | [-1, 1] |
-| campo | especificidad del dominio / materia | [-1, 1] |
-| interpersonal | relación hablante-oyente | [-1, 1] |
-| tenor | formalidad y poder | [-1, 1] |
-| textual | discurso / cohesión | [-1, 1] |
-| modo | canal / continuo escrito-oral | [-1, 1] |
+| Fila (metafunción) | Lo que codifica |
+|---|---|
+| ideacional | contenido proposicional / experiencial |
+| interpersonal | relación hablante-oyente |
+| textual | discurso / cohesión |
 
-Un estado de significado M_t es un punto en [-1, 1]^6.
+| Columna (registro) | Lo que codifica |
+|---|---|
+| campo | especificidad del dominio / materia |
+| tenor | formalidad y poder |
+| modo | canal / continuo escrito-oral |
+
+Cada una de las nueve coordenadas está en [-1, 1].
+
+Un estado de significado M_t es un punto en [-1, 1]^9 (una matriz 3x3).
 Una trayectoria de significado T es la secuencia ordenada M_0, M_1, ..., M_T.
 
 ---
@@ -175,9 +181,9 @@ Ejecutar `sfl_visualise.py` produce:
 
 | Archivo | Lo que muestra |
 |---|---|
-| `output/manifold_3d.png` | Trayectorias EN y ES como caminos en el espacio ideacional/campo/textual |
+| `output/manifold_3d.png` | Trayectorias EN y ES como caminos en el espacio ideacional-campo / interpersonal-tenor / textual-modo |
 | `output/manifold_steps.png` | Desplazamiento y curvatura por paso, coloreados por dimensión conductora |
-| `output/manifold_gaussians.png` | Perfiles gaussianos para las 6 dimensiones en el estado final |
+| `output/manifold_gaussians.png` | Perfiles gaussianos para las 9 dimensiones en el estado final |
 | `output/manifold_anim.mp4` | Trayectoria EN animada, un fotograma por unidad de significado |
 
 ---
@@ -245,7 +251,7 @@ Los componentes de la Fase 2 requieren una instalación local de transformer y s
 
 Las metafunciones de la LSF (ideacional, interpersonal, textual) y las
 variables de registro (campo, tenor, modo) constituyen la base teórica de
-las seis dimensiones del manifold.
+las nueve dimensiones del manifold.
 
 ---
 
@@ -260,53 +266,18 @@ Ambos son primarios. Ninguno es una traducción del otro.
 
 ## Arquitectura representacional
 
-Las seis dimensiones de la LSF (ideacional, campo, interpersonal, tenor, textual, modo) se mantienen en tres formas representacionales co-iguales. Las tres contienen los mismos seis valores en coma flotante. No son equivalentes en su operación.
-
-### Forma 1 — matriz 3×2 (primaria, diseño original)
+La matriz de significado M_t es una matriz 3x3 con nueve coordenadas en [-1, 1]:
 
 ```
-[ ideacional    campo  ]
-[ interpersonal tenor  ]
-[ textual       modo   ]
+[ ideacional-campo     ideacional-tenor     ideacional-modo     ]
+[ interpersonal-campo  interpersonal-tenor  interpersonal-modo  ]
+[ textual-campo        textual-tenor        textual-modo        ]
 ```
 
-Las filas corresponden a las tres metafunciones de la LSF. Columna izquierda: metafunción. Columna derecha: variable de registro. La lectura de izquierda a derecha en cada fila implica **terreno operacional compartido**, no acoplamiento fijo — los dos valores son adyacentes, no fusionados. La relación se afirma estructuralmente, no se impone matemáticamente.
+Las filas corresponden a las tres metafunciones de la LSF (ideacional, interpersonal, textual). Las columnas corresponden a las tres variables de registro (campo, tenor, modo).
 
-- `M^T M` → covarianza 2×2 sobre las variables de registro (campo, tenor, modo)
-- `M M^T` → covarianza 3×3 sobre las metafunciones (ideacional, interpersonal, textual)
+- `M M^T` → covarianza 3×3 sobre las metafunciones
+- `M^T M` → covarianza 3×3 sobre las variables de registro
 - Los vectores propios de cada una revelan los ejes principales de variación semántica en el discurso
 
-### Forma 2 — matriz 2×3 (alternativa transpuesta)
-
-```
-[ ideacional  interpersonal  textual ]
-[ campo        tenor          modo   ]
-```
-
-Fila superior: las tres metafunciones. Fila inferior: las tres variables de registro. Cada columna empareja verticalmente una metafunción con su variable de registro. Esto convierte las operaciones entre metafunciones en el eje primario por filas.
-
-- `M^T M` → covarianza 3×3 sobre las metafunciones
-- `M M^T` → covarianza 2×2 sobre las variables de registro
-- **No es operacionalmente equivalente a la Forma 1** aunque contenga valores idénticos. La estructura propia es la transpuesta.
-
-En código: `matrix.to_matrix_2x3()` devuelve un `numpy.ndarray` de forma `(2, 3)`.
-
-### Forma 3 — vector plano 6D (compresión compatible con NLP)
-
-```
-[ideacional, campo, interpersonal, tenor, textual, modo]
-```
-
-Producido por `to_vector()`. Descarta todas las relaciones estructurales entre los seis valores — se convierten en vecinos equidistantes en un espacio plano. Se mantiene por compatibilidad con PyTorch, FAISS y las capas adaptadoras que requieren un array 1D.
-
-> **Nota:** El vector 6D es una compresión bastardizada por la convención de vector plano de los pipelines de NLP convencionales. Las formas representacionales primarias son la Forma 1 (3×2) y la Forma 2 (2×3). Utilice esas formas para cualquier operación que dependa de la relación estructural entre metafunciones y variables de registro. — sjd / sonar, abril de 2026
-
-### Resumen
-
-| Forma | Dimensiones | Eje primario | `M^T M` | `M M^T` | Uso |
-|-------|-------------|-------------|---------|---------|-----|
-| 3×2 (Forma 1) | (3,2) | Filas de metafunciones | Covarianza 2×2 de registro | Covarianza 3×3 de metafunciones | Geometría de trayectoria, descomposición en vectores propios |
-| 2×3 (Forma 2) | (2,3) | Columnas de registro | Covarianza 3×3 de metafunciones | Covarianza 2×2 de registro | Operaciones por filas entre metafunciones |
-| Vector 6D (Forma 3) | (6,) | Ninguno | n/a | n/a | Solo PyTorch / FAISS / capas adaptadoras |
-
-Las tres formas están disponibles en toda instancia de `MeaningMatrix`. El array nativo de almacenamiento es `values` de forma 3×2. `to_matrix_2x3()` y `to_vector()` son proyecciones a partir de él.
+Para las capas adaptadoras de PyTorch, la matriz se despliega en un vector de 9 dimensiones con `to_vector()` (orden por filas); `W_adapt` proyecta ese vector de 9 dimensiones a `d_model`.

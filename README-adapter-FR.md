@@ -1,28 +1,22 @@
-# Adaptateur SFL : Projection vers le Manifold 6D
+# Adaptateur SFL : Projection depuis le Manifold 9D
 
 ## Rôle
 
-`sfl_adapter.py` implémente la projection initiale vers l'espace sémantique 6D.
+`sfl_adapter.py` implémente la projection de l'espace sémantique 9D (matrice 3x3 dépliée) vers l'espace d'embedding du transformeur.
 
 ### Mathématique
 
-Soit $\mathbf{x} \in \mathbb{R}^d$ une représentation d'entrée.
+Soit $\mathbf{m} \in [-1, +1]^9$ l'état de sens déplié.
 
 **Projection linéaire** :
-$$\mathbf{M}_0 = \text{tanh}(\mathbf{W}_{\text{adapt}} \mathbf{x})$$
+$$\mathbf{e} = \mathbf{W}_{\text{adapt}} \mathbf{m} + \mathbf{b}$$
 
-où $\mathbf{W}_{\text{adapt}} \in \mathbb{R}^{6 \times d}$.
-
-**Normalisation** : chaque dimension à [-1, +1].
+où $\mathbf{W}_{\text{adapt}} \in \mathbb{R}^{d \times 9}$.
 
 ## Utilisation
 
 ```python
 from sfl_adapter import SFLAdapter
-adapter = SFLAdapter(input_dim=256, output_dim=6)
-M0 = adapter.project(x)
+adapter = SFLAdapter(in_features=9, d_model=768)
+e = adapter(m)
 ```
-
-## Configurabilité
-
-Paramètre `ndim` configurable pour extension future.

@@ -7,13 +7,13 @@
 
 ## Step 1 — Meaning state estimation (qualitative projection)
 
-M₀ ≈
-- ideational: +0.6 (problem-solving intent)
-- field: +0.4 (technical / strategic domain)
-- interpersonal: +0.2 (neutral request)
-- tenor: +0.1 (low hierarchy, direct)
-- textual: +0.5 (coherent forward projection)
-- mode: +0.6 (written, reflective)
+M₀ ≈ (rows: metafunctions; columns: register variables)
+
+| | field | tenor | mode |
+|---|---|---|---|
+| ideational | +0.50 | +0.35 | +0.60 |
+| interpersonal | +0.30 | +0.15 | +0.40 |
+| textual | +0.45 | +0.30 | +0.55 |
 
 ---
 
@@ -23,7 +23,7 @@ Single-step trajectory (compressed prompt):
 
 - Δ (delta): moderate (~0.4)
 - κ (curvature): low
-- φ (driver): ideational → field
+- φ (driver): ideational/field
 
 Interpretation:
 - No register shift
@@ -60,12 +60,12 @@ Control-plane decision rule:
 ## Step 5 — Output meaning state (M_out)
 
 M_out shifts:
-- ideational: +0.8 (directive solution)
-- field: +0.7 (engineering focus)
-- interpersonal: 0.0 (neutral)
-- tenor: +0.3 (more authoritative)
-- textual: +0.7 (clear next-step structuring)
-- mode: +0.6
+
+| | field | tenor | mode |
+|---|---|---|---|
+| ideational | +0.75 | +0.55 | +0.70 |
+| interpersonal | +0.35 | +0.15 | +0.30 |
+| textual | +0.70 | +0.50 | +0.65 |
 
 ---
 

@@ -1,6 +1,6 @@
 # Repository audit
 
-Read-only audit of `origin/main` at `e6f4b6ae8f5baf6e972d03d09e26cf6904f09ac2` (2026-10-07). The 9D matrix is the stated target, but the tracked corpus mapper uses hard-coded heuristic values, the two trainers form different datasets, several docs still describe 6D/3×2, and two non-contained branches retain distinct work. No pruning or code changes were performed; line references below are from `e6f4b6a` unless another revision is stated.
+Read-only audit of `origin/main` at `e6f4b6ae8f5baf6e972d03d09e26cf6904f09ac2` (2026-10-07). The 9D matrix is the stated target, but the tracked corpus mapper uses hard-coded heuristic values, the two trainers form different datasets, and two non-contained branches retain distinct work. No pruning or code changes were performed; line references below are from `e6f4b6a` unless another revision is stated.
 
 ## 1. Branches
 
@@ -8,21 +8,20 @@ Read-only audit of `origin/main` at `e6f4b6ae8f5baf6e972d03d09e26cf6904f09ac2` (
 
 | Branch (tip) | Ahead / behind | Contained? | Branch-only paths | Commit author classes | Purpose from commits/diff | Verdict |
 |---|---:|---|---|---|---|---|
-| `chore/add-sfl-pi-actions-launcher` (`88797190`) | 0 / 36 | Yes | `experiments/lassm_baseline_comparison.py` | Human; GitHub Actions | Adds manual SFL-pi workflow (`.github/workflows/train-sfl-pi.yml`; PR #1, head `88797190`). | ALREADY-MERGED-DELETE-SAFE |
-| `ci/resume-sfl-pi-training` (`aee2ba3`) | 0 / 31 | Yes | `experiments/lassm_baseline_comparison.py` | Human; GitHub Actions | Diagnostic workflow stops after schema inspection (`.github/workflows/train-sfl-pi.yml`); no separate training result. | ALREADY-MERGED-DELETE-SAFE |
+| `chore/add-sfl-pi-actions-launcher` (`88797190`) | 0 / 36 | Yes | — | Human; GitHub Actions | Adds manual SFL-pi workflow (`.github/workflows/train-sfl-pi.yml`; PR #1, head `88797190`). | ALREADY-MERGED-DELETE-SAFE |
+| `ci/resume-sfl-pi-training` (`aee2ba3`) | 0 / 31 | Yes | — | Human; GitHub Actions | Diagnostic workflow stops after schema inspection (`.github/workflows/train-sfl-pi.yml`); no separate training result. | ALREADY-MERGED-DELETE-SAFE |
 | `copilot/research-train-sfl-pi-workflow-issues` (`e6f4b6a`) | 0 / 0 | Yes | — | No unique commits | Same commit and tree as main. | ALREADY-MERGED-DELETE-SAFE |
-| `docs/non-ceremonial-experimentation-directive` (`709efc96`) | 0 / 30 | Yes | `experiments/lassm_baseline_comparison.py` | Human; GitHub Actions | Adds the experimentation directive (`notes/non_ceremonial_experimentation.md`; PR #4, head `709efc96`). | ALREADY-MERGED-DELETE-SAFE |
-| `feature/add-meaning-state-animation-reader` (`8d492bc`) | 1 / 27 | No* | `experiments/lassm_baseline_comparison.py` | Human; GitHub Actions | Adds `meaning-state.html`. Its change is also in main as `378ad6f` (PR #7); `8d492bc` itself is not an ancestor. | ALREADY-MERGED-DELETE-SAFE |
-| `feature/implementation-evidence-reader` (`3f0d2cf`) | 0 / 27 | Yes | `experiments/lassm_baseline_comparison.py` | Human; GitHub Actions | Static implementation reader (`index.html`); its history is contained in main. | ALREADY-MERGED-DELETE-SAFE |
-| `feature/olmo-core-sfl-random-init` (`e80de20`) | 0 / 7 | Yes | `experiments/lassm_baseline_comparison.py` | Human; Copilot SWE Agent; GitHub Actions | Adds random-initialised trainer (`train_sfl_pi.py`, `sfl_pi_model.py`; PR #3, head `e80de20`). Workflow still defaults `code_ref` to this branch (`.github/workflows/train-sfl-pi.yml:6-10`). | KEEP |
-| `feature/sfl-pi-full-run-inspection` (`aebeea8`) | 0 / 33 | Yes | `experiments/lassm_baseline_comparison.py` | Human; GitHub Actions | Adds trajectory inspections/run artifacts (`train_sfl_pi.py:128-186,262-267`). | ALREADY-MERGED-DELETE-SAFE |
-| `fix/install-pytorch-for-sfl-pi` (`f07ebde`) | 0 / 34 | Yes | `experiments/lassm_baseline_comparison.py` | Human; GitHub Actions | Installs/verifies PyTorch in the SFL-pi workflow (PR #2, head `f07ebde`). | ALREADY-MERGED-DELETE-SAFE |
-| `fix/sfl-pi-jsonl-ingestion` (`f01114a`) | 0 / 31 | Yes | `experiments/lassm_baseline_comparison.py` | Human; GitHub Actions | Groups contiguous empirical JSONL states (`train_sfl_pi.py:17-100`; PR #5, head `f01114a`). | ALREADY-MERGED-DELETE-SAFE |
-| `kpml-investigation` (`7726eb3`) | 0 / 38 | Yes | `experiments/lassm_baseline_comparison.py` | Human; GitHub Actions | Revises the interactive realisation path (`interact.py`); history is contained in main. | ALREADY-MERGED-DELETE-SAFE |
-| `kpml-sandbox` (`83bd0b3`) | 22 / 38 | No | `experiments/lassm_baseline_comparison.py`; `experiments/kpml-sandbox/{00-sandbox-scope.md,01-kpml-input-contract.md,02-kpml-adapter-probe.md,02-kpml-adapter-probe.py,examples/minimal-request.json,runtime/README.md,runtime/bootstrap/{build_remote_runtime.sh,resolve_kpml_source.py},runtime/deployment-manifest.yaml,runtime/hf-space/{Dockerfile,README.md,app.py,requirements.txt},runtime/results/.gitkeep,runtime/source-lock.yaml}` | Human; GitHub Actions | Adds KPML adapter probe/runtime and 9D README corrections (`experiments/kpml-sandbox/`, `README-*.md`); 22 commits are not in main. | UNIQUE-WORK-NEEDS-OWNER-DECISION |
+| `docs/non-ceremonial-experimentation-directive` (`709efc96`) | 0 / 30 | Yes | — | Human; GitHub Actions | Adds the experimentation directive (`notes/non_ceremonial_experimentation.md`; PR #4, head `709efc96`). | ALREADY-MERGED-DELETE-SAFE |
+| `feature/add-meaning-state-animation-reader` (`8d492bc`) | 1 / 27 | No* | — | Human; GitHub Actions | Adds `meaning-state.html`. Its change is also in main as `378ad6f` (PR #7); `8d492bc` itself is not an ancestor. | ALREADY-MERGED-DELETE-SAFE |
+| `feature/implementation-evidence-reader` (`3f0d2cf`) | 0 / 27 | Yes | — | Human; GitHub Actions | Static implementation reader (`index.html`); its history is contained in main. | ALREADY-MERGED-DELETE-SAFE |
+| `feature/olmo-core-sfl-random-init` (`e80de20`) | 0 / 7 | Yes | — | Human; Copilot SWE Agent; GitHub Actions | Adds random-initialised trainer (`train_sfl_pi.py`, `sfl_pi_model.py`; PR #3, head `e80de20`). Workflow still defaults `code_ref` to this branch (`.github/workflows/train-sfl-pi.yml:6-10`). | KEEP |
+| `feature/sfl-pi-full-run-inspection` (`aebeea8`) | 0 / 33 | Yes | — | Human; GitHub Actions | Adds trajectory inspections/run artifacts (`train_sfl_pi.py:128-186,262-267`). | ALREADY-MERGED-DELETE-SAFE |
+| `fix/install-pytorch-for-sfl-pi` (`f07ebde`) | 0 / 34 | Yes | — | Human; GitHub Actions | Installs/verifies PyTorch in the SFL-pi workflow (PR #2, head `f07ebde`). | ALREADY-MERGED-DELETE-SAFE |
+| `fix/sfl-pi-jsonl-ingestion` (`f01114a`) | 0 / 31 | Yes | — | Human; GitHub Actions | Groups contiguous empirical JSONL states (`train_sfl_pi.py:17-100`; PR #5, head `f01114a`). | ALREADY-MERGED-DELETE-SAFE |
+| `kpml-investigation` (`7726eb3`) | 0 / 38 | Yes | — | Human; GitHub Actions | Revises the interactive realisation path (`interact.py`); history is contained in main. | ALREADY-MERGED-DELETE-SAFE |
+| `kpml-sandbox` (`83bd0b3`) | 22 / 38 | No | `experiments/kpml-sandbox/{00-sandbox-scope.md,01-kpml-input-contract.md,02-kpml-adapter-probe.md,02-kpml-adapter-probe.py,examples/minimal-request.json,runtime/README.md,runtime/bootstrap/{build_remote_runtime.sh,resolve_kpml_source.py},runtime/deployment-manifest.yaml,runtime/hf-space/{Dockerfile,README.md,app.py,requirements.txt},runtime/results/.gitkeep,runtime/source-lock.yaml}` | Human; GitHub Actions | Adds KPML adapter probe/runtime and 9D README corrections (`experiments/kpml-sandbox/`, `README-*.md`); 22 commits are not in main. | UNIQUE-WORK-NEEDS-OWNER-DECISION |
 | `main` (`e6f4b6a`) | 0 / 0 | Yes | — | Human; GitHub Actions; Copilot SWE Agent | Current 9D snapshot. | KEEP |
-| `nemotron3-proposal-reader` (`75b0601`) | 0 / 28 | Yes | `experiments/lassm_baseline_comparison.py` | Human; GitHub Actions | Adds static implementation reader (`index.html`; PR #6, head `75b0601`). Main still links to this branch (lines 103-132). | KEEP |
-| `purge/6d` (`996b5c1`) | 1 / 2 | No | `experiments/lassm_baseline_comparison.py` | Human; Copilot SWE Agent; GitHub Actions | Adds 9D decision language and terminology edits to `RESEARCH-LOG.md`; not merged (commit `996b5c1`). | UNIQUE-WORK-NEEDS-OWNER-DECISION |
+| `nemotron3-proposal-reader` (`75b0601`) | 0 / 28 | Yes | — | Human; GitHub Actions | Adds static implementation reader (`index.html`; PR #6, head `75b0601`). Main still links to this branch (lines 103-132). | KEEP |
 
 *The #7 branch commit is not contained by ancestry; its patch is present in main as `378ad6f5b6afcdd605f2e65205c54b96785fbc10`. Branch tips and commit subjects are from the named refs; PR states were checked through GitHub: PRs [#1](https://github.com/simon-drury/sfl-meaning-matrix-llm/pull/1), [#2](https://github.com/simon-drury/sfl-meaning-matrix-llm/pull/2), [#3](https://github.com/simon-drury/sfl-meaning-matrix-llm/pull/3), [#4](https://github.com/simon-drury/sfl-meaning-matrix-llm/pull/4), [#5](https://github.com/simon-drury/sfl-meaning-matrix-llm/pull/5), [#6](https://github.com/simon-drury/sfl-meaning-matrix-llm/pull/6), and [#7](https://github.com/simon-drury/sfl-meaning-matrix-llm/pull/7) are all closed **merged**. PR #6's head is `nemotron3-proposal-reader`; `feature/implementation-evidence-reader` is a separate, contained ref.
 
@@ -41,26 +40,18 @@ Each requested root/target-directory path is listed once. “Calls” means an i
 | `LICENSE:1-21` | Repository license. | Repository users. | KEEP |
 | `MANIFOLD.md:1-189` | Manifold model/design description. | Human/docs; linked from `index.html:127`. | KEEP (historical claims need checking against implementation) |
 | `README.md:73-80` | Main project README and implementation inventory. | Human/docs. | KEEP (stale claims: 10-epoch workflow; 32,580 vocabulary items vs 2,327 entries; “500 trajectories”) |
-| `README-ES.md:265-312` | Spanish main README. | Human/docs. | SCRATCH (describes 3×2/6D) |
-| `README-FR.md:3,84,131` | French main README. | Human/docs. | SCRATCH (describes 6D) |
-| `README-pilot.md:8-18` | Iconic-prompt pilot walkthrough. | Human/docs. | SCRATCH (uses 3×2 state layout) |
 | `README-adapter.md:1-77` | English adapter guide. | Human/docs. | KEEP |
-| `README-adapter-ES.md:1-76` | Spanish adapter guide. | Human/docs. | SCRATCH (6D/n_dim=6 material) |
-| `README-adapter-FR.md:1-27` | French adapter guide. | Human/docs. | SCRATCH (6D framing) |
 | `README-api.md:1-138` | English API guide. | Human/docs. | KEEP |
 | `README-api-ES.md:1-114` | Spanish API guide. | Human/docs. | KEEP |
 | `README-api-FR.md:1-19` | French API translation. | Human/docs. | UNREFERENCED (incomplete stub vs 138-line English guide) |
 | `README-gpt4all.md:1-98` | GPT4All adapter guide. | Human/docs. | KEEP (experimental path) |
-| `README-manifold.md:1-100` | English manifold guide; line 98 describes 6D. | Human/docs. | SCRATCH (6D claim conflicts with current 9D model) |
 | `README-manifold-ES.md:1-102` | Spanish manifold guide. | Human/docs. | KEEP |
-| `README-manifold-FR.md:1-37` | French manifold guide. | Human/docs. | SCRATCH (6D framing; incomplete) |
 | `README-realize.md:1-97` | English realisation guide. | Human/docs. | KEEP |
 | `README-realize-ES.md:1-98` | Spanish realisation guide. | Human/docs. | KEEP |
-| `README-realize-FR.md:1-23` | French realisation guide. | Human/docs. | SCRATCH (6D table; incomplete) |
 | `README-visualise.md:1-74` | English visualisation guide. | Human/docs. | KEEP |
 | `README-visualise-ES.md:1-76` | Spanish visualisation guide. | Human/docs. | KEEP |
 | `README-visualise-FR.md:1-22` | French visualisation guide. | Human/docs. | UNREFERENCED (incomplete translation) |
-| `RESEARCH-LOG.md:1-120` | Dated research decisions and jotter. | Human/docs. | KEEP (still has a 6D protocol statement at line 88) |
+| `RESEARCH-LOG.md:1-120` | Dated research decisions and jotter. | Human/docs. | KEEP |
 | `api.py:32-34` | FastAPI wrapper. | Imports from `sfl_matrix_engine.py` and `sfl_manifold.py`. | KEEP (imports `MeaningTrajectory`, `encode_en`, `encode_es`, absent from current engine) |
 | `app.py:19-30` | Gradio application. | Imports engine/manifold/realisation/visualisation modules. | KEEP (imports absent `encode_en`/`encode_es`) |
 | `interact.py:17-20` | CLI interaction and model training/inference. | `.github/workflows/infer.yml:52`; `sfl_matrix_engine.py` imports. | KEEP (imports absent `MeaningTrajectory`, `encode_en`, `encode_es`) |
@@ -78,16 +69,14 @@ Each requested root/target-directory path is listed once. “Calls” means an i
 | `sfl_attention.py:1-41` | Attention operations for meaning states. | Imported by `app.py:25`; HTML link `index.html:104`. | KEEP |
 | `sfl_realize.py:1-39` | Maps meaning state to lexical output. | Imported by `interact.py:19`, `app.py:26`, `api.py:34`. | KEEP |
 | `sfl_visualise.py:1-201` | Static trajectory visualisation. | Imported by `app.py:30`; linked by `meaning-state.html:88`. | KEEP (imports absent encoder names) |
-| `sfl_animate.py:18-22,187` | Animation prototype and embedded encoder. | Linked by `meaning-state.html:87`; no workflow call. | UNREFERENCED (imports absent encoder names; embedded page still describes 6D) |
+| `sfl_animate.py:18-22,187` | Animation prototype and embedded encoder. | Linked by `meaning-state.html:87`; no workflow call. | UNREFERENCED (imports absent encoder names) |
 | `sfl_gpt4all.py:56-60` | GPT4All bridge. | No Python caller found; imports absent encoder names. | UNREFERENCED |
 | `data/empirical_trajectories.jsonl` (blob `40a93f53`; 500 lines) | UD sentence texts and 9D heuristic state/matrix pairs. | `traincore.py:64-108`; `train_sfl_pi.py:191`; both training workflows. | KEEP |
 | `data/empirical_vocabulary_9d.json` (blob `cb8dcf67`) | Word-frequency/centroid map from the same first 500 sentences; 2,327 entries, not 32,580. | Generated by `download_and_ingest_treebank.py:171-183`; no trainer reads it. | KEEP (realisation data; no trainer consumer) |
 | `data/en_ewt-ud-train.conllu` (blob `90f7d75e`) | Cached UD English-EWT source corpus. | `download_and_ingest_treebank.py:27,30-37`. | KEEP |
 | `data/meaning_matrix_gold_v0.1.jsonl` (blob `4fd098fd`) | Seven 9D gold examples; creator/source rationale UNKNOWN, no generation script found. | `traincore.py:64-69`; not read by `train_sfl_pi.py`. | KEEP |
 | `data/meaning_matrix_schema_v0.1.json` | Schema for gold examples. | No loader/schema-validation call found. | UNREFERENCED |
-| `data/seed_turn_transitions.csv` (blob `9912ad19`) | Twenty manually constructed heuristic transitions, six values per state. | Mentioned by `experiments/README.md:21`; no current trainer/script reads it. | UNREFERENCED (historical 6D smoke data) |
 | `docs/RESEARCH_POSITION.md:1-47` | Research position/evidence framing. | Human/docs. | KEEP |
-| `experiments/README.md:1-21` | Documents a 3×2/6D baseline experiment. | Refers to absent `experiments/lassm_baseline_comparison.py:9`. | SCRATCH (script absent from main; seed CSV unused) |
 | `notes/non_ceremonial_experimentation.md:1-26` | Experimental decision directive. | Human/docs. | KEEP |
 | `notes/understanding_log.md:1-33` | Learning/understanding notes. | Human/docs. | KEEP |
 | `notes/REPO_AUDIT.md` | This requested branch/file/data/training audit. | No callers. | KEEP |
@@ -127,12 +116,10 @@ Each requested root/target-directory path is listed once. “Calls” means an i
 |---|---|---|---|
 | `data/empirical_trajectories.jsonl` | 500 rows, step indices 0–499 and text from the first 500 parsed UD EWT train sentences. Each matrix/vector coordinate is emitted from hard-coded conditions in `map_sentence_to_matrix`; there is no annotation source or derivation for those constants documented. | `download_and_ingest_treebank.py:25` (unpinned URL), `:40-70` (sentence parsing), `:78-137` (all mapping literals/conditions), `:139-169` (step, text, vector and matrix writes). | Script added by `5957cfd79a8d0da8b0f19ed82254252e75050a72` (Simon); data first committed by `ab83686eebf1536f7f515f4a296bc37ad00a8623` (GitHub Action); current blob `40a93f530db9b1d6a17b551c052887e36e786da6`. |
 | `data/meaning_matrix_gold_v0.1.jsonl` | Seven examples with explicit vectors/matrices and systemic-feature labels; no repository generation script or external derivation is documented. | Data rows; schema `data/meaning_matrix_schema_v0.1.json:1-131`. | `0092e1f5bb086a44de98f2552ec3c264d64698ae` (Simon); current blob `4fd098fdde69f01feaa955f2e1cf658ba9508a5d`. |
-| `data/seed_turn_transitions.csv` | Twenty manually constructed heuristic rows; no generator or external annotation source documented. | `experiments/README.md:21`; current trainer/script references absent. | `dbab30857008639147ffb46cbb9fa6338b7c0981` (Simon); current blob `9912ad199090d54afb7ffe84437003c32bd32df1`. |
 | `data/en_ewt-ud-train.conllu` | Cached UD EWT corpus. The URL uses `/master/` and is unpinned; the downloader uses the cached file when present. Original upstream commit/version is UNKNOWN. | `download_and_ingest_treebank.py:25,30-37`. | Current Git blob SHA `90f7d75edc3147331665c38f668401a96b49e7c8` (`git ls-tree`); commit `ab83686` added it, author GitHub Action. |
 
 **Empirical-vs-gold comparison.** The empirical JSONL has 76 distinct vectors; none of its 500 vectors equals any of the seven gold vectors. The mapper does not read the gold file, and the gold file predates the mapper (`0092e1f`, 2026-09-20; `5957cfd`, 2026-09-21): the constants do not appear to be derived from gold v0.1. Exact numeric origins beyond the script's heuristic literals are UNKNOWN.
 
-**`purge/6d` commit.** `996b5c12997097128d0e3af6b98a04ebc6598d59` (Simon; 2026-10-07) changes only `RESEARCH-LOG.md`: adds a 2026-10-07 statement that 6D was removed and meaning state is 9D; changes “token sequences” to “lexical sequences,” “first token” to “first semiotic unit,” and protocol step “6-dim” to “9-dim.” It does not modify source code or data. Main's separate 9D cleanup is `e6f4b6a`.
 
 ## 4. Training reality
 
@@ -164,20 +151,11 @@ Each requested root/target-directory path is listed once. “Calls” means an i
    git push origin --delete chore/add-sfl-pi-actions-launcher ci/resume-sfl-pi-training copilot/research-train-sfl-pi-workflow-issues docs/non-ceremonial-experimentation-directive feature/add-meaning-state-animation-reader feature/implementation-evidence-reader feature/olmo-core-sfl-random-init feature/sfl-pi-full-run-inspection fix/install-pytorch-for-sfl-pi fix/sfl-pi-jsonl-ingestion kpml-investigation nemotron3-proposal-reader
    git fetch --prune origin
    ```
-3. Preserve `purge/6d` before any owner-approved deletion:
-   ```sh
-   git tag archive/purge-6d 996b5c12997097128d0e3af6b98a04ebc6598d59
-   git push origin refs/tags/archive/purge-6d
-   # Only after owner approval:
-   git push origin --delete purge/6d
-   ```
-4. Do not delete `kpml-sandbox` or its 22 non-main commits before the owner decides whether to retain/merge its KPML probe/runtime and 9D documentation revisions. Keep `main`; do not delete it.
+3. Do not delete `kpml-sandbox` or its 22 non-main commits before the owner decides whether to retain/merge its KPML probe/runtime and 9D documentation revisions. Keep `main`; do not delete it.
 
 ## 6. Owner-only questions
 
 - Should the KPML probe/runtime and 9D README corrections on `kpml-sandbox` be merged, archived, or discarded?
-- Should the unmerged `purge/6d` research-log change be adopted or retained only as history?
-- Should the stale/incomplete 6D/3×2 README translations be rewritten, preserved as historical documentation, or removed?
 - Is `sfl_matrix_engine_v3.py` needed despite being a second unimported engine and having only HTML links?
 - Should the local implementation/figure reader remain alongside the separate public proposal reader?
 - Before any affected branch deletion, should the workflow and reader links be retargeted to `main` as proposed?

@@ -26,7 +26,7 @@ os.makedirs("output", exist_ok=True)
 EN_COLOR = "#4f98a3"
 ES_COLOR = "#da7101"
 BG       = "#12121a"
-DIM      = ["ideational", "field", "interpersonal", "tenor", "textual", "mode"]
+DIM      = ["ideational_field", "ideational_tenor", "ideational_mode", "interpersonal_field", "interpersonal_tenor", "interpersonal_mode", "textual_field", "textual_tenor", "textual_mode"]
 
 
 def _traj_to_dict(traj: MeaningTrajectory, color: str) -> dict:
@@ -80,7 +80,7 @@ def generate_html(out_path: str = "output/manifold_animated.html") -> str:
   <button id="encode-btn" onclick="encodeText()">Encode</button>
 </div>
 <div id="chart"></div>
-<div id="info">axes: ideational &nbsp;·&nbsp; field &nbsp;·&nbsp; textual</div>
+<div id="info">axes: ideational field &nbsp;·&nbsp; interpersonal tenor &nbsp;·&nbsp; textual mode</div>
 
 <script>
 const RAW = {data_json};
@@ -94,14 +94,14 @@ function buildFrames(traj) {{
     const xs = [], ys = [], zs = [], ts = [];
     for (let i = 0; i < k; i++) {{
       xs.push(traj.states[i][0]);
-      ys.push(traj.states[i][1]);
-      zs.push(traj.states[i][4]);
+      ys.push(traj.states[i][4]);
+      zs.push(traj.states[i][8]);
       ts.push(traj.labels[i]);
     }}
     // current point highlight
     const cx = [traj.states[k-1][0]];
-    const cy = [traj.states[k-1][1]];
-    const cz = [traj.states[k-1][4]];
+    const cy = [traj.states[k-1][4]];
+    const cz = [traj.states[k-1][8]];
     const cl = [traj.labels[k-1]];
     frames.push({{
       name: String(k),
@@ -130,9 +130,9 @@ function makeLayout(lang) {{
     paper_bgcolor: '{BG}',
     scene: {{
       bgcolor: '#0d0d14',
-      xaxis: {{ title: 'ideational', color: '#666', range: [-1.1, 1.1] }},
-      yaxis: {{ title: 'field',       color: '#666', range: [-1.1, 1.1] }},
-      zaxis: {{ title: 'textual',     color: '#666', range: [-1.1, 1.1] }},
+      xaxis: {{ title: 'ideational field', color: '#666', range: [-1.1, 1.1] }},
+      yaxis: {{ title: 'interpersonal tenor', color: '#666', range: [-1.1, 1.1] }},
+      zaxis: {{ title: 'textual mode', color: '#666', range: [-1.1, 1.1] }},
       camera: {{ eye: {{ x: 1.4, y: 1.4, z: 0.7 }} }},
     }},
     margin: {{ l:0, r:0, t:30, b:0 }},
@@ -184,7 +184,7 @@ function switchLang(lang) {{
   render(lang);
 }}
 
-// Free-text encoder: naive projection onto 6D manifold
+// Free-text encoder: naive projection onto 9D manifold
 // Each word contributes a small delta proportional to its character hash.
 // This is intentionally lightweight — it shows trajectory shape, not semantics.
 function hashWord(w) {{
@@ -198,13 +198,13 @@ function encodeText() {{
   if (!raw) return;
   const words = raw.split(/\\s+/);
   // Start from origin
-  let state = [0,0,0,0,0,0];
-  const xs=[state[0]], ys=[state[1]], zs=[state[4]], ts=['[start]'];
+  let state = [0,0,0,0,0,0,0,0,0];
+  const xs=[state[0]], ys=[state[4]], zs=[state[8]], ts=['[start]'];
   for (const w of words) {{
     const h = hashWord(w);
     const delta = DIM.map((_, i) => ((h >> (i*4)) & 0xff) / 255 * 0.4 - 0.2);
     state = state.map((v,i) => Math.max(-1, Math.min(1, v + delta[i])));
-    xs.push(state[0]); ys.push(state[1]); zs.push(state[4]); ts.push(w);
+    xs.push(state[0]); ys.push(state[4]); zs.push(state[8]); ts.push(w);
   }}
   const freeTrace = {{
     x: xs, y: ys, z: zs, text: ts,
