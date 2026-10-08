@@ -6,7 +6,7 @@ on:
       code_ref:
         description: Git ref containing the SFL-pi training implementation
         required: true
-        default: feature/olmo-core-sfl-random-init
+        default: main
         type: string
       epochs:
         description: Number of epochs
