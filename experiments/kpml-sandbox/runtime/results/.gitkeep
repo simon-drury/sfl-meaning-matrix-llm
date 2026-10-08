@@ -1,0 +1,2 @@
+Runtime-generated records are written to /data/results in the hosted environment.
+Commit only curated, non-sensitive experiment artifacts back into GitHub.
