@@ -1,0 +1,24 @@
+{
+  "context": {
+    "field": "a prototype semantic realization request",
+    "tenor": "neutral technical narrator to researcher",
+    "mode": "written explanatory text"
+  },
+  "metafunctions": {
+    "ideational": {
+      "process": "relational",
+      "participants": {
+        "carrier": "The meaning matrix",
+        "attribute": "a structured semantic representation"
+      }
+    },
+    "interpersonal": {
+      "mood": "declarative",
+      "modality": "finite"
+    },
+    "textual": {
+      "theme": "The meaning matrix",
+      "information_focus": "structured semantic representation"
+    }
+  }
+}
