@@ -18,7 +18,7 @@ Architecture
   h_0 in R^d_model     (injected as context prefix to GPT4All)
        |
        v
-  [GPT4All forward]    (backbone frozen, no fine-tuning yet)
+  [GPT4All forward]    (backbone frozen)
        |
        v
   h_out in R^d_model   (final hidden state or embedding)
@@ -31,7 +31,7 @@ Architecture
 
 The transformer is modality-blind throughout.
 It receives h_0 derived from M_t. It returns h_out.
-M_out is read from h_out. The transformer never sees language labels.
+M_out is read from h_out.
 
 Setup
 -----
@@ -127,7 +127,7 @@ def run_adapter_pipeline(
     For each state in the trajectory:
     1. Project M_t -> h_0 via W_adapt
     2. If use_gpt4all: get embedding from GPT4All model
-       Else: use h_0 directly (dry run, no model needed)
+       Else: use h_0 directly (dry run)
     3. Project h_out -> M_out via W_inv
     4. Retrieve nearest realization from V_EN and V_ES
 
@@ -135,7 +135,7 @@ def run_adapter_pipeline(
     ----------
     traj        : MeaningTrajectory
     model_name  : GPT4All model filename
-    use_gpt4all : if False, runs dry (adapter matrices only, no model)
+    use_gpt4all : if False, runs dry (adapter matrices only)
 
     Returns
     -------
@@ -195,7 +195,7 @@ def print_pipeline_results(result: dict):
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    print("Running adapter pipeline in DRY RUN mode (no GPT4All model required).")
+    print("Running adapter pipeline in DRY RUN mode (adapter matrices only).")
     print("Set use_gpt4all=True and specify your model name for live mode.\n")
 
     for encode_fn in [encode_en, encode_es]:
