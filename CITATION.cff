@@ -19,8 +19,8 @@ abstract: >
   metafunctions (ideational, interpersonal, textual), columns are the
   register variables (field, tenor, mode). Input and
   output modality are handled at the edges; the transformer is
-  modality-blind. English and Spanish are co-equal first languages;
-  there is no translation step. The architecture supports persistent
+  modality-blind. English and Spanish are co-equal first languages.
+  The architecture supports persistent
   context via a reference meaning state M_0 carried as structured
   metadata across processes.
   Project identifier: <|sjd_datascapes|>
