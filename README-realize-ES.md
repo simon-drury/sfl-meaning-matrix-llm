@@ -17,11 +17,11 @@ w^* = \arg\min_{w \in \mathcal{V}_L}\; \left\| \mathbf{f}_w - M_{\text{out}} \ri
 
 El mismo \(M_{\text{out}}\) presentado a \(\mathcal{V}_{\text{EN}}\) y
 \(\mathcal{V}_{\text{ES}}\) produce dos realizaciones independientes en sus
-respectivos idiomas. No hay paso de traduccion. Ambas salidas son
-realizaciones co-iguales del mismo estado de significado.
+respectivos idiomas. Cada idioma realiza el estado de significado
+directamente, y ambas salidas son realizaciones co-iguales del mismo estado
+de significado.
 
-Mientras que la traduccion automatica mapea forma a forma entre idiomas,
-esta arquitectura mapea significado a forma de forma independiente dentro
+Esta arquitectura mapea significado a forma de forma independiente dentro
 de cada idioma.
 
 ---
@@ -69,7 +69,7 @@ sfl_realize.py         M_out -> w* en V_L
 ```
 Mejor coincidencia EN : thank you
 Mejor coincidencia ES : gracias
-(mismo M_out, diferente V_L -- sin traduccion)
+(mismo M_out, diferente V_L)
 ```
 
 El estado de significado codifica *gratitud + cierre interpersonal*.
