@@ -135,8 +135,7 @@ specifically:
     h_0 = W_adapt * vec(M_t) + b_adapt
 
 where vec(M_t) in R^9 is the flattened meaning state.
-This h_0 replaces the standard token embedding as the first
-hidden state passed to the transformer.
+This h_0 is the first hidden state passed to the transformer.
 
 ---
 
@@ -149,20 +148,19 @@ for language L, the **realization** w* is:
 
 where f_w in R^9 is the semiotic fingerprint of lexical item w.
 
-In production, distances may be computed under the Fisher-Rao metric
-rather than the Euclidean metric, giving:
+In production, distances may be computed under the Fisher-Rao metric,
+giving:
 
     w* = argmin_{w in V_L} d_FR(f_w, M_out)
 
 The same M_out presented to V_EN and V_ES independently yields
-two co-equal realizations with no translation step.
+two co-equal realizations.
 
 ---
 
 ## 9. M0 as reference state
 
-M_0 is not required to be derived from the first token of the input.
-It may be a **reference meaning state** -- a pre-loaded context
+M_0 is a **reference meaning state** -- a pre-loaded context
 encoding the domain vocabulary, interaction tenor, and channel mode
 of the current process. This reference state is carried as structured
 metadata across processes.
@@ -171,8 +169,7 @@ Session memory is then the cumulative delta from the reference state:
 
     Delta_session(t) = M_t - M_0
 
-This is lightweight, inspectable, and portable. It does not require
-persistent neural memory or fine-tuning.
+This is lightweight, inspectable, and portable.
 
 ---
 

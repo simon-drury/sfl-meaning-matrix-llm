@@ -1,7 +1,7 @@
 # Research Log
 
 Timestamped record of decisions, insights, and directions.
-Code does not belong here. This is the jotter.
+This is the jotter.
 
 ---
 
@@ -12,19 +12,18 @@ Code does not belong here. This is the jotter.
 The realizer (`sfl_realize.py`) uses k-nearest-neighbour retrieval (k-NN)
 to map a meaning state M_out to a lexical item in V_L. This is standard NLP.
 
-This is not a compromise. It is a deliberate boundary decision:
+This is a deliberate boundary decision:
 
-- The architecture does not discard NLP. It relocates it.
+- The architecture relocates NLP.
 - NLP operates at the output edge only, after meaning has been computed.
-- The transformer (Pathformer) never sees token sequences or lexical embeddings.
-  It operates on meaning states in M throughout.
+- The transformer (Pathformer) operates on meaning states in M throughout.
 - k-NN at the output edge can use GPU-accelerated vector search (FAISS) at scale.
   It is hardware-compatible and well-understood.
 - The realizer is modular and swappable: k-NN now (mv0), learned decoder later (mv1+).
-  The architecture does not change when the realizer is upgraded.
+  The architecture stays constant when the realizer is upgraded.
 
-The key distinction: NLP does the retrieval. SFL does the reasoning.
-The decoder is not corrupt — it is correctly scoped.
+NLP does the retrieval. SFL does the reasoning.
+The decoder is correctly scoped.
 
 ---
 
@@ -32,14 +31,14 @@ The decoder is not corrupt — it is correctly scoped.
 
 ### Architecture decisions
 
-- Modality-blindness is a first-class architectural constraint, not a feature.
+- Modality-blindness is a first-class architectural constraint.
   The transformer sees only meaning states in M. Input and output modality
   are edge parameters only. This is non-negotiable in all future iterations.
 
-- M0 as golden reference state: M0 does not have to be derived from the first
-  token. It can be a pre-loaded reference frame -- field vocabulary of the domain,
-  tenor of the interaction, mode of the channel, prior session deltas --
-  passed as structured metadata at the start of every process.
+- M0 as golden reference state: M0 is a pre-loaded reference frame -- field
+  vocabulary of the domain, tenor of the interaction, mode of the channel,
+  prior session deltas -- passed as structured metadata at the start of every
+  process.
   Session memory = delta(M_t, M0). Lightweight, inspectable, portable.
   This is Tier 2 work but the architecture supports it now.
 
@@ -63,23 +62,22 @@ The decoder is not corrupt — it is correctly scoped.
 ### The Hello World observation
 
 The EN iconic prompt -- "hey why dont you print hello world for me please
- thank you" -- is not primarily an instruction. It is an interpersonal
+ thank you" -- is an interpersonal
  meaning event: are you there, are we connected, are you responsive.
 Hello World is the canonical proof-of-life output of any computational system.
-The system responded "hello back" -- not a realization of the instruction
-but a realization of the interpersonal meaning beneath it.
-This was not designed. It emerged from the trajectory geometry.
+The system responded "hello back" -- a realization of the interpersonal
+meaning beneath it.
+It emerged from the trajectory geometry.
 Note for PhD chapter on emergence and instantiation.
 
 ### The labyrinth / quantum path observation
 
-The manifold does not visit every path to find the route.
-It has the geometry of the space already.
-A quantum system finds the shortest path through a labyrinth not by
-exploring every branch but by having the geometry of all branches
-simultaneously. The semiotic manifold operates analogously.
-This is the competitive advantage in the Instagram animation:
-four models, same labyrinth, one knows the geometry.
+The manifold has the geometry of the space already.
+A quantum system finds the shortest path through a labyrinth by having
+the geometry of all branches simultaneously. The semiotic manifold operates
+analogously.
+This is the competitive advantage in the Instagram animation: the model
+knows the geometry.
 
 ### Decision manifold protocol
 
