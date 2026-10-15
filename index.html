@@ -67,15 +67,15 @@
   <main>
     <section id="proposition">
       <p class="eyebrow">01 · Proposition</p>
-      <h2>Meaning is a declared state, not only an emergent vector.</h2>
-      <p class="lead">The project investigates whether linguistic descriptions from Systemic Functional Linguistics (SFL) can form an explicit front end for language-model processing. Instead of taking subword tokens as the only initial representation, it constructs a compact matrix over metafunction and register.</p>
-      <div class="callout"><p><strong>The research claim is experimental.</strong> The repository provides a working prototype and training/inference components; it does not establish that a matrix representation outperforms token-based models. Evaluation against explicit baselines remains the decisive test.</p></div>
+      <h2>Meaning is a declared state.</h2>
+      <p class="lead">The project investigates whether linguistic descriptions from Systemic Functional Linguistics (SFL) can form an explicit front end for language-model processing. It constructs a compact matrix over metafunction and register as the initial representation.</p>
+      <div class="callout"><p><strong>The research claim is experimental.</strong> The repository provides a working prototype and training/inference components. Evaluation remains the decisive test.</p></div>
       <p>The implementation is deliberately modular. A matrix engine derives structured features, attention and manifold modules operate over those states, an adapter connects them to model-space representations, and a realization component supports the return path to language.</p>
     </section>
     <section id="matrix">
       <p class="eyebrow">02 · Meaning matrix</p>
       <h2>Three metafunctions × three register variables.</h2>
-      <p>In SFL terms, the rows concern what language is doing as meaning; the columns concern the contextual configuration in which it is doing it. The matrix is a research representation, not a replacement for the full SFL theory of stratification and instantiation.</p>
+      <p>In SFL terms, the rows concern what language is doing as meaning; the columns concern the contextual configuration in which it is doing it. The matrix is a research representation.</p>
       <table class="matrix">
         <thead><tr><th scope="col">Metafunction \ Register</th><th scope="col">Field</th><th scope="col">Tenor</th><th scope="col">Mode</th></tr></thead>
         <tbody>
@@ -84,13 +84,13 @@
           <tr><th scope="row">Textual</th><td>Information organization for the field</td><td>Audience-sensitive thematic and cohesive choices</td><td>Medium, rhetorical organization, flow</td></tr>
         </tbody>
       </table>
-      <p class="note">The matrix is flattened or otherwise transformed for downstream numerical operations. It should not be read as claiming fixed one-to-one pairings among SFL categories.</p>
+      <p class="note">The matrix is flattened or otherwise transformed for downstream numerical operations.</p>
     </section>
     <section id="pipeline">
       <p class="eyebrow">03 · Processing route</p>
       <h2>From language to a structured state and back.</h2>
       <div class="step"><div class="number">01</div><div><h3>Encode</h3><p>A clause or prompt is analysed into matrix-relevant features by the matrix engine.</p></div></div>
-      <div class="step"><div class="number">02</div><div><h3>Attend</h3><p>The attention component weights dimensions of the structured representation rather than treating the state solely as an undifferentiated embedding.</p></div></div>
+      <div class="step"><div class="number">02</div><div><h3>Attend</h3><p>The attention component weights dimensions of the structured representation.</p></div></div>
       <div class="step"><div class="number">03</div><div><h3>Traverse</h3><p>The manifold component supplies geometric operations over meaning trajectories and state movement.</p></div></div>
       <div class="step"><div class="number">04</div><div><h3>Adapt</h3><p>An adapter projects the structured representation toward a neural model space, preserving a separable SFL-facing interface.</p></div></div>
       <div class="step"><div class="number">05</div><div><h3>Realize and inspect</h3><p>Realization and visualization modules support language output and inspection of the intermediate representation.</p></div></div>
@@ -98,7 +98,7 @@
     <section id="implementation">
       <p class="eyebrow">04 · Verified implementation</p>
       <h2>The reader points to code that exists.</h2>
-      <p>These source modules are present on the repository’s base revision for this branch. Their exact behavior is defined by the source, not by this high-level reader.</p>
+      <p>These source modules are present on the repository’s base revision for this branch. Their exact behavior is defined by the source.</p>
       <div class="modules">
         <div class="module"><strong><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/sfl_matrix_engine_v3.py">sfl_matrix_engine_v3.py</a></strong><span>Structured meaning-state/matrix processing.</span></div>
         <div class="module"><strong><a href="https://github.com/simon-drury/sfl-meaning-matrix-llm/blob/nemotron3-proposal-reader/sfl_attention.py">sfl_attention.py</a></strong><span>Attention operations for SFL-oriented states.</span></div>
@@ -113,7 +113,7 @@
     <section id="reproduce">
       <p class="eyebrow">05 · Reproducibility route</p>
       <h2>Pages documents the work; Python runs it.</h2>
-      <p>GitHub Pages is static hosting, so this reader does not claim to run PyTorch or the project’s server-side components in the browser. Clone the repository and use the project requirements and documentation for the executable research environment.</p>
+      <p>GitHub Pages is static hosting. Clone the repository and use the project requirements and documentation for the executable research environment.</p>
       <pre>git clone https://github.com/simon-drury/sfl-meaning-matrix-llm.git
 cd sfl-meaning-matrix-llm
 python -m venv .venv
@@ -134,10 +134,10 @@ python app.py</pre>
       <h2>What needs to be demonstrated.</h2>
       <div class="grid">
         <article class="card"><h3>Representation validity</h3><p>Show that annotations or derived matrix states are reliable, interpretable, and appropriate across genres and languages.</p></article>
-        <article class="card"><h3>Predictive value</h3><p>Compare against token-only and other structured baselines on predefined tasks, data splits, and metrics.</p></article>
-        <article class="card"><h3>Engineering value</h3><p>Measure cost, latency, robustness, controllability, and failure modes rather than inferring advantage from interpretability alone.</p></article>
+        <article class="card"><h3>Predictive value</h3><p>Evaluate on predefined tasks, data splits, and metrics.</p></article>
+        <article class="card"><h3>Engineering value</h3><p>Measure cost, latency, robustness, controllability, and failure modes.</p></article>
       </div>
-      <p>The appropriate conclusion at this stage is therefore not that the architecture has displaced tokenization, but that it makes a falsifiable alternative front end available for implementation and evaluation.</p>
+      <p>The architecture makes a falsifiable front end available for implementation and evaluation.</p>
     </section>
   </main>
   <footer>Static reader for the SFL Meaning Matrix LLM repository. This page is documentation for an experimental research codebase; consult the linked source and project materials for authoritative implementation details.</footer>
