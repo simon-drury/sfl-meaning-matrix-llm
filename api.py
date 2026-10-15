@@ -4,7 +4,7 @@ api.py
 FastAPI wrapper for the SFL Meaning Matrix pipeline.
 
 The transformer is modality-blind.
-It operates on meaning states in M -- nothing else.
+It operates on meaning states in M.
 Modality of input and output is handled at the edges.
 
 Endpoints
@@ -267,7 +267,7 @@ def pipeline(req: PipelineRequest):
     """
     Full pipeline: pilot encoder -> MeaningTrajectory -> realization.
     lang_in drives the trajectory. lang_out drives the realization.
-    The two are independent. No translation step.
+    The two are independent.
     Input langs: EN, ES. Output langs: EN, ES, PT, IT, ZH.
     """
     analyze_resp = _run_analyze(req.lang_in)
