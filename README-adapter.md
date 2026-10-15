@@ -6,7 +6,7 @@ Bridges the semiotic manifold engine and the transformer model.
 Takes the 9-dimensional meaning vector produced by
 `sfl_manifold.py` and projects it into the embedding space of a local
 transformer, so the transformer’s attention machinery can operate over
-meaning states rather than token embeddings.
+meaning states.
 
 ---
 
