@@ -102,7 +102,7 @@ SFL reading:
 - Interpersonal: directive force now fully committed; command encoded.
 - Textual: new rheme; the information core of the request arrives here.
 - Field: fully narrowed to computational/programming field.
-- Tenor: power differential momentarily invoked (requester/executor) but mitigated by surrounding politeness markers.
+- Tenor: power differential momentarily invoked (requester/executor) and mitigated by surrounding politeness markers.
 - Mode: mode stable.
 
 ```text
@@ -147,7 +147,7 @@ Textual        +0.05   +0.10   +0.05
 ### Δ4 — `please thank you`
 
 SFL reading:
-- Ideational: zero experiential content.
+- Ideational: minimal experiential content.
 - Interpersonal: strong politeness markers; face-protection, solidarity maximized. This is pure interpersonal work.
 - Textual: discourse-closing move; coda to the request.
 - Field: stable.
@@ -189,7 +189,7 @@ Hello, World!
 
 The output lexical selection prioritizes:
 - the exact technical artifact requested (hello world),
-- zero interpersonal noise in the output (the output enacts the request, it does not comment on it),
+- an output that enacts the request, with the interpersonal content carried by the meaning state,
 - mode-appropriate brevity.
 
 ---
@@ -217,7 +217,7 @@ Lectura desde la GSF:
 - Interpersonal: marcador alto de solidaridad; registro formal a neutro; respetuoso e inclusivo.
 - Textual: apertura discursiva; posición temática fuerte.
 - Campo: ambiente temporal y social.
-- Tenor: respetuoso pero cálido; poder neutral; destinatario amplio.
+- Tenor: respetuoso y cálido; poder neutral; destinatario amplio.
 - Modo: habla oral o radiodifundida; semiformal.
 
 ```text
@@ -228,7 +228,7 @@ Interpersonal  +0.25   +0.75   +0.60
 Textual        +0.20   +0.70   +0.55
 ```
 
-Nota: el valor de modo es positivo aquí (+0.4) porque este prompt simula habla radiodifundida, planificada, pública e institucional, a diferencia del prompt en inglés, que simula interacción escrita espontánea.
+Nota: el valor de modo es positivo aquí (+0.4) porque este prompt simula habla radiodifundida, planificada, pública e institucional; el prompt en inglés simula interacción escrita espontánea.
 
 ---
 
@@ -236,7 +236,7 @@ Nota: el valor de modo es positivo aquí (+0.4) porque este prompt simula habla 
 
 Lectura desde la GSF:
 - Ideacional: proceso relacional identificativo; circunstancia temporal más atributo. La carga experiencial aumenta ligeramente; aparece una proposición factual.
-- Interpersonal: modo declarativo; aseveración neutra. No hay modalización. La solidaridad se mantiene.
+- Interpersonal: modo declarativo; aseveración neutra y llana. La solidaridad se mantiene.
 - Textual: desarrollo remático; el discurso pasa del saludo al contenido informativo. Estructura dado/nuevo: hoy (dado, ya activado por buenos días) / es viernes (nuevo).
 - Campo: orientación temporal cotidiana, típica de la locución informativa.
 - Tenor: estable; dirección pública e institucional.
@@ -265,7 +265,7 @@ Textual        +0.40   +0.80   +0.65
 
 Lectura desde la GSF:
 - Ideacional: proceso relacional identificativo; identificación nominal. La identidad institucional queda explicitada.
-- Interpersonal: declaración autoritativa; sin atenuación. La fuerza interpersonal pasa a ser institucional más que personal. Se activa una asimetría de poder entre emisor y audiencia.
+- Interpersonal: declaración autoritativa y directa. La fuerza interpersonal pasa a ser institucional más que personal. Se activa una asimetría de poder entre emisor y audiencia.
 - Textual: cláusula identificativa; ancla todo el discurso en un contexto institucional. La organización textual cambia: todo lo anterior queda ahora enmarcado como salida de CNN.
 - Campo: periodismo radiodifundido plenamente realizado.
 - Tenor: autoridad institucional; formalidad; aumenta la diferencia de poder.
@@ -300,7 +300,7 @@ Lectura desde la GSF:
 - Textual: reinicio temático con Hoy; se abre un nuevo desarrollo clausular dentro del mismo movimiento. Se establece contraste entre la identificación institucional de Δ2 y la significación personal de Δ3.
 - Campo: evaluación, afectividad y marcación de relevancia.
 - Tenor: desplazamiento momentáneo desde la autoridad institucional hacia la voz personal; aumenta la solidaridad con la audiencia por medio de la autoimplicación.
-- Modo: estable; sigue siendo planificado, pero con irrupción de afecto personal.
+- Modo: estable; sigue siendo planificado, con irrupción de afecto personal.
 
 ```text
 Δ3 =
@@ -320,7 +320,7 @@ Lectura desde la GSF:
 - Textual: conjunción aditiva y; prolonga la cláusula anterior. La reorganización textual nueva es mínima.
 - Campo: significación colectiva; se insinúa un momento histórico o social.
 - Tenor: solidaridad máxima; la diferencia de poder se disuelve en la experiencia compartida.
-- Modo: estable; breve, pero retóricamente cargado.
+- Modo: estable; breve y retóricamente cargado.
 
 ```text
 Δ4 =
@@ -386,11 +386,11 @@ Good morning. Today is an important day for everyone. We continue on CNN.
 | Textual / Tenor | +0.90 | +0.95 |
 | Textual / Mode | +0.10 | +0.80 |
 
-Key contrast:
-- Both prompts end at maximum interpersonal activation, but via different trajectories.
+Trajectory profiles:
+- Both prompts end at maximum interpersonal activation, via different trajectories.
 - The EN prompt is low-mode (spontaneous, informal written); the ES prompt is high-mode (planned, broadcast, institutional).
 - The ES prompt carries substantially higher ideational load (evaluative content, collective significance); the EN prompt's ideational content is minimal and purely instrumental.
-- Field diverges sharply: computational/technical (EN) vs. broadcast journalism/social significance (ES).
+- Field diverges sharply: computational/technical (EN) and broadcast journalism/social significance (ES).
 
 These differences would propagate into different attention cluster activations and different realization strategies in the full architecture.
 
