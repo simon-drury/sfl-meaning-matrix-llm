@@ -22,9 +22,6 @@ This is a deliberate boundary decision:
 - The realizer is modular and swappable: k-NN now (mv0), learned decoder later (mv1+).
   The architecture stays constant when the realizer is upgraded.
 
-NLP does the retrieval. SFL does the reasoning.
-The decoder is correctly scoped.
-
 ---
 
 ## 2026-04-10
