@@ -107,7 +107,7 @@ class EmpiricalSFLDataset(Dataset):
             for t in range(len(traj) - 1):
                 self.transitions.append((traj[t], traj[t+1]))
 
-        # If records were individual states rather than multi-step sequences, chain adjacent pairs
+        # Records holding individual states: chain adjacent pairs
         if len(self.transitions) == 0 and len(self.trajectories) >= 2:
             all_states = [traj[0] for traj in self.trajectories if len(traj) > 0]
             for t in range(len(all_states) - 1):
