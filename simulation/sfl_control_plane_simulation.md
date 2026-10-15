@@ -26,8 +26,6 @@ Single-step trajectory (compressed prompt):
 - φ (driver): ideational/field
 
 Interpretation:
-- No register shift
-- No interpersonal spike
 - Pure goal-orientation
 
 ---
@@ -87,12 +85,7 @@ The best next step is:
 
 ## Interpretation
 
-The control plane does NOT select:
-- more theory
-- more dimensions
-- more visualisation
-
-It selects:
+The control plane selects:
 → first point where the system can be externally validated
 
 This confirms:
