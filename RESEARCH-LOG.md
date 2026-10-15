@@ -28,9 +28,9 @@ This is a deliberate boundary decision:
 
 ### Architecture decisions
 
-- Modality-blindness is a first-class architectural constraint.
+- Modality at the edges is a first-class architectural constraint.
   The transformer sees only meaning states in M. Input and output modality
-  are edge parameters only. This is non-negotiable in all future iterations.
+  are edge parameters only. This holds in all future iterations.
 
 - M0 as golden reference state: M0 is a pre-loaded reference frame -- field
   vocabulary of the domain, tenor of the interaction, mode of the channel,
@@ -51,7 +51,7 @@ This is a deliberate boundary decision:
 - Distance on M: Fisher-Rao metric is the formal grounding
   (information geometry; Amari 1985, Rao 1945)
 - "instantiation": SFL term for the process of moving from semiotic
-  potential to instance. Not yet in the codebase. Relevant to Tier 2
+  potential to instance. Planned for the codebase; relevant to Tier 2
   when the system moves from pilot vocabulary to corpus-learned fingerprints.
 - "realization" is correct and stays.
 - "register" (field + tenor + mode) is correct and stays.
@@ -79,10 +79,10 @@ analogously.
 When prompt says "use the decision manifold":
 1. Parse prompt into semiotic units
 2. Assign 9-dim (3x3) meaning state to each unit
-3. Identify kappa spikes (noise events, ignore)
+3. Identify kappa spikes (noise events, set aside)
 4. Find the unit with highest field + textual + directive tenor
 5. That unit names the next action
-6. Proceed without explanation unless geometry is ambiguous
+6. Proceed directly; explain when geometry is ambiguous
 
 ### Licensing
 
@@ -103,7 +103,7 @@ Research use is free. Citation required (CITATION.cff).
 
 ## Future sessions
 
-### Tier 2 work (not yet started)
+### Tier 2 work (planned)
 - M0 as session context carrier (structured metadata)
 - PT, IT, ZH pilot vocabularies
 - Competitive animation mode (sfl_visualise.py --compete)
