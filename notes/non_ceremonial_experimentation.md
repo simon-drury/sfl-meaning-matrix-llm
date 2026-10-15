@@ -1,4 +1,4 @@
-# Non-Ceremonial Experimentation Directive
+# Substantive Experimentation Directive
 
 ## Audience
 
@@ -6,7 +6,7 @@ This note is for automated contributors, agentic coding systems, and human colla
 
 ## Directive
 
-Do not introduce testing, validation, or process whose primary value is ceremonial: a small proof that a narrow command can run, a toy demonstration that does not interrogate the actual model, or an abstract checklist detached from a live architectural question. Such work can produce briefly satisfying proofs of concept while yielding little durable knowledge about the system.
+Choose testing, validation, and process whose primary value is substantive: work that interrogates the actual model and answers a live architectural question. Ceremonial work, such as a small proof that a narrow command can run, a toy demonstration, or an abstract checklist detached from the architecture, yields little durable knowledge about the system.
 
 The repository should be developed through substantive, inspectable experiments:
 
@@ -19,8 +19,8 @@ The repository should be developed through substantive, inspectable experiments:
 
 Testing is justified when it directly protects or reveals the working system: for example, when it prevents a known regression in a relied-upon path, captures a real failure mode, or instruments a substantive training run so that model behaviour can be inspected.
 
-A minimal smoke check may be added later as quiet maintenance infrastructure if it protects an established workflow. It must not be treated as the research result, a gate that displaces real experiments, or an end in itself.
+A minimal smoke check may be added later as quiet maintenance infrastructure if it protects an established workflow. It serves as maintenance infrastructure, while real experiments remain the research result.
 
 ## SFL-pi application
 
-For SFL-pi, the immediate work is to train the real causal 9D trajectory model on the empirical trajectories, inspect predictions and rollouts, preserve evidence of its failure boundaries, and then modify the architecture in response to those observations. Do not substitute toy runs, ceremonial validation, or generic engineering ritual for that loop.
+For SFL-pi, the immediate work is to train the real causal 9D trajectory model on the empirical trajectories, inspect predictions and rollouts, preserve evidence of its failure boundaries, and then modify the architecture in response to those observations. Real training runs and architectural iteration form the loop.
