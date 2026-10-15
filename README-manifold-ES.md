@@ -23,12 +23,10 @@ El vocabulario permanece aparcado. Este módulo opera exclusivamente sobre estad
 
 ## El driver dominante \(\phi_t\)
 
-Los transformadores estándar ponderan posiciones en una secuencia de tokens.
 Esta arquitectura identifica la **fuente metafuncional** de cada desplazamiento de significado.
 En cada paso, se nombra la dimensión con el mayor desplazamiento absoluto.
 
-Esto no está disponible en arquitecturas basadas en tokens. Es una consecuencia directa
-de operar sobre un manifold semánticamente etiquetado, en lugar de un espacio de embeddings léxicos.
+Es una consecuencia directa de operar sobre un manifold semánticamente etiquetado.
 
 ---
 
@@ -39,8 +37,7 @@ de operar sobre un manifold semánticamente etiquetado, en lugar de un espacio d
 \left( \lambda_1 \|\delta_t\|^2 + \lambda_2\,\kappa_t^2 \right)
 \]
 
-Mientras que el entrenamiento estándar de modelos de lenguaje minimiza la entropía cruzada
-sobre predicciones de tokens, esta arquitectura minimiza la **incoherencia geométrica
+Esta arquitectura minimiza la **incoherencia geométrica
 a lo largo de un camino de significado**. La pérdida penaliza tanto los grandes
 desplazamientos como los giros bruscos — ambos indican una trayectoria semánticamente forzada.
 
@@ -89,7 +86,6 @@ evaluativo y afectivo del prompt.
 ## Nota sobre escalabilidad
 
 `compute_manifold()` es una función pura sobre una `MeaningTrajectory`.
-Sin efectos secundarios, sin llamadas a modelos, sin I/O.
 Escalable horizontalmente en los tres niveles de despliegue:
 Nivel 1 (local), Nivel 2 (API), Nivel 3 (distribuido).
 
