@@ -51,7 +51,7 @@ The dotted white line is curvature \(\kappa_t\): peaks mark semantic events.
 
 **Gaussian profiles** — each of the nine SFL dimensions is shown as a probability
 distribution centred on its final meaning state value. The spread (\(\sigma = 0.20\))
-represents uncertainty — a meaning state is a region, not a point.
+represents uncertainty — a meaning state is a region.
 
 ---
 

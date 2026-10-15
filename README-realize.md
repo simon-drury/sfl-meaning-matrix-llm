@@ -17,11 +17,10 @@ w^* = \arg\min_{w \in \mathcal{V}_L}\; \left\| \mathbf{f}_w - M_{\text{out}} \ri
 
 The same \(M_{\text{out}}\) presented to \(\mathcal{V}_{\text{EN}}\) and
 \(\mathcal{V}_{\text{ES}}\) produces two independent realizations in their
-respective languages. There is no translation step. Both outputs are
-co-equal realizations of the same meaning state.
+respective languages. Each language realizes the meaning state directly, and
+both outputs are co-equal realizations of the same meaning state.
 
-Whereas machine translation maps form to form across languages, this
-architecture maps meaning to form independently within each language.
+This architecture maps meaning to form independently within each language.
 
 ---
 
@@ -68,7 +67,7 @@ sfl_realize.py         M_out -> w* in V_L
 ```
 EN best match : thank you
 ES best match : gracias
-(same M_out, different V_L -- no translation)
+(same M_out, different V_L)
 ```
 
 The meaning state encodes *gratitude + interpersonal closure*.
