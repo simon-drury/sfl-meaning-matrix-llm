@@ -1,14 +1,14 @@
 # Matrice de Sens SFL pour LLM
 
-**Une architecture basée sur la linguistique systémique fonctionnelle** : au lieu de tokeniser lexicalement, on compile directement en trajectoires sémantiques dans un manifold 9D (matrice 3x3).
+**Une architecture basée sur la linguistique systémique fonctionnelle** : on compile directement en trajectoires sémantiques dans un manifold 9D (matrice 3x3).
 
 ## Principes Fondamentaux
 
-La linguistique systémique fonctionnelle (LSF) de Halliday pose que la signification réside dans la **fonction en contexte**, pas dans la structure. Notre système applique ce principe au calcul :
+La linguistique systémique fonctionnelle (LSF) de Halliday pose que la signification réside dans la **fonction en contexte**. Notre système applique ce principe au calcul :
 
 - **Métafonctions** : idéationnelle (construire l'expérience), interpersonnelle (enacter les relations), textuelle (organiser le texte)
 - **Variables contextuelles** : champ (ce qui se passe), tenor (rôles sociaux), mode (canal de communication)
-- **Instantiation dynamique** : chaque matrice Mₜ capture un moment du sens, les deltas Δt encodent comment le sens évolue, pas quels mots viennent après
+- **Instantiation dynamique** : chaque matrice Mₜ capture un moment du sens, les deltas Δt encodent comment le sens évolue
 
 ## Pipeline : Forme → Sens → Forme
 
@@ -24,7 +24,7 @@ réalisation (nearest-neighbor dans vocabulaire LSF)
 sortie (lexique)
 ```
 
-Le réseau de neurones est un **calculateur**, pas la théorie. La théorie est SFL.
+Le réseau de neurones est un **calculateur**. La théorie est SFL.
 
 ## Pilot Iconique Français
 
@@ -121,7 +121,7 @@ où les poids $w_i$ reflètent l'importance de chaque métafonction/variable con
 | Visualisation | ✓ plots 3D + MP4 | matplotlib, Plotly |
 | Réalisation | ✓ lexique pilot | 15 mots EN/ES, 8 FR |
 | API | ✓ FastAPI | stateless, 4 endpoints |
-| Multilingue | ✓ EN/ES/FR | analyses natives, pas traductions |
+| Multilingue | ✓ EN/ES/FR | analyses natives |
 
 ## Grondage Théorique
 
@@ -132,7 +132,6 @@ où les poids $w_i$ reflètent l'importance de chaque métafonction/variable con
 ## Politique Linguistique
 
 - Chaque langue (EN, ES, FR) a sa propre analyse et réalisation
-- Pas de traductions automatiques entre répertoires linguistiques
 - Chaque matrice 3x3 (9D) est interprété dans les catégories LSF de la langue cible
 - Les concepts théoriques (métafonctions, deltas, distances) sont **langage-agnostiques**
 
