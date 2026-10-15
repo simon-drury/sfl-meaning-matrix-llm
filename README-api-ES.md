@@ -4,7 +4,6 @@
 
 La API aplica el principio arquitectonico central:
 el transformer opera sobre estados de significado en M.
-No tiene conocimiento de la modalidad de entrada o salida.
 La modalidad se gestiona en los bordes -- por el parser (entrada)
 y el realizador (salida).
 
@@ -85,8 +84,7 @@ curl -X POST http://127.0.0.1:8000/realize \
 # -> "gracias"
 ```
 
-Sin traduccion. Dos busquedas independientes en dos espacios de vocabulario.
-El transformer nunca supo que idioma estaba involucrado.
+Dos busquedas independientes en dos espacios de vocabulario.
 
 ---
 
@@ -104,11 +102,7 @@ El transformer no cambia.
 
 ---
 
-## Lo que esto no es
+## Alcance del piloto
 
-- Sin autenticacion
-- Sin almacenamiento persistente
-- Sin procesamiento por lotes ni streaming
-- Solo vocabulario piloto (huellas codificadas manualmente)
-
-Todo eso es Nivel 2.
+- Vocabulario piloto con huellas codificadas manualmente
+- Autenticacion, almacenamiento persistente, procesamiento por lotes y streaming son Nivel 2
