@@ -115,13 +115,13 @@ où les poids $w_i$ reflètent l'importance de chaque métafonction/variable con
 
 | Composant | Statut | Notes |
 |-----------|--------|-------|
-| Théorie SFL | ✓ formalisée | Halliday, Martin, grounded |
-| Adapter | ✓ codé | W_adapt : 9 → d_model |
-| Manifold | ✓ géométrie | Δt, κ, φ, L_sp |
-| Visualisation | ✓ plots 3D + MP4 | matplotlib, Plotly |
-| Réalisation | ✓ lexique pilot | 15 mots EN/ES, 8 FR |
-| API | ✓ FastAPI | stateless, 4 endpoints |
-| Multilingue | ✓ EN/ES/FR | analyses natives |
+| Théorie SFL | formalisée | Halliday, Martin, grounded |
+| Adapter | codé | W_adapt : 9 → d_model |
+| Manifold | géométrie | Δt, κ, φ, L_sp |
+| Visualisation | plots 3D + MP4 | matplotlib, Plotly |
+| Réalisation | lexique pilot | 15 mots EN/ES, 8 FR |
+| API | FastAPI | stateless, 4 endpoints |
+| Multilingue | EN/ES/FR | analyses natives |
 
 ## Grondage Théorique
 
