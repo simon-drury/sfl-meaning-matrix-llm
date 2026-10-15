@@ -2,9 +2,7 @@
 
 This is the remote-first build boundary for the KPML realization experiment.
 
-It does **not** pretend that a KPML distribution, loader, grammar, or generation
-entrypoint has already been validated. Instead it establishes the reproducible
-conditions required to add one without guessing:
+It establishes the reproducible conditions required to add a KPML distribution, loader, grammar, and generation entrypoint once each has been validated:
 
 1. Pin a retrievable KPML source archive in `source-lock.yaml`.
 2. Record its immutable revision, SHA-256 digest, and license.
@@ -30,15 +28,15 @@ The intended independent runtime is:
 simondrury/kpml-sfl-realizer
 ```
 
-It must remain separate from the existing SFL manifold demonstration Space.
+It remains separate from the existing SFL manifold demonstration Space.
 
 ## Safety gate
 
-`source-lock.yaml` is initially unresolved. The resolver refuses to download or
+`source-lock.yaml` is initially unresolved. The resolver waits to download or
 extract KPML until all identity and integrity fields are supplied. The HTTP
 `/generate` endpoint returns a clear blocked response until a source is locked
 and the actual KPML Lisp bridge has been committed.
 
-This is an integration gate, not a substitute for integration. Once a source is
+This gate marks the integration boundary. Once a source is
 pinned, the next additive commit is the Common Lisp loader/bridge and the first
 end-to-end realization run for the three cases in `deployment-manifest.yaml`.
