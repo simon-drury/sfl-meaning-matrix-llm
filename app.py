@@ -12,7 +12,7 @@ Run locally:
   python app.py
 
 Deploy to Hugging Face Spaces:
-  - Runtime: CPU basic (no GPU required)
+  - Runtime: CPU basic
   - requirements.txt must include: gradio numpy matplotlib fastapi uvicorn pydantic
 """
 
@@ -78,7 +78,7 @@ def run_pipeline(lang: str) -> str:
         bar = "+" * int(abs(val) * 20) if val >= 0 else "-" * int(abs(val) * 20)
         lines.append(f"  {name:<15} {val:>7.3f}  {bar}")
 
-    lines.append("\n## Five-language realization (same M_out, no translation)\n")
+    lines.append("\n## Five-language realization (same M_out)\n")
     M_out = region
     for code, vocab in VOCABS.items():
         best, dist = vocab.nearest(M_out, k=1)[0]
@@ -112,8 +112,7 @@ with gr.Blocks(title="SFL Meaning Matrix") as demo:
     gr.Markdown(
         "# SFL Meaning Matrix\n"
         "**Meaning before form. Language after meaning.**\n\n"
-        "Phase 1 demo: meaning manifold pipeline + visualisation. "
-        "No GPU required. No model downloads."
+        "Phase 1 demo: meaning manifold pipeline + visualisation."
     )
 
     with gr.Tab("Pipeline"):
