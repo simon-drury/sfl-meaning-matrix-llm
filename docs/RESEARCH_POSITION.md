@@ -37,7 +37,7 @@ The central claim under examination is deliberately modest: an SFL-informed, exp
 
 ## Authorship and Curation
 
-> **[sjd]** I have deliberately used generative AI throughout the development and documentation of this project, including for drafting, explanation, code exploration, and critique. The resulting material is nevertheless heavily curated: I select the research questions, linguistic commitments, architecture decisions, experimental priorities, source material, and final revisions. AI-generated text and code are treated as working material subject to examination.
+> **[sjd]** I have deliberately used generative AI throughout the development and documentation of this project, including for drafting, explanation, code exploration, and critique. The resulting material is heavily curated: I select the research questions, linguistic commitments, architecture decisions, experimental priorities, source material, and final revisions. AI-generated text and code are treated as working material subject to examination.
 
 This note is included for transparency. The project remains accountable to normal standards of scholarly attribution, verification, reproducibility, and critical evaluation.
 

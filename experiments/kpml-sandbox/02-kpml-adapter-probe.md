@@ -10,14 +10,14 @@ Can a meaning-matrix request be represented at the KPML boundary in a stable, in
 
 The probe has two modes:
 
-- **Dry run:** validates and serializes the request with no KPML installation.
+- **Dry run:** validates and serializes the request using only the local contract.
 - **Command mode:** passes canonical JSON to a locally configured bridge command through `KPML_COMMAND` or `--command`.
 
-The adapter does not claim that canonical JSON is KPML syntax. It is the explicit, deterministic interchange boundary from which a genuine KPML grammar-selection bridge can be implemented and tested.
+The adapter treats canonical JSON as the explicit, deterministic interchange boundary from which a genuine KPML grammar-selection bridge can be implemented and tested.
 
 ## Baseline
 
-Before this probe, the sandbox contained a scope and contract but no executable mechanism to validate a request or capture realization-boundary evidence.
+Before this probe, the sandbox held a scope and contract; this probe adds an executable mechanism to validate a request and capture realization-boundary evidence.
 
 ## Success criteria
 
@@ -42,7 +42,7 @@ python experiments/kpml-sandbox/02-kpml-adapter-probe.py \
   experiments/kpml-sandbox/examples/minimal-request.json
 ```
 
-A bridge command may include `{payload}`, which will be replaced by canonical JSON. If it does not, the command itself remains responsible for reading the request.
+A bridge command may include `{payload}`, which will be replaced by canonical JSON. Otherwise the command itself is responsible for reading the request.
 
 ## Next experiment
 

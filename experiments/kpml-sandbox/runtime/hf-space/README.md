@@ -9,12 +9,12 @@ This directory is the Docker Space entry point for the experimental
 - The Hugging Face Space executes the runtime remotely.
 - Attach persistent Space storage and mount it at `/data` if request records,
   source provenance, traces, or generated corpora must survive restarts.
-- No local build or local disk is required.
+- Builds and storage run remotely.
 
 ## Build gate
 
-The image deliberately starts an inspectable API before KPML is available, but
-realization is blocked until `../source-lock.yaml` is fully resolved.
+The image deliberately starts an inspectable API before KPML is available;
+realization unlocks once `../source-lock.yaml` is fully resolved.
 
 A source lock must include:
 
@@ -41,7 +41,7 @@ under `${RESULTS_ROOT:-/data/results}`.
 - `GET /health` reports service and source-lock status.
 - `GET /metadata` returns the deployment manifest and lock metadata.
 - `POST /record-request` records a meaning-matrix request under `/data/results`.
-- `POST /generate` remains blocked until the KPML source and Lisp bridge are
+- `POST /generate` becomes available once the KPML source and Lisp bridge are
   both pinned and implemented.
 
 The intended request boundary is the existing sandbox contract at
