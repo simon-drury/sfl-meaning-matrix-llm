@@ -39,15 +39,15 @@ def download_corpus():
 
 def parse_conllu_sentences(filepath: str, max_sentences: int = 1000) -> List[List[Dict[str, str]]]:
     sentences = []
-    current_tokens = []
+    current_words = []
 
     with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
-                if current_tokens:
-                    sentences.append(current_tokens)
-                    current_tokens = []
+                if current_words:
+                    sentences.append(current_words)
+                    current_words = []
                     if len(sentences) >= max_sentences:
                         break
                 continue
@@ -56,7 +56,7 @@ def parse_conllu_sentences(filepath: str, max_sentences: int = 1000) -> List[Lis
 
             parts = line.split("\t")
             if len(parts) >= 8 and parts[0].isdigit():
-                current_tokens.append({
+                current_words.append({
                     "id": int(parts[0]),
                     "form": parts[1],
                     "lemma": parts[2].lower(),
@@ -64,8 +64,8 @@ def parse_conllu_sentences(filepath: str, max_sentences: int = 1000) -> List[Lis
                     "deprel": parts[7]
                 })
 
-    if current_tokens and len(sentences) < max_sentences:
-        sentences.append(current_tokens)
+    if current_words and len(sentences) < max_sentences:
+        sentences.append(current_words)
 
     return sentences
 
@@ -75,16 +75,16 @@ class UniversalDependencySFLMapper:
         self.mental_lemmas = {"think", "know", "believe", "understand", "see", "hear", "feel", "remember", "consider", "want", "like"}
         self.relational_lemmas = {"be", "become", "seem", "appear", "have", "remain", "represent", "include"}
 
-    def map_sentence_to_matrix(self, tokens: List[Dict[str, str]]) -> Tuple[np.ndarray, str]:
+    def map_sentence_to_matrix(self, words: List[Dict[str, str]]) -> Tuple[np.ndarray, str]:
         m = np.zeros((3, 3), dtype=np.float32)
-        words = [t["form"] for t in tokens]
-        sentence_text = " ".join(words)
-        lemmas = [t["lemma"] for t in tokens]
-        deprels = [t["deprel"] for t in tokens]
-        pos_tags = [t["upos"] for t in tokens]
+        forms = [word["form"] for word in words]
+        sentence_text = " ".join(forms)
+        lemmas = [word["lemma"] for word in words]
+        deprels = [word["deprel"] for word in words]
+        pos_tags = [word["upos"] for word in words]
 
         # 1. Ideational Row [0, :]
-        verbs = [t for t in tokens if t["upos"] == "VERB" or t["upos"] == "AUX"]
+        verbs = [word for word in words if word["upos"] == "VERB" or word["upos"] == "AUX"]
         is_mental = any(t["lemma"] in self.mental_lemmas for t in verbs)
         is_relational = any(t["lemma"] in self.relational_lemmas for t in verbs)
         
@@ -102,14 +102,14 @@ class UniversalDependencySFLMapper:
         m[0, 2] = 0.50
 
         # 2. Interpersonal Row [1, :]
-        has_question_mark = "?" in words
-        has_modal = any(t["upos"] == "AUX" and t["lemma"] in {"could", "would", "may", "might", "can", "should", "must", "shall"} for t in tokens)
+        has_question_mark = "?" in forms
+        has_modal = any(word["upos"] == "AUX" and word["lemma"] in {"could", "would", "may", "might", "can", "should", "must", "shall"} for word in words)
         
-        if has_question_mark or (tokens and tokens[0]["upos"] == "AUX"):
+        if has_question_mark or (words and words[0]["upos"] == "AUX"):
             m[1, 0] = 0.35
             m[1, 1] = 0.60 if has_modal else 0.40
             m[1, 2] = 0.40
-        elif tokens and tokens[0]["upos"] == "VERB" and "nsubj" not in deprels[:2]:
+        elif words and words[0]["upos"] == "VERB" and "nsubj" not in deprels[:2]:
             m[1, 0] = 0.30
             m[1, 1] = -0.60
             m[1, 2] = -0.30
@@ -119,12 +119,12 @@ class UniversalDependencySFLMapper:
             m[1, 2] = 0.15
 
         # 3. Textual Row [2, :]
-        first_tok = tokens[0]
-        if first_tok["deprel"] in {"advmod", "mark", "prep", "obl"}:
+        first_word = words[0]
+        if first_word["deprel"] in {"advmod", "mark", "prep", "obl"}:
             m[2, 0] = 0.65
             m[2, 1] = 0.40
             m[2, 2] = 0.85
-        elif first_tok["deprel"] == "nsubj":
+        elif first_word["deprel"] == "nsubj":
             m[2, 0] = 0.40
             m[2, 1] = 0.20
             m[2, 2] = 0.40
@@ -157,8 +157,8 @@ def build_real_dataset(num_sentences: int = 500):
             "matrix_3x3": matrix.tolist()
         })
 
-        for t in sent:
-            clean_word = re.sub(r'[^\w\s]', '', t["lemma"])
+        for word in sent:
+            clean_word = re.sub(r'[^\w\s]', '', word["lemma"])
             if clean_word and len(clean_word) > 1:
                 word_coordinates[clean_word].append(vec_9d)
 
