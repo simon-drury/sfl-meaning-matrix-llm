@@ -2,7 +2,7 @@
 """
 sfl_animate.py
 Export a self-contained animated HTML visualisation of the SFL meaning
-trajectories using Plotly.  No server required — open the file in any browser.
+trajectories using Plotly. Open the file in any browser.
 
 Outputs
 -------
@@ -147,10 +147,10 @@ function makeLayout(lang) {{
       x: 0.01, y: 0.01, xanchor: 'left', yanchor: 'bottom',
       bgcolor: '#1e1e2e', bordercolor: '#333', font: {{ color: '#aaa', size: 11 }},
       buttons: [
-        {{ label: '▶ Play',  method: 'animate',
+        {{ label: 'Play',  method: 'animate',
            args: [null, {{ fromcurrent: true, frame: {{ duration: 700, redraw: true }},
                            transition: {{ duration: 400, easing: 'cubic-in-out' }} }}] }},
-        {{ label: '⏸ Pause', method: 'animate',
+        {{ label: 'Pause', method: 'animate',
            args: [[null], {{ mode: 'immediate', frame: {{ duration: 0 }}, transition: {{ duration: 0 }} }}] }},
       ]
     }}],
@@ -186,7 +186,7 @@ function switchLang(lang) {{
 
 // Free-text encoder: naive projection onto 9D manifold
 // Each word contributes a small delta proportional to its character hash.
-// This is intentionally lightweight — it shows trajectory shape, not semantics.
+// This is intentionally lightweight and shows trajectory shape.
 function hashWord(w) {{
   let h = 0;
   for (let c of w) h = (Math.imul(31, h) + c.charCodeAt(0)) | 0;
