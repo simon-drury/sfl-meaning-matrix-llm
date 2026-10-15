@@ -220,21 +220,21 @@ recuperación en la realización.
 
 | Componente | Archivo | Estado |
 |---|---|---|
-| Analizador semántico (motor de matrices) | `sfl_matrix_engine.py` | ✅ Operativo |
-| Geometría del manifold | `sfl_manifold.py` | ✅ Operativo |
-| Capa de atención LSF | `sfl_attention.py` | ✅ Operativo |
-| Realización léxica (EN/ES/PT/IT/ZH) | `sfl_realize.py` | ✅ Operativo |
-| Visualización de trayectorias | `sfl_visualise.py` | ✅ Operativo |
-| Wrapper API FastAPI | `api.py` | ✅ Operativo |
-| Boceto adaptador LoRA (Colab) | `wadapt_lora_training_sketch.ipynb` | ✅ Ejecutable en Colab |
+| Analizador semántico (motor de matrices) | `sfl_matrix_engine.py` | Operativo |
+| Geometría del manifold | `sfl_manifold.py` | Operativo |
+| Capa de atención LSF | `sfl_attention.py` | Operativo |
+| Realización léxica (EN/ES/PT/IT/ZH) | `sfl_realize.py` | Operativo |
+| Visualización de trayectorias | `sfl_visualise.py` | Operativo |
+| Wrapper API FastAPI | `api.py` | Operativo |
+| Boceto adaptador LoRA (Colab) | `wadapt_lora_training_sketch.ipynb` | Ejecutable en Colab |
 
 **Fase 2 — integración con el transformer: arquitectura especificada, implementación en curso.**
 
 | Componente | Archivo | Estado | Requiere |
 |---|---|---|---|
-| Proyección adaptadora W_adapt | `sfl_adapter.py` | 🔧 Integración pendiente | Instalación local de GPT4All |
-| Puente GPT4All | `sfl_gpt4all.py` | 🔧 Integración pendiente | Instalación local de GPT4All + modelo (~4 GB) |
-| Entrenamiento LoRA Wadapt | `wadapt_lora_training_sketch.ipynb` | 🔧 Objetivos de entrenamiento pendientes | Estados ocultos de Llama-3.2 |
+| Proyección adaptadora W_adapt | `sfl_adapter.py` | Integración pendiente | Instalación local de GPT4All |
+| Puente GPT4All | `sfl_gpt4all.py` | Integración pendiente | Instalación local de GPT4All + modelo (~4 GB) |
+| Entrenamiento LoRA Wadapt | `wadapt_lora_training_sketch.ipynb` | Objetivos de entrenamiento pendientes | Estados ocultos de Llama-3.2 |
 
 Los componentes de la Fase 1 se ejecutan con `pip install -r requirements.txt`, en CPU y con menos de 50 MB en total.
 Los componentes de la Fase 2 requieren una instalación local de transformer y son objeto de investigación en curso.
