@@ -2,7 +2,7 @@
 
 Rows are ideational, interpersonal and textual metafunctions. Columns are
 field, tenor and mode register variables. The flattened 9D state preserves
-all cells; no fixed metafunction-register pairing is imposed.
+all cells.
 """
 from dataclasses import dataclass
 import torch
