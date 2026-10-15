@@ -47,14 +47,14 @@ Set `D_MODEL` in `sfl_gpt4all.py` to match your model.
 
 ---
 
-## Dry run (no model needed)
+## Dry run (adapter matrices only)
 
 ```bash
 python sfl_gpt4all.py
 ```
 
-Runs both pilot trajectories through the adapter matrices only.
-No GPT4All model required. Validates the pipeline shape.
+Runs both pilot trajectories through the adapter matrices alone,
+which validates the pipeline shape.
 
 ---
 
@@ -83,7 +83,7 @@ Training them is the next step:
 3. Train W_adapt to minimise || GPT4All_embed(label) - W_adapt @ M_t ||_2
 4. Train W_inv to minimise || M_t - W_inv @ GPT4All_embed(label) ||_2
 
-This is a simple linear regression on each side. No GPU required.
+This is a simple linear regression on each side, and runs on CPU.
 Once trained, W_adapt and W_inv are saved and loaded at runtime.
 
 ---
