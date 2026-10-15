@@ -53,7 +53,7 @@ La línea blanca punteada es la curvatura \(\kappa_t\): los picos marcan eventos
 **Perfiles Gaussianos** — cada una de las nueve dimensiones SFL se muestra como una
 distribución de probabilidad centrada en su valor de estado final.
 La dispersión (\(\sigma = 0.20\)) representa incertidumbre — un estado de significado
-es una región, no un punto.
+es una región.
 
 ---
 
