@@ -23,12 +23,10 @@ Vocabulary remains parked. This module operates entirely on meaning states.
 
 ## The dominant driver \(\phi_t\)
 
-Whereas standard transformer attention weights positions in a token sequence,
-this architecture identifies the **metafunctional source** of each meaning shift.
+This architecture identifies the **metafunctional source** of each meaning shift.
 At every step, the dimension with the largest absolute displacement is named.
 
-This is not available in token-based architectures. It is a direct consequence
-of operating on a semantically labelled manifold rather than a lexical embedding space.
+It is a direct consequence of operating on a semantically labelled manifold.
 
 ---
 
@@ -39,8 +37,7 @@ of operating on a semantically labelled manifold rather than a lexical embedding
 \left( \lambda_1 \|\delta_t\|^2 + \lambda_2\,\kappa_t^2 \right)
 \]
 
-Whereas standard language model training minimises cross-entropy over token predictions,
-this architecture minimises **geometric incoherence along a meaning path**.
+This architecture minimises **geometric incoherence along a meaning path**.
 The loss penalises large displacements and sharp turns — both indicate
 a trajectory that is semantically strained.
 
@@ -88,7 +85,6 @@ to personal voice — the evaluative and affective moment of the prompt.
 ## Scalability note
 
 `compute_manifold()` is a pure function over a `MeaningTrajectory`.
-No side effects, no model calls, no I/O.
 Horizontally scalable at all three deployment tiers.
 
 ---
