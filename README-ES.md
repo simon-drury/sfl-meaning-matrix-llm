@@ -3,18 +3,16 @@
 > **el lenguaje como semiótica social — halliday 1978**
 
 Una arquitectura de investigación que fundamenta los modelos de lenguaje basados en transformers
-en la Lingüística Sistémico-Funcional (LSF). En lugar de predecir el siguiente token
-directamente, el sistema calcula una trayectoria a través de un *manifold semiótico*
-de nueve dimensiones (una matriz 3x3) — y luego realiza esa trayectoria como salida léxica
-de forma independiente en cada lengua de destino.
+en la Lingüística Sistémico-Funcional (LSF). El sistema calcula una trayectoria a través de un
+*manifold semiótico* de nueve dimensiones (una matriz 3x3) — y luego realiza esa trayectoria
+como salida léxica de forma independiente en cada lengua de destino.
 
-El español y el inglés son lenguas primeras co-iguales. No existe ningún paso de traducción.
+El español y el inglés son lenguas primeras co-iguales. Cada lengua realiza el significado directamente.
 
 ---
 
 ## La tesis central
 
-Los LLM actuales mapean forma a forma: secuencia de tokens de entrada, secuencia de tokens de salida.
 Esta arquitectura mapea forma → significado → forma:
 
 ```
@@ -151,7 +149,7 @@ El mismo M_out presentado de forma independiente a V_EN y V_ES:
 Estado final EN (please thank you):
   mejor coincidencia EN : thank you
   mejor coincidencia ES : gracias
-  (mismo M_out, distinto V_L -- sin traducción)
+  (mismo M_out, distinto V_L)
 ```
 
 El estado de significado codifica *gratitud + cierre interpersonal*.
@@ -163,7 +161,7 @@ Cada vocabulario lo realiza en su propia lengua desde el mismo punto geométrico
 
 El sistema es deliberadamente agnóstico en esta cuestión en la fase actual.
 Un estado de significado se modela como una región gaussiana en el manifold
-(sigma = 0,20 en el piloto), no como un punto. Esto implica:
+(sigma = 0,20 en el piloto). Esto implica:
 
 - Los desplazamientos pequeños (delta_t < 0,3) se tratan como movimiento dentro de la región
 - Los desplazamientos grandes señalan eventos semánticos genuinos
@@ -238,7 +236,7 @@ recuperación en la realización.
 | Puente GPT4All | `sfl_gpt4all.py` | 🔧 Integración pendiente | Instalación local de GPT4All + modelo (~4 GB) |
 | Entrenamiento LoRA Wadapt | `wadapt_lora_training_sketch.ipynb` | 🔧 Objetivos de entrenamiento pendientes | Estados ocultos de Llama-3.2 |
 
-Los componentes de la Fase 1 se ejecutan con `pip install -r requirements.txt` — sin GPU, sin descarga de modelos, menos de 50 MB en total.
+Los componentes de la Fase 1 se ejecutan con `pip install -r requirements.txt`, en CPU y con menos de 50 MB en total.
 Los componentes de la Fase 2 requieren una instalación local de transformer y son objeto de investigación en curso.
 
 ---
@@ -259,7 +257,7 @@ las nueve dimensiones del manifold.
 
 Todos los READMEs de módulo se mantienen en paralelo:
 inglés (`README-{módulo}.md`) y español (`README-{módulo}-ES.md`).
-Ambos son primarios. Ninguno es una traducción del otro.
+Ambos son primarios y se redactan de forma independiente.
 
 
 ---
