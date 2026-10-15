@@ -6,7 +6,7 @@ Conecta el motor del manifold semiótico con el modelo transformer.
 Toma el vector de significado de 9 dimensiones producido por
 `sfl_manifold.py` y lo proyecta en el espacio de embedding de un transformer
 local, de modo que la maquinaria de atención del transformer pueda operar
-sobre estados de significado en lugar de embeddings de tokens.
+sobre estados de significado.
 
 ---
 
