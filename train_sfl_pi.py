@@ -181,7 +181,7 @@ def write_report(path, manifest, metrics, inspections):
         "",
         f"- `{len(inspections)}` real trajectories were inspected; their source JSONL lines are recorded in `trajectory_inspection.json`.",
         "- Each inspection contains observed states, teacher-forced next-state predictions, autoregressive rollouts, coordinate-level MSE, step-level rollout MSE, and coordinate ranges.",
-        "- Read the recorded trajectories before selecting the next architectural intervention; do not treat this report as a pass/fail result.",
+        "- Read the recorded trajectories before selecting the next architectural intervention.",
     ]
     path.write_text("\n".join(lines) + "\n")
 
