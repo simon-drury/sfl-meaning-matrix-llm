@@ -1,10 +1,9 @@
 # api.py -- SFL Meaning Matrix: FastAPI Wrapper
 
-## The transformer is modality-blind
+## Modality at the edges
 
 The API enforces the core architectural principle:
 the transformer operates on meaning states in M.
-It has no knowledge of input or output modality.
 Modality is handled at the edges -- by the parser (input)
 and the realizer (output).
 
@@ -94,7 +93,7 @@ curl -X POST http://127.0.0.1:8000/pipeline \
 
 ---
 
-## Cross-language: same M_out, two modalities
+## Cross-language: same M_out, two realizations
 
 ```bash
 # EN realization
@@ -108,8 +107,7 @@ curl -X POST http://127.0.0.1:8000/realize \
 # -> "gracias"
 ```
 
-No translation. Two independent lookups in two vocabulary spaces.
-The transformer never knew which language was involved.
+Two independent lookups in two vocabulary spaces, both from the same M_out.
 
 ---
 
@@ -120,19 +118,15 @@ Register a new realizer in `api.py`:
 ```python
 # In _register_text_realizers() or a new _register_audio_realizers():
 REALIZERS["audio:EN"] = AudioRealizerEN()   # your class, same .nearest() interface
-REALIZERS["visual"]   = VisualRealizer()    # no lang needed for some modalities
+REALIZERS["visual"]   = VisualRealizer()    # lang optional for some modalities
 ```
 
 The `/realize` and `/pipeline` endpoints work immediately.
-The transformer does not change.
+The transformer is reused as is.
 
 ---
 
-## What this is not
+## Pilot scope
 
-- No authentication
-- No persistent storage
-- No batching or streaming
-- Pilot vocabulary only (hand-encoded fingerprints)
-
-All of those are Tier 2.
+- Pilot vocabulary of hand-encoded fingerprints
+- Authentication, persistent storage, batching and streaming are Tier 2
