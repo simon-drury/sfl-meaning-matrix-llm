@@ -8,15 +8,13 @@ The SFL Meaning Matrix model remains the project core.
 
 This branch evaluates KPML/Nigel as one possible realisation adapter: a route for mapping a core meaning state into grammatical language.
 
-KPML/Nigel is not adopted as the project's sole or permanent output layer.
-
 ## Architectural rule
 
 The core should expose a stable, realiser-neutral meaning-state interface. Each external grammar, corpus method, decoder, or retrieval system receives its own adapter.
 
 ## Consequence
 
-A KPML/Nigel result is evidence about one adapter path. It does not commit the project to KPML, prevent comparison with other SFL resources, or require changes to the trained core model.
+A KPML/Nigel result is evidence about one adapter path.
 
 ## Experiment sequence
 
@@ -28,4 +26,4 @@ A KPML/Nigel result is evidence about one adapter path. It does not commit the p
 
 ## Documentation rule
 
-Record decisions, sources, environments, inputs, outputs, limitations, and negative results in the repository rather than leaving them only in chat.
+Record decisions, sources, environments, inputs, outputs, limitations, and negative results in the repository.

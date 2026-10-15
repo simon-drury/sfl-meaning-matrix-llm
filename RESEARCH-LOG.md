@@ -73,8 +73,6 @@ The manifold has the geometry of the space already.
 A quantum system finds the shortest path through a labyrinth by having
 the geometry of all branches simultaneously. The semiotic manifold operates
 analogously.
-This is the competitive advantage in the Instagram animation: the model
-knows the geometry.
 
 ### Decision manifold protocol
 
