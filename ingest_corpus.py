@@ -37,14 +37,14 @@ class SubroutineSFLExtractor:
 
     def extract_matrix(self, sentence: str) -> np.ndarray:
         m = np.zeros((3, 3), dtype=np.float32)
-        tokens = [re.sub(r'[^\w\s]', '', w.lower()) for w in sentence.split() if w.strip()]
-        if not tokens:
+        words = [re.sub(r'[^\w\s]', '', w.lower()) for w in sentence.split() if w.strip()]
+        if not words:
             return m
 
         # 1. Ideational Row [0, :] -> (Field, Tenor, Mode)
-        is_material = any(t in self.material_verbs for t in tokens)
-        is_mental = any(t in self.mental_verbs for t in tokens)
-        is_relational = any(t in self.relational_verbs for t in tokens)
+        is_material = any(word in self.material_verbs for word in words)
+        is_mental = any(word in self.mental_verbs for word in words)
+        is_relational = any(word in self.relational_verbs for word in words)
         
         if is_material:
             m[0, 0] = 0.80
@@ -55,19 +55,19 @@ class SubroutineSFLExtractor:
         else:
             m[0, 0] = 0.25
         
-        m[0, 1] = float(np.clip(len(tokens) / 30.0, 0.1, 0.7))
+        m[0, 1] = float(np.clip(len(words) / 30.0, 0.1, 0.7))
         m[0, 2] = 0.50
 
         # 2. Interpersonal Row [1, :] -> (Field, Tenor, Mode)
-        if any(t in self.polite_modals for t in tokens):
+        if any(word in self.polite_modals for word in words):
             m[1, 0] = 0.30
             m[1, 1] = 0.65
             m[1, 2] = 0.40
-        elif any(t in self.authoritative_modals for t in tokens):
+        elif any(word in self.authoritative_modals for word in words):
             m[1, 0] = 0.85
             m[1, 1] = 0.90
             m[1, 2] = 0.70
-        elif tokens[0] in self.imperative_triggers:
+        elif words[0] in self.imperative_triggers:
             m[1, 0] = 0.20
             m[1, 1] = -0.50
             m[1, 2] = -0.30
@@ -77,12 +77,12 @@ class SubroutineSFLExtractor:
             m[1, 2] = 0.10
 
         # 3. Textual Row [2, :] -> (Field, Tenor, Mode)
-        first_tok = tokens[0]
-        if first_tok in {"when", "if", "after", "in", "on", "before", "while"}:
+        first_word = words[0]
+        if first_word in {"when", "if", "after", "in", "on", "before", "while"}:
             m[2, 0] = 0.60
             m[2, 1] = 0.40
             m[2, 2] = 0.85
-        elif first_tok in {"the", "this", "a", "an", "it"}:
+        elif first_word in {"the", "this", "a", "an", "it"}:
             m[2, 0] = 0.40
             m[2, 1] = 0.20
             m[2, 2] = 0.45
