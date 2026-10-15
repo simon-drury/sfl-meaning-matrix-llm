@@ -4,7 +4,7 @@
 
 This sandbox investigates one bounded question: can a meaning state produced by the SFL Meaning Matrix system be mapped into the semantic input required by KPML/Nigel, so that Nigel can realise it as English?
 
-The sandbox does not modify the model or replace its existing realisation path. Its first task is to establish KPML/Nigel's own input contract through a native example.
+Its first task is to establish KPML/Nigel's own input contract through a native example.
 
 ## Academic anchors
 
@@ -25,7 +25,7 @@ A runnable KPML/Nigel example will be recorded here before any mapping from the 
 
 ## Provisional field inventory
 
-The mapping exercise will establish, from the native example rather than assumption, which semantic fields KPML/Nigel requires. Likely areas to inspect include:
+The mapping exercise will establish, from the native example, which semantic fields KPML/Nigel requires. Likely areas to inspect include:
 
 - Process type
 - Participants and semantic roles
