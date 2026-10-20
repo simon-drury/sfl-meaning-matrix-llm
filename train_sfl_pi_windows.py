@@ -9,6 +9,13 @@ Writes: run_manifest.json, metrics.json, heldout_evaluation.json,
 run_report.md and sfl_pi_windows.pt to the output directory.
 
 Run: python train_sfl_pi_windows.py
+
+Coordinate order: metafunction-major rows (ideational, interpersonal,
+textual; columns field, tenor, mode). The register-major layout is the
+alternative configuration; see the research note on configuration choice.
+RESEARCH-LOG.md, entries 2026-10-20, holds the versioning and debug
+report, the coordinate order contract and the configuration research
+note.
 """
 import argparse
 import json

@@ -6,6 +6,13 @@ zero-delta steps, and the no-change baseline MSE that any trained model
 must beat.
 
 Run: python data_audit.py [--data data/empirical_trajectories.jsonl]
+
+Coordinate order: metafunction-major rows (ideational, interpersonal,
+textual; columns field, tenor, mode). The register-major layout is the
+alternative configuration; see the research note on configuration choice.
+RESEARCH-LOG.md, entries 2026-10-20, holds the versioning and debug
+report, the coordinate order contract and the configuration research
+note.
 """
 import argparse
 import json
