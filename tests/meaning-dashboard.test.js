@@ -111,6 +111,18 @@ test('setter sanitizes, clamps, normalizes, and uses the initial zero-vector fal
 
 test('slider edits preserve the dragged coordinate, redistribute mass, and handle one-hot states', () => {
   const dashboard = createDashboard();
+  for (let index = 0; index < 9; index += 1) {
+    const oneHotInput = Array(9).fill(0);
+    oneHotInput[index] = 1;
+    const oneHot = dashboard.window.setMeaningState(oneHotInput);
+    assert.deepEqual(Array.from(oneHot), oneHotInput);
+
+    oneHotInput[index] = 0;
+    const redistributed = dashboard.window.setMeaningState(oneHotInput, index);
+    assert.equal(redistributed[index], 0);
+    assertState(redistributed);
+  }
+
   dashboard.sliders[4].value = '0.73';
   dashboard.sliders[4].dispatch('input');
   let state = dashboard.sliders.map(slider => Number(slider.value));

@@ -539,9 +539,13 @@ svg text { stroke: none; paint-order: fill; }
           : INITIAL_STATE[index];
       });
 
-      if (!sanitized.some(value => value > 0)) return [...INITIAL_STATE];
+      const hasPreservedCoordinate =
+        Number.isInteger(preserveIndex) && preserveIndex >= 0 && preserveIndex < 9;
+      if (!sanitized.some(value => value > 0) && !hasPreservedCoordinate) {
+        return [...INITIAL_STATE];
+      }
 
-      if (!Number.isInteger(preserveIndex) || preserveIndex < 0 || preserveIndex >= 9) {
+      if (!hasPreservedCoordinate) {
         const sum = sanitized.reduce((total, value) => total + value, 0);
         const normalized = sanitized.map(value => value / sum);
         const correction = 1 - normalized.reduce((total, value) => total + value, 0);
