@@ -1,7 +1,6 @@
 const assert = require('node:assert/strict');
 const { execFileSync, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
-const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
@@ -184,7 +183,7 @@ test('randomized setter and slider sequences preserve the invariant and every re
 
 test('dashboard interactions and rendering work in headless Chromium', { skip: !findChromium() }, () => {
   const chromium = findChromium();
-  const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'meaning-dashboard-'));
+  const temporaryDirectory = fs.mkdtempSync('/tmp/meaning-dashboard-');
   const harnessPath = path.join(temporaryDirectory, 'browser-test.html');
   const pageUrl = `file://${pagePath}`;
   fs.writeFileSync(harnessPath, `<!doctype html>
