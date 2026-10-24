@@ -440,11 +440,6 @@ svg text { stroke: none; paint-order: fill; }
           <output id="total-potential" class="val lumi-display-s" aria-live="polite">1.0000</output>
         </div>
         <div class="controls-top">
-          <label class="lumi-switch lumi-switch--small">
-            <input type="checkbox" id="auto-norm-toggle">
-            <span class="lumi-switch__track"></span>
-            <span class="lumi-body-s">Auto-normalize</span>
-          </label>
           <button type="button" class="lumi-btn lumi-btn--tonal lumi-btn--small" id="btn-normalize">Normalize State</button>
           <button type="button" class="lumi-btn lumi-btn--tonal lumi-btn--small" id="btn-reset">Reset Initial</button>
         </div>
@@ -518,7 +513,6 @@ svg text { stroke: none; paint-order: fill; }
     // Initial values recovered from commit b84887686e72a161fd4bae326c82cd68f7910348.
     const INITIAL_STATE = [0.25, 0.10, 0.05, 0.15, 0.20, 0.05, 0.05, 0.05, 0.10];
     let matrixValues = [...INITIAL_STATE];
-    let autoNormalize = false;
 
     function renderMatrixValues() {
       const sum = matrixValues.reduce((total, value) => total + value, 0);
@@ -536,35 +530,79 @@ svg text { stroke: none; paint-order: fill; }
       });
     }
 
-    function setMatrixValues(newVals, normalize = autoNormalize) {
-      matrixValues = Array.from({ length: 9 }, (_, i) => Math.min(1, Math.max(0, newVals[i])));
-      if (normalize) {
-        const sum = matrixValues.reduce((total, value) => total + value, 0);
-        if (sum > 0) matrixValues = matrixValues.map(value => value / sum);
+    function normalizedValues(values, preserveIndex = null) {
+      const input = Array.isArray(values) || ArrayBuffer.isView(values) ? values : [];
+      const sanitized = Array.from({ length: 9 }, (_, index) => {
+        const value = input[index];
+        return typeof value === 'number' && Number.isFinite(value)
+          ? Math.min(1, Math.max(0, value))
+          : INITIAL_STATE[index];
+      });
+
+      if (!sanitized.some(value => value > 0)) return [...INITIAL_STATE];
+
+      if (!Number.isInteger(preserveIndex) || preserveIndex < 0 || preserveIndex >= 9) {
+        const sum = sanitized.reduce((total, value) => total + value, 0);
+        const normalized = sanitized.map(value => value / sum);
+        const correction = 1 - normalized.reduce((total, value) => total + value, 0);
+        const correctionIndex = normalized.findIndex(value =>
+          value + correction >= 0 && value + correction <= 1
+        );
+        if (correctionIndex !== -1) {
+          normalized[correctionIndex] += correction;
+        }
+        return normalized;
       }
-      renderMatrixValues();
+
+      const remaining = 1 - sanitized[preserveIndex];
+      const otherIndices = sanitized.map((_, index) => index).filter(index => index !== preserveIndex);
+      let weights = sanitized;
+      let weightTotal = otherIndices.reduce((total, index) => total + weights[index], 0);
+      if (weightTotal === 0) {
+        weights = INITIAL_STATE;
+        weightTotal = otherIndices.reduce((total, index) => total + weights[index], 0);
+      }
+
+      const normalized = Array(9).fill(0);
+      normalized[preserveIndex] = sanitized[preserveIndex];
+      otherIndices.forEach(index => {
+        normalized[index] = remaining * weights[index] / weightTotal;
+      });
+      const correction = 1 - normalized.reduce((total, value) => total + value, 0);
+      const correctionIndex = otherIndices.find(index =>
+        normalized[index] + correction >= 0 && normalized[index] + correction <= 1
+      );
+      if (correctionIndex !== undefined) {
+        normalized[correctionIndex] += correction;
+      }
+      return normalized;
     }
+
+    // Accepts a row-major array of nine finite numbers; missing or invalid entries
+    // use their INITIAL_STATE coordinate. Values are clamped to [0, 1] and always
+    // normalized. An all-zero vector falls back to INITIAL_STATE. An optional
+    // preserveIndex keeps that slider coordinate fixed and redistributes the rest.
+    function setMatrixValues(newVals, preserveIndex = null) {
+      matrixValues = normalizedValues(newVals, preserveIndex);
+      renderMatrixValues();
+      return [...matrixValues];
+    }
+    window.setMeaningState = setMatrixValues;
 
     document.querySelectorAll('.lumi-slider').forEach((slider, index) => {
       slider.addEventListener('input', event => {
         const values = [...matrixValues];
         values[index] = Number(event.target.value);
-        setMatrixValues(values);
+        setMatrixValues(values, index);
       });
     });
 
     document.getElementById('btn-normalize').addEventListener('click', () => {
-      const sum = matrixValues.reduce((total, value) => total + value, 0);
-      if (sum > 0) setMatrixValues(matrixValues.map(value => value / sum), false);
+      setMatrixValues(matrixValues);
     });
 
     document.getElementById('btn-reset').addEventListener('click', () => {
-      setMatrixValues(INITIAL_STATE, false);
-    });
-
-    document.getElementById('auto-norm-toggle').addEventListener('change', event => {
-      autoNormalize = event.target.checked;
-      if (autoNormalize) setMatrixValues(matrixValues);
+      setMatrixValues(INITIAL_STATE);
     });
 
     renderMatrixValues();
