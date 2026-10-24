@@ -8,7 +8,7 @@ const vm = require('node:vm');
 const repository = path.resolve(__dirname, '..');
 const pagePath = path.join(repository, 'index.html');
 const html = fs.readFileSync(pagePath, 'utf8');
-const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const script = html.match(/<script>([\s\S]*?)<\/script>/i)[1];
 const initial = [0.25, 0.10, 0.05, 0.15, 0.20, 0.05, 0.05, 0.05, 0.10];
 
 function createDashboard() {
